@@ -1,4 +1,6 @@
-# Verdikto on next.js
+# Covidhack
+
+### This is copied over from verdikto-next repository
 
 ## Cheatsheet
 

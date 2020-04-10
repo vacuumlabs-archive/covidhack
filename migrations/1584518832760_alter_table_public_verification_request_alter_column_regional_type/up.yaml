@@ -1,6 +1,0 @@
-- args:
-    cascade: false
-    read_only: false
-    sql: alter table "public"."verification_request" rename column "regional_type"
-      to "regional_validity";
-  type: run_sql

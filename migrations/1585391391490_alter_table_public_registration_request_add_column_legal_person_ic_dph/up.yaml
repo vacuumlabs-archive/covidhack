@@ -1,6 +1,0 @@
-- args:
-    cascade: false
-    read_only: false
-    sql: ALTER TABLE "public"."registration_request" ADD COLUMN "legal_person_ic_dph"
-      text NULL;
-  type: run_sql

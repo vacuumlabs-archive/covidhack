@@ -66,18 +66,20 @@ const SuccessRegistration = (
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const registration = await client.RegistrationRequestSuccessQuery({
-    id: context.params.id,
-  })
+  if (context.req.headers.authorization !== 'topkek') {
+    context.res.statusCode = 401
+    context.res.setHeader('WWW-Authenticate', 'Basic')
+    context.res.end('Unauthorized')
+    return
+  }
 
-  const verification = await client.VerificationRequestCategoryQuery({
-    id: registration.registration_request_by_pk.verification_request_id,
+  const grid = await client.GridQuery({
+    id: context.params.id,
   })
 
   return {
     props: {
-      ...registration.registration_request_by_pk,
-      ...verification.verification_request_by_pk,
+      grid,
     },
   }
 }

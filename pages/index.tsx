@@ -1,24 +1,12 @@
+import {GetServerSideProps} from 'next'
 import React from 'react'
-import Banner from '../components/Banner'
-import CardList from '../components/CardList'
-import FAQList from '../components/FAQList'
-import Intro from '../components/Intro'
 import Layout from '../components/Layout'
-import StepList from '../components/StepList'
-import Testimonial from '../components/Testimonial'
-import CookieBanner from '../components/CookieBanner'
+import {allowAccessFor} from '../utils/auth'
 
 const Home = () => {
   return (
     <>
-      <Layout isLandingPage>
-        <Banner />
-        <Intro />
-        <CardList />
-        <StepList />
-        <Testimonial />
-        <FAQList />
-      </Layout>
+      <Layout isLandingPage>Hello!</Layout>
       {/* temporary */}
       {/*
       <div className="cookie-wrapper">
@@ -38,6 +26,16 @@ const Home = () => {
       `}</style>
     </>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  if (!allowAccessFor(context.req.headers.authorization, ['kancelaria', 'laboratorium'])) {
+    context.res.statusCode = 401
+    context.res.setHeader('WWW-Authenticate', 'Basic')
+    context.res.end('Unauthorized')
+    return {props: {}}
+  }
+  return {props: {}}
 }
 
 export default Home

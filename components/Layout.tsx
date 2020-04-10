@@ -1,7 +1,6 @@
 import Head from 'next/head'
 import React from 'react'
 import {pageMetaDefaults} from '../utils/constants'
-import Footer from './Footer'
 import Header from './Header'
 
 interface LayoutProps {
@@ -39,9 +38,8 @@ const Layout = (props: LayoutProps) => (
       <meta name="theme-color" content="#ffffff" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     </Head>
-    <Header isFormPage={props.isFormPage} />
+    <Header />
     {props.children}
-    <Footer isLandingPage={props.isLandingPage} />
     <style jsx global>{`
       body {
         margin: 0;
