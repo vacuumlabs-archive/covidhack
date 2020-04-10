@@ -1,0 +1,5 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."grid" DROP COLUMN "test_finished_date";
+  type: run_sql

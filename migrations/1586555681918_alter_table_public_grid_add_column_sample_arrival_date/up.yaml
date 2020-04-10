@@ -1,0 +1,6 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."grid" ADD COLUMN "sample_arrival_date" timestamptz
+      NOT NULL DEFAULT now();
+  type: run_sql

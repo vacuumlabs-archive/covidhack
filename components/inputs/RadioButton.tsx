@@ -1,4 +1,4 @@
-import { Field } from 'formik'
+import {Field} from 'formik'
 import React from 'react'
 
 const RadioButton = (props) => {

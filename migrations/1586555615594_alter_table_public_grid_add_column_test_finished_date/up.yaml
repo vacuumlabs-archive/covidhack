@@ -1,0 +1,6 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."grid" ADD COLUMN "test_finished_date" timestamptz NOT
+      NULL DEFAULT now();
+  type: run_sql
