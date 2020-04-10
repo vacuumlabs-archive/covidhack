@@ -1,16 +1,2 @@
 User-agent: *
-allow: /
-disallow: /admin/
-disallow: /registration-request/
-disallow: /success-registration/
-disallow: /success-verification
-disallow: /fonts
-disallow: /icons
-disallow: /images
-disallow: /categories.json
-disallow: /flexsearchCategories.json
-disallow: /browserconfig.xml
-disallow: /site.webmanifest
-
-
-Sitemap: http://tramatm.com/api/sitemap.xml
+Disallow: /
