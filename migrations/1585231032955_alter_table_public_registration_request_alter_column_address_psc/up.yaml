@@ -1,0 +1,6 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE ONLY "public"."registration_request" ALTER COLUMN "address_psc"
+      SET DEFAULT '''::text';
+  type: run_sql

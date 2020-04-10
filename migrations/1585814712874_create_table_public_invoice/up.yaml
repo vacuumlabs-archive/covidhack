@@ -1,0 +1,10 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: CREATE TABLE "public"."invoice"("id" integer NOT NULL, "year" integer NOT
+      NULL, "registration_request_id" uuid NOT NULL, PRIMARY KEY ("id","year") );
+  type: run_sql
+- args:
+    name: invoice
+    schema: public
+  type: add_existing_table_or_view

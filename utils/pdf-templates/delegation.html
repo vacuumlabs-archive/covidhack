@@ -1,0 +1,196 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+      body {
+        font-family: 'Avenir', Arial, Helvetica, sans-serif;
+        font-size: 10px;
+        font-weight: normal;
+        line-height: 14px;
+        margin: 0;
+        color: #000000;
+        padding: 40px 60px;
+      }
+      @font-face {
+        font-family: 'Avenir';
+        src: url('https://tramatm.com/fonts/Avenir-Heavy-05.ttf') format('truetype');
+        font-weight: 800;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'Avenir';
+        src: url('https://tramatm.com/fonts/Avenir-Roman-12.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+      .header {
+        margin-bottom: 24px;
+      }
+      .logo {
+        width: 72px;
+        height: 15.5px;
+      }
+      .title {
+        text-transform: uppercase;
+        font-weight: 800;
+        font-size: 16px;
+        line-height: 28px;
+        letter-spacing: 0.04em;
+        text-align: center;
+        margin: 0;
+      }
+      .wrapper {
+        display: flex;
+        display: -webkit-box;
+        display: -webkit-flex;
+      }
+      .info-wrapper {
+        margin-left: 32px;
+      }
+      span {
+        display: block;
+      }
+      .wrapper-title {
+        margin: 24px 0;
+      }
+      .content-title {
+        display: block;
+        margin: 24px 0 16px;
+      }
+      .content p {
+        text-align: justify;
+      }
+      .content p + p {
+        margin-top: 16px;
+        margin-bottom: 0;
+      }
+      .content p:last-child {
+        margin-top: 32px;
+      }
+      .signature-wrapper {
+        position: relative;
+        top: 10px;
+        margin-left: 32px;
+      }
+      .short-line {
+        content: '';
+        position: relative;
+        display: inline-block;
+        height: 1px;
+        width: 90px;
+        background-color: #000;
+      }
+      .line {
+        content: '';
+        position: relative;
+        height: 1px;
+        width: 160px;
+        background-color: #000;
+        margin-bottom: 4px;
+      }
+      footer {
+        position: fixed;
+        left: 60px;
+        right: 60px;
+        bottom: 40px;
+        margin-top: 40px;
+      }
+      .page-break {
+        page-break-after: always;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <img class="logo" src="https://tramatm.com/images/logo.svg" />
+      <h1 class="title">Plnomocenstvo</h1>
+    </header>
+    <main>
+      <div class="wrapper">
+        <span><strong>Splnomocniteľ:</strong></span>
+        <div class="info-wrapper">
+          {{#ifIsBusiness applicant_person_type}}
+          <span><strong>{{legal_person_bussiness_name}}</strong></span>
+          <span>{{address_street}} {{address_number}}, {{address_psc}} {{address_city}}</span>
+          <span>IČO: {{legal_person_ico}}</span>
+          <span>
+            za ktorú koná: {{legal_person_official_first_name}} {{legal_person_official_last_name}}
+            - {{legal_person_official_function}}, {{contact_email}}
+          </span>
+          {{else}}
+          <span><strong>{{physical_person_first_name}} {{physical_person_last_name}}</strong></span>
+          <span>{{address_street}} {{address_number}}, {{address_psc}} {{address_city}}</span>
+          <span>{{physical_person_identification_number}}</span>
+          <span>{{contact_email}}</span>
+          {{/ifIsBusiness}}
+        </div>
+      </div>
+      <div>
+        <span class="wrapper-title"><strong>týmto splnomocňujem splnomocnenca:</strong></span>
+        <div class="info-wrapper" style="margin-left: 106px;">
+          <span><strong>Law & Tech s.r.o., advokátska kancelária</strong></span>
+          <span>so sídlom Rooseveltova 809/22, 040 01 Košice</span>
+          <span>IČO: 53 004 621</span>
+          <span>za ktorú koná: JUDr. Marián Porvažník – konateľ a advokát</span>
+        </div>
+      </div>
+      <div class="content">
+        <span class="content-title"><strong>Splnomocňujem ho:</strong></span>
+        <p>
+          <strong>
+            aby ma zastupoval a vykonával všetky právne úkony potrebné pre zápis ochrannej známky
+            Splnomocniteľa do registra ochranných známok pred Úradom priemyselného vlastníctva SR a
+            ČR, resp. Úradom Európskej únie pre duševné vlastníctvo alebo Svetovou organizáciou
+            duševného vlastníctva, najmä (nie však výlučne) ho splnomocňujem na podanie žiadosti o
+            zápis ochrannej známky a všetky právne úkony v konaní o zápise ochrannej známky.
+          </strong>
+        </p>
+        <p>
+          Súhlasím, aby si splnomocnený advokát ustanovil za seba zástupcu, ktorým môže byť aj
+          advokátsky koncipient. Som si vedomý, že splnomocnený advokát má popri nároku na odmenu
+          tiež nárok na náhradu hotových výdavkov účelne vynaložených v súvislosti s poskytovaním
+          právnych služieb, najmä na správne poplatky.
+        </p>
+        <p>
+          Taktiež vyhlasujem, že ma splnomocnenec poučil o všetkých mojich právach a povinnostiach
+          vyplývajúcich z charakteru poskytovaných právnych služieb, zákona o advokácii, ako aj
+          vyhlášky o odmenách a náhradách advokátov za poskytovanie právnych služieb, najmä
+          vyhlasujem, že ma poučil o výške odmeny za úkony právnej služby.
+        </p>
+        <p>V <span class="short-line"></span>, dňa <span class="short-line"></span></p>
+      </div>
+      <div class="wrapper" style="margin-top: 46px;">
+        <span><strong>Splnomocniteľ:</strong></span>
+        <div class="signature-wrapper">
+          <span class="line"></span>
+          {{#ifIsBusiness applicant_person_type}}
+          <span>{{legal_person_bussiness_name}}</span>
+          <span>
+            {{legal_person_official_last_name}} {{legal_person_official_first_name}} -
+            {{legal_person_official_function}}
+          </span>
+          {{else}}
+          <span>{{physical_person_first_name}} {{physical_person_last_name}}</span>
+          {{/ifIsBusiness}}
+        </div>
+      </div>
+      <div class="wrapper" style="margin-top: 32px; display: inline-block; width: 100%;">
+        <span style="display: inline-block;"><strong>Prijímam splnomocnenie:</strong></span>
+        <div class="signature-wrapper" style="float: right;">
+          <span class="line"></span>
+          <span><strong>Law & Tech s.r.o., advokátska kancelária</strong></span>
+          <span>JUDr. Marián Porvažník - konateľ a advokát</span>
+        </div>
+      </div>
+    </main>
+    <footer class="wrapper" style="display: inline-block;">
+      <span style="display: inline-block;"
+        ><strong>Kontakt: JUDr. Igor Demčák, advokát</strong></span
+      >
+      <div class="wrapper" style="float: right;">
+        <span><strong>hello@tramatm.com</strong></span>
+        <span style="margin-left: 17px;"><strong>+421 911 903 759</strong></span>
+      </div>
+    </footer>
+  </body>
+</html>

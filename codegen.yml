@@ -1,0 +1,11 @@
+schema:
+  - ${GQL_ENDPOINT}:
+      headers:
+        x-hasura-admin-secret: ${HASURA_ADMIN_SECRET}
+documents: 'graphql/**/*.graphql'
+generates:
+  utils/graphqlSdk.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request

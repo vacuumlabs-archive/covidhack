@@ -1,0 +1,11 @@
+{
+  "environments": {
+    "review": {
+      "env": {
+        "GQL_ENDPOINT": "https://verdikto-hasura-dev.herokuapp.com/v1/graphql",
+        "HASURA_ENDPOINT": "https://verdikto-hasura-dev.herokuapp.com",
+        "HASURA_ADMIN_SECRET": "YWRtaW46YWRtaW4="
+      }
+    }
+  }
+}

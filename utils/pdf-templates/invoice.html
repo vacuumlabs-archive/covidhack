@@ -1,0 +1,261 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+      body {
+        font-family: 'Avenir', Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        font-weight: normal;
+        line-height: normal;
+        margin: 0;
+        color: #000000;
+        padding: 40px 60px;
+      }
+      @font-face {
+        font-family: 'Avenir';
+        src: url('https://tramatm.com/fonts/Avenir-Heavy-05.ttf') format('truetype');
+        font-weight: 800;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'Avenir';
+        src: url('https://tramatm.com/fonts/Avenir-Roman-12.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+      .header {
+        margin-bottom: 32px;
+      }
+      .title {
+        display: inline;
+        font-weight: 800;
+        font-size: 18px;
+        line-height: 28px;
+        margin: 0;
+        position: relative;
+        top: 3px;
+      }
+      .logo {
+        display: flex;
+        width: 104px;
+        height: 22px;
+        float: right;
+      }
+      footer {
+        margin-top: 30px;
+      }
+      .invoice-data {
+        display: flex;
+        display: -webkit-box;
+        display: -webkit-flex;
+        margin-bottom: 30px;
+      }
+      .invoice-wrapper {
+        float: left;
+        width: 50%;
+      }
+      .right-wrapper {
+        text-align: right;
+      }
+      .margin-bottom {
+        margin-bottom: 12px;
+      }
+      .invoice-wrapper span {
+        display: block;
+        font-size: 11px;
+        line-height: 15px;
+      }
+      .invoice-wrapper .wrapper-title {
+        font-weight: 800;
+        font-size: 12px;
+        line-height: 16px;
+      }
+      .title-bank {
+        margin-top: 18px;
+      }
+      .table td,
+      .table th {
+        border: 2px solid #e7e7e7;
+      }
+      .table {
+        border-collapse: collapse;
+        width: 100%;
+        text-align: left;
+      }
+      .table + .table {
+        margin-top: 20px;
+      }
+      .table thead {
+        background-color: #e7e7e7;
+      }
+      .table thead tr th {
+        font-weight: 800;
+        font-size: 10px;
+        line-height: 16px;
+        padding: 4px 8px;
+      }
+      .table tbody tr td {
+        font-size: 10px;
+        line-height: 14px;
+        padding: 6px 8px;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .text-right {
+        text-align: right;
+      }
+      .table thead tr th.total-price {
+        padding: 4px 16px;
+      }
+      .signature-title,
+      .signature {
+        font-size: 11px;
+        line-height: 15px;
+      }
+      .signature {
+        float: right;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <h1 class="title">Faktúra - daňový doklad {{invoiceId}}</h1>
+      <img class="logo" src="https://tramatm.com/images/logo.svg" />
+    </header>
+    <main>
+      <div class="invoice-data">
+        <div class="invoice-wrapper">
+          <span class="wrapper-title margin-bottom">Odberateľ:</span>
+          {{#ifIsBusiness applicant_person_type}}
+          <div class="margin-bottom">
+            <span><strong>{{legal_person_bussiness_name}}</strong></span>
+            <span>{{address_street}} {{address_number}}</span>
+            <span>{{address_psc}} {{address_city}} </span>
+            <span>IČO: {{legal_person_ico}}</span>
+          </div>
+          <div class="margin-bottom">
+            {{#ifNotEmpty legal_person_dic}}
+            <span>DIČ: {{legal_person_dic}}</span>
+            {{/ifNotEmpty}}
+            {{#ifNotEmpty legal_person_ic_dph}}
+            <span>IČ DPH: {{legal_person_ic_dph}}</span>
+            {{/ifNotEmpty}}
+          </div>
+          {{else}}
+          <div class="margin-bottom">
+            <span>
+              <strong>{{physical_person_last_name}} {{physical_person_first_name}}</strong>
+            </span>
+            <span>{{address_street}} {{address_number}}</span>
+            <span>{{address_psc}} {{address_city}} </span>
+            <span>telefón: {{contact_phone}}</span>
+            <span>e-mail: {{contact_email}}</span>
+          </div>
+          {{/ifIsBusiness}}
+          <div class="margin-bottom">
+            <span>Dátum splatnosti: {{paymentDate}}</span>
+            <span>Dátum vystavenia: {{orderDate}}</span>
+            <span>Dátum dodania: {{orderDate}}</span>
+          </div>
+          <div>
+            <span><strong>Číslo faktúry: {{invoiceId}}</strong></span>
+            <span><strong>Variabilný symbol: {{invoiceId}}</strong></span>
+            <span><strong>Konštantný symbol: 0308</strong></span>
+          </div>
+        </div>
+        <div class="invoice-wrapper right-wrapper">
+          <span class="wrapper-title margin-bottom">Dodávateľ:</span>
+          <div class="margin-bottom">
+            <span><strong>Law & Tech s.r.o.</strong></span>
+            <span>advokátska kancelária</span>
+            <span>Rooseveltova 809/22</span>
+            <span>040 01 Košice</span>
+          </div>
+          <div class="margin-bottom">
+            <span>IČO: 53004621</span>
+            <!-- temporary -->
+            <!-- <span>DIČ: [doplnit]</span> -->
+          </div>
+          <span class="wrapper-title margin-bottom title-bank">Bankové spojenie:</span>
+          <span><strong>Tatra banka, a.s.</strong></span>
+          <span>IBAN: SK7411000000002945083393</span>
+          <span>SWIFT (BIC):TATRSKBX</span>
+        </div>
+      </div>
+
+      <table style="width: 100%;" class="table">
+        <thead>
+          <tr>
+            <th style="width: 44%">Položka</th>
+            <th style="width: 10%" class="text-center">Počet</th>
+            <th style="width: 19%" class="text-center">Základ dane</th>
+            <th style="width: 11%" class="text-center">Daň</th>
+            <th style="width: 16%" class="text-center">Celkom</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each lawyerServices}}
+          <tr>
+            <td>{{this.description}}</td>
+            <td class="text-center">{{this.qty}} ks</td>
+            <td class="text-center">{{this.basePriceExVat}} €</td>
+            <td class="text-center">{{this.basePriceVat}} €</td>
+            <td class="text-right">
+              <strong>{{this.price}} €</strong>
+            </td>
+          </tr>
+          {{/each}}
+          <tr>
+            <td>Law & Tech s.r.o. nie je platiteľom DPH</td>
+            <td colspan="4" class="text-right"></td>
+          </tr>
+
+          <tr>
+            <td>Odmena celkom</td>
+            <td colspan="4" class="text-right">
+              <strong>{{lawyerPrice}} €</strong>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table style="width: 100%;" class="table">
+        <thead>
+          <tr>
+            <th style="width: 44%">Hotové výdavky (bez DPH)</th>
+            <th style="width: 10%" class="text-center">Počet</th>
+            <th style="width: 19%" class="text-center">Základ dane</th>
+            <th style="width: 11%" class="text-center">Daň</th>
+            <th style="width: 16%" class="text-center">Celkom</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each fees}}
+          <tr>
+            <td>{{this.description}}</td>
+            <td class="text-center">{{this.qty}} ks</td>
+            <td class="text-center">{{this.basePriceExVat}} €</td>
+            <td class="text-center">{{this.basePriceVat}} €</td>
+            <td class="text-right">{{this.price}} €</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+
+      <table style="width: 100%;" class="table">
+        <thead>
+          <tr>
+            <th class="total-price">CELKOVÁ SUMA k úhrade:</th>
+            <th class="total-price text-right">{{totalPrice}} €</th>
+          </tr>
+        </thead>
+      </table>
+
+      <footer>
+        <span class="signature-title">Podpis dodávateľa:</span>
+        <span class="signature"><strong>JUDr. Marián Porvažník - konateľ</strong></span>
+      </footer>
+    </main>
+  </body>
+</html>

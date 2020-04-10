@@ -1,0 +1,12 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE ONLY "public"."registration_request" ALTER COLUMN "services"
+      DROP DEFAULT;
+  type: run_sql
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."registration_request" ALTER COLUMN "services" DROP
+      NOT NULL;
+  type: run_sql

@@ -1,0 +1,12 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."verification_request" ADD COLUMN "regional_validity"
+      text;
+  type: run_sql
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."verification_request" ALTER COLUMN "regional_validity"
+      DROP NOT NULL;
+  type: run_sql

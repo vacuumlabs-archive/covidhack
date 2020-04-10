@@ -1,0 +1,6 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."registration_request" ADD COLUMN "address_psc" text
+      NOT NULL DEFAULT '''';
+  type: run_sql

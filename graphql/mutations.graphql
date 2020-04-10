@@ -1,0 +1,43 @@
+mutation InsertRegistrationRequestMutation($objects: [registration_request_insert_input!]!) {
+  insert_registration_request(objects: $objects) {
+    returning {
+      id
+      contact_email
+    }
+  }
+}
+
+mutation InsertVerificationRequestMutation($objects: [verification_request_insert_input!]!) {
+  insert_verification_request(objects: $objects) {
+    returning {
+      id
+      email
+    }
+  }
+}
+
+mutation UpdateVerificationRequestStatusMutation($id: uuid!, $status: String!) {
+  update_verification_request(_set: {status: $status}, where: {id: {_eq: $id}}) {
+    returning {
+      status
+    }
+  }
+}
+
+mutation UpdateRegistrationRequestStatusMutation($id: uuid!, $status: String!) {
+  update_registration_request(_set: {status: $status}, where: {id: {_eq: $id}}) {
+    returning {
+      status
+    }
+  }
+}
+
+mutation InsertInvoiceMutation($id: Int!, $year: Int!, $registration_request_id: uuid!) {
+  insert_invoice(
+    objects: {id: $id, registration_request_id: $registration_request_id, year: $year}
+  ) {
+    returning {
+      id
+    }
+  }
+}

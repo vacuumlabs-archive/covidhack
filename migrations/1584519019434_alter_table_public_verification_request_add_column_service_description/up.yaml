@@ -1,0 +1,6 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."verification_request" ADD COLUMN "service_description"
+      text NOT NULL;
+  type: run_sql

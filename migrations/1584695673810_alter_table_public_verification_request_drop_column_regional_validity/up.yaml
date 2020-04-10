@@ -1,0 +1,6 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."verification_request" DROP COLUMN "regional_validity"
+      CASCADE;
+  type: run_sql

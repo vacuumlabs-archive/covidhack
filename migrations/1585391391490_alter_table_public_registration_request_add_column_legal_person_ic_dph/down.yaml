@@ -1,0 +1,5 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."registration_request" DROP COLUMN "legal_person_ic_dph";
+  type: run_sql
