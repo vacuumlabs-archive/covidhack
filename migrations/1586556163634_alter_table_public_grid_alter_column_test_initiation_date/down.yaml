@@ -1,0 +1,17 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."grid" ALTER COLUMN "test_initiation_date" TYPE timestamp
+      with time zone;
+  type: run_sql
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE ONLY "public"."grid" ALTER COLUMN "test_initiation_date" SET
+      DEFAULT now();
+  type: run_sql
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."grid" ALTER COLUMN "test_initiation_date" SET NOT NULL;
+  type: run_sql
