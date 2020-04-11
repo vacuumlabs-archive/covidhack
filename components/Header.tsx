@@ -9,6 +9,9 @@ const FormHeader = () => (
           <Link href="/">
             <a className="menu-link">Domov</a>
           </Link>
+          <Link href="/office">
+            <a className="menu-link">Kancelária</a>
+          </Link>
         </div>
       </div>
     </div>
@@ -45,13 +48,13 @@ const FormHeader = () => (
         display: flex;
         align-items: center;
         position: relative;
-        margin-left: 64px;
       }
       .menu-link {
         font-size: 16px;
         line-height: 28px;
         color: #000;
         text-decoration: none;
+        margin: 16px;
       }
       .menu-link:hover,
       .menu-link:focus {
