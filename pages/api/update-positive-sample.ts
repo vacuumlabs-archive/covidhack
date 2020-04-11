@@ -1,6 +1,7 @@
 // update single cell of the grid
 import {NextApiRequest, NextApiResponse} from 'next'
 import {allowAccessFor} from '../../utils/auth'
+import {updatePositiveSampleBodySchema} from '../../utils/validations'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (!allowAccessFor(req.headers.authorization, ['kancelaria', 'laboratorium'])) {
@@ -9,8 +10,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     res.end('Unauthorized')
   }
 
-  // TODO validate
-  const {id, sample_id, positive} = req.body
+  const validBody = updatePositiveSampleBodySchema.validateSync(req.body)
+
+  // continue here mutation
+
   // TODO
   res.status(201).end()
 }

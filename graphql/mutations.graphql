@@ -7,6 +7,15 @@ mutation UpdateGridMutation($id: uuid!, $grid: jsonb!) {
   }
 }
 
+mutation UpdateApplicationBySampleCodePositive($sample_code: String!, $positive: Boolean!) {
+  update_application(
+    where: {sample_code: {_eq: $sample_code}}
+    _set: {tested_positive: $positive}
+  ) {
+    affected_rows
+  }
+}
+
 mutation InsertGridMutation(
   $gridObjects: [grid_insert_input!]!
   $applicationsObjects: [application_insert_input!]!

@@ -4,6 +4,11 @@ import * as yup from 'yup'
 // in case anyone needed these..
 export type ApplicantType = 'physical' | 'legal' | 'physical-contractor'
 
+export const updatePositiveSampleBodySchema = yup
+  .object()
+  .shape({sample_code: yup.string().required(), positive: yup.boolean().required()})
+  .noUnknown()
+
 // TODO validate existence of control samples
 export const gridSchema = yup
   .array()

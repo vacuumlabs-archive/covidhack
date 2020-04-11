@@ -17,13 +17,13 @@ export type Scalars = {
 export type Application = {
    __typename?: 'application';
   id: Scalars['uuid'];
-  pacient_name: Scalars['String'];
-  personal_number: Scalars['String'];
+  pacient_name?: Maybe<Scalars['String']>;
+  personal_number?: Maybe<Scalars['String']>;
   referenced_in_grid_id?: Maybe<Scalars['uuid']>;
   sample_code: Scalars['String'];
   sample_collection_date?: Maybe<Scalars['timestamptz']>;
   sample_receive_date?: Maybe<Scalars['timestamptz']>;
-  sender: Scalars['String'];
+  sender?: Maybe<Scalars['String']>;
   tested_positive?: Maybe<Scalars['Boolean']>;
 };
 
@@ -666,6 +666,20 @@ export type UpdateGridMutationMutation = (
   )> }
 );
 
+export type UpdateApplicationBySampleCodePositiveMutationVariables = {
+  sample_code: Scalars['String'];
+  positive: Scalars['Boolean'];
+};
+
+
+export type UpdateApplicationBySampleCodePositiveMutation = (
+  { __typename?: 'mutation_root' }
+  & { update_application: Maybe<(
+    { __typename?: 'application_mutation_response' }
+    & Pick<Application_Mutation_Response, 'affected_rows'>
+  )> }
+);
+
 export type InsertGridMutationMutationVariables = {
   gridObjects: Array<Grid_Insert_Input>;
   applicationsObjects: Array<Application_Insert_Input>;
@@ -716,7 +730,7 @@ export type ApplicationsBySampleCodeQeryQuery = (
   { __typename?: 'query_root' }
   & { application: Array<(
     { __typename?: 'application' }
-    & Pick<Application, 'id'>
+    & Pick<Application, 'id' | 'tested_positive'>
   )> }
 );
 
@@ -728,6 +742,13 @@ export const UpdateGridMutationDocument = gql`
       id
       grid
     }
+  }
+}
+    `;
+export const UpdateApplicationBySampleCodePositiveDocument = gql`
+    mutation UpdateApplicationBySampleCodePositive($sample_code: String!, $positive: Boolean!) {
+  update_application(where: {sample_code: {_eq: $sample_code}}, _set: {tested_positive: $positive}) {
+    affected_rows
   }
 }
     `;
@@ -767,6 +788,7 @@ export const ApplicationsBySampleCodeQeryDocument = gql`
     query ApplicationsBySampleCodeQery($codes: [String!]!) {
   application(where: {sample_code: {_in: $codes}}) {
     id
+    tested_positive
   }
 }
     `;
@@ -774,6 +796,9 @@ export function getSdk(client: GraphQLClient) {
   return {
     UpdateGridMutation(variables: UpdateGridMutationMutationVariables): Promise<UpdateGridMutationMutation> {
       return client.request<UpdateGridMutationMutation>(print(UpdateGridMutationDocument), variables);
+    },
+    UpdateApplicationBySampleCodePositive(variables: UpdateApplicationBySampleCodePositiveMutationVariables): Promise<UpdateApplicationBySampleCodePositiveMutation> {
+      return client.request<UpdateApplicationBySampleCodePositiveMutation>(print(UpdateApplicationBySampleCodePositiveDocument), variables);
     },
     InsertGridMutation(variables: InsertGridMutationMutationVariables): Promise<InsertGridMutationMutation> {
       return client.request<InsertGridMutationMutation>(print(InsertGridMutationDocument), variables);
