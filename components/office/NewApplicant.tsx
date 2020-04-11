@@ -32,7 +32,7 @@ const NewApplicant = ({open, setOpen}: Props) => {
             sampleCollectionDate: '',
             sampleReceiveDate: '',
             sampleCode: '',
-            applicant: '',
+            sender: '',
           }}
           onSubmit={(values) => dispatch(createNewApplicant())}
           validationSchema={Yup.object({
@@ -41,17 +41,39 @@ const NewApplicant = ({open, setOpen}: Props) => {
             sampleCollectionDate: Yup.string().required('Toto pole nesmie byť prázdne'),
             sampleReceiveDate: Yup.string().required('Toto pole nesmie byť prázdne'),
             sampleCode: Yup.string().required('Toto pole nesmie byť prázdne'),
-            applicant: Yup.string().required('Toto pole nesmie byť prázdne'),
+            sender: Yup.string().required('Toto pole nesmie byť prázdne'),
           })}
         >
           {({values, handleChange, errors, touched}) => (
             <Form>
               <TextField
                 className={classes.formField}
+                name="sender"
+                value={values.sender}
+                onChange={handleChange}
+                label="Odosielateľ (meno, adresa, tel. číslo)"
+                fullWidth
+                error={touched.sender && !!errors.sender}
+                helperText={touched.sender && errors.sender}
+              />
+
+              <TextField
+                className={classes.formField}
+                name="sampleCode"
+                value={values.sampleCode}
+                onChange={handleChange}
+                label="Číslo vzorky"
+                fullWidth
+                error={touched.sampleCode && !!errors.sampleCode}
+                helperText={touched.sampleCode && errors.sampleCode}
+              />
+
+              <TextField
+                className={classes.formField}
                 name="pacient"
                 value={values.pacient}
                 onChange={handleChange}
-                label="Meno pacienta"
+                label="Priezvisko a meno pacienta"
                 fullWidth
                 error={touched.pacient && !!errors.pacient}
                 helperText={touched.pacient && errors.pacient}
@@ -88,28 +110,6 @@ const NewApplicant = ({open, setOpen}: Props) => {
                 fullWidth
                 error={touched.sampleReceiveDate && !!errors.sampleReceiveDate}
                 helperText={touched.sampleReceiveDate && errors.sampleReceiveDate}
-              />
-
-              <TextField
-                className={classes.formField}
-                name="sampleCode"
-                value={values.sampleCode}
-                onChange={handleChange}
-                label="Kód vzorky"
-                fullWidth
-                error={touched.sampleCode && !!errors.sampleCode}
-                helperText={touched.sampleCode && errors.sampleCode}
-              />
-
-              <TextField
-                className={classes.formField}
-                name="applicant"
-                value={values.applicant}
-                onChange={handleChange}
-                label="Meno žiadateľa"
-                fullWidth
-                error={touched.applicant && !!errors.applicant}
-                helperText={touched.applicant && errors.applicant}
               />
 
               <DialogActions style={{padding: '8px 0'}}>
