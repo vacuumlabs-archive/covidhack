@@ -1,4 +1,6 @@
+import DateFnsUtils from '@date-io/date-fns' // choose your lib
 import CssBaseline from '@material-ui/core/CssBaseline'
+import {MuiPickersUtilsProvider} from '@material-ui/pickers'
 import {AppProps} from 'next/app'
 import React from 'react'
 import {Provider as ReduxProvider} from 'react-redux'
@@ -15,10 +17,12 @@ function App({Component, pageProps}: AppProps) {
     }
   }
   return (
-    <ReduxProvider store={store}>
-      <CssBaseline />
-      <Component {...pageProps} />
-    </ReduxProvider>
+    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+      <ReduxProvider store={store}>
+        <CssBaseline />
+        <Component {...pageProps} />
+      </ReduxProvider>
+    </MuiPickersUtilsProvider>
   )
 }
 

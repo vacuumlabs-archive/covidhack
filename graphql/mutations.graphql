@@ -6,11 +6,11 @@ mutation InsertGridMutation($objects: [grid_insert_input!]!) {
   }
 }
 
-mutation UpdateGridMutation($id: uuid!, $json: jsonb!) {
-  update_grid(_set: {json: $json}, where: {id: {_eq: $id}}) {
+mutation UpdateGridMutation($id: uuid!, $grid: jsonb!) {
+  update_grid(_set: {grid: $grid}, where: {id: {_eq: $id}}) {
     returning {
       id
-      json
+      grid
     }
   }
 }
