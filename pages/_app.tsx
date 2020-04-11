@@ -1,5 +1,10 @@
+import CssBaseline from '@material-ui/core/CssBaseline'
 import {AppProps} from 'next/app'
 import React from 'react'
+import {Provider as ReduxProvider} from 'react-redux'
+import {configureStore} from '../logic/redux/configureStore'
+
+const store = configureStore()
 
 function App({Component, pageProps}: AppProps) {
   // redirect to https when running non-dev in browser
@@ -9,7 +14,12 @@ function App({Component, pageProps}: AppProps) {
       window.location.replace('https://' + httpTokens[1])
     }
   }
-  return <Component {...pageProps} />
+  return (
+    <ReduxProvider store={store}>
+      <CssBaseline />
+      <Component {...pageProps} />
+    </ReduxProvider>
+  )
 }
 
 export default App
