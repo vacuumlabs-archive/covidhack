@@ -1,9 +1,14 @@
 import {Button, Paper, Tab, Tabs} from '@material-ui/core'
 import WarningIcon from '@material-ui/icons/Warning'
 import React, {useState} from 'react'
+import {ApplicationsQueryQuery} from '../../utils/graphqlSdk'
 import NewApplicant from './NewApplicant'
 
-const Dashboard = () => {
+interface Props {
+  applications: ApplicationsQueryQuery
+}
+
+const Dashboard = ({applications}: Props) => {
   const [value, setValue] = React.useState(0)
   const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -26,7 +31,9 @@ const Dashboard = () => {
           <Tab label="Spracovaný" icon={<WarningIcon />} />
         </Tabs>
         <div style={{height: 'calc(100vh - 250px)'}}>
-          TODO: display tables depending on the selected tab
+          {applications.application.map((a) => (
+            <div key={a.id}>{JSON.stringify(a)}</div>
+          ))}
         </div>
       </Paper>
       <Button fullWidth color="primary" variant="contained" onClick={() => setDialogOpen(true)}>

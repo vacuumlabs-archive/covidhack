@@ -4,3 +4,15 @@ query GridQuery($id: uuid!) {
     json
   }
 }
+
+query ApplicationsQuery {
+  application {
+    id
+    pacient_name
+    personal_number
+    sample_code
+    sample_collection_date
+    sample_receive_date
+    sender
+  }
+}
