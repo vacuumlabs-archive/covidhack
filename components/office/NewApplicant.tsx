@@ -44,7 +44,7 @@ const NewApplicant = ({open, setOpen}: Props) => {
             applicant: Yup.string().required('Toto pole nesmie byť prázdne'),
           })}
         >
-          {({values, handleChange, errors}) => (
+          {({values, handleChange, errors, touched}) => (
             <Form>
               <TextField
                 className={classes.formField}
@@ -53,8 +53,8 @@ const NewApplicant = ({open, setOpen}: Props) => {
                 onChange={handleChange}
                 label="Meno pacienta"
                 fullWidth
-                error={!!errors.pacient}
-                helperText={errors.pacient}
+                error={touched.pacient && !!errors.pacient}
+                helperText={touched.pacient && errors.pacient}
               />
 
               <TextField
@@ -64,8 +64,8 @@ const NewApplicant = ({open, setOpen}: Props) => {
                 onChange={handleChange}
                 label="Rodné číslo"
                 fullWidth
-                error={!!errors.personalNumber}
-                helperText={errors.personalNumber}
+                error={touched.personalNumber && !!errors.personalNumber}
+                helperText={touched.personalNumber && errors.personalNumber}
               />
 
               <TextField
@@ -75,8 +75,8 @@ const NewApplicant = ({open, setOpen}: Props) => {
                 onChange={handleChange}
                 label="Dátum odberu vzorky"
                 fullWidth
-                error={!!errors.sampleCollectionDate}
-                helperText={errors.sampleCollectionDate}
+                error={touched.sampleCollectionDate && !!errors.sampleCollectionDate}
+                helperText={touched.sampleCollectionDate && errors.sampleCollectionDate}
               />
 
               <TextField
@@ -86,8 +86,8 @@ const NewApplicant = ({open, setOpen}: Props) => {
                 onChange={handleChange}
                 label="Dátum príjmu vzorky"
                 fullWidth
-                error={!!errors.sampleReceiveDate}
-                helperText={errors.sampleReceiveDate}
+                error={touched.sampleReceiveDate && !!errors.sampleReceiveDate}
+                helperText={touched.sampleReceiveDate && errors.sampleReceiveDate}
               />
 
               <TextField
@@ -97,8 +97,8 @@ const NewApplicant = ({open, setOpen}: Props) => {
                 onChange={handleChange}
                 label="Kód vzorky"
                 fullWidth
-                error={!!errors.sampleCode}
-                helperText={errors.sampleCode}
+                error={touched.sampleCode && !!errors.sampleCode}
+                helperText={touched.sampleCode && errors.sampleCode}
               />
 
               <TextField
@@ -108,8 +108,8 @@ const NewApplicant = ({open, setOpen}: Props) => {
                 onChange={handleChange}
                 label="Meno žiadateľa"
                 fullWidth
-                error={!!errors.applicant}
-                helperText={errors.applicant}
+                error={touched.applicant && !!errors.applicant}
+                helperText={touched.applicant && errors.applicant}
               />
 
               <DialogActions style={{padding: '8px 0'}}>
