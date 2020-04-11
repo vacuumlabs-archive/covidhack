@@ -23,8 +23,8 @@ const useStyles = makeStyles({
     marginBottom: 8,
   },
   newApplicant: {
-    marginLeft: 'auto',
-    padding: '8px 16px',
+    marginLeft: 'auto !important',
+    padding: '8px 16px !important',
   },
 })
 
@@ -74,23 +74,23 @@ const Dashboard = ({applications}: Props) => {
           <Table size="small">
             <TableHead style={{backgroundColor: 'lightgrey'}}>
               <TableRow>
-                <TableCell>Dessert (100g serving)</TableCell>
-                <TableCell align="right">Calories</TableCell>
-                <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-                <TableCell align="right">Protein&nbsp;(g)</TableCell>
-                <TableCell align="right">Protein&nbsp;(g)</TableCell>
+                <TableCell align="center">Číslo vzorky</TableCell>
+                <TableCell align="center">Priezvisko a meno</TableCell>
+                <TableCell align="center">Rodné číslo</TableCell>
+                <TableCell align="center">Dátum odberu</TableCell>
+                <TableCell align="center">Dátum príjmu</TableCell>
+                <TableCell align="center">Odosielateľ</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {applications.application.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell scope="row">{row.pacient_name}</TableCell>
-                  <TableCell align="right">{row.personal_number}</TableCell>
-                  <TableCell align="right">{row.sample_code}</TableCell>
-                  <TableCell align="right">{row.sample_collection_date}</TableCell>
-                  <TableCell align="right">{row.sample_receive_date}</TableCell>
-                  <TableCell align="right">{row.sender}</TableCell>
+                  <TableCell align="center">{row.pacient_name}</TableCell>
+                  <TableCell align="center">{row.personal_number}</TableCell>
+                  <TableCell align="center">{row.sample_code}</TableCell>
+                  <TableCell align="center">{row.sample_collection_date}</TableCell>
+                  <TableCell align="center">{row.sample_receive_date || '-'}</TableCell>
+                  <TableCell align="center">{row.sender}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

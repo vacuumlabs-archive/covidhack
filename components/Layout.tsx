@@ -55,7 +55,6 @@ const Layout = (props: LayoutProps) => (
       }
       .container {
         width: 100%;
-        max-width: 1090px;
         padding: 0 15px;
         margin: 0 auto;
       }
