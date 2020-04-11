@@ -30,7 +30,7 @@ const OfficePassword = () => {
 
   return (
     <div className={classes.root}>
-      <Typography variant="h2" gutterBottom style={{textAlign: 'center'}}>
+      <Typography variant="h3" gutterBottom style={{textAlign: 'center'}}>
         Heslo kancelárie
       </Typography>
       <Paper className={classes.paper} style={{textAlign: 'center'}}>

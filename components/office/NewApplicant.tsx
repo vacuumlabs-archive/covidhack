@@ -7,7 +7,7 @@ import * as Yup from 'yup'
 import {createNewApplicant} from '../../logic/actions'
 
 const useStyles = makeStyles({
-  dialog: {maxWidth: 450, padding: 24},
+  dialog: {maxWidth: '450px !important', padding: 24},
   formField: {marginBottom: '8px !important'},
 })
 
