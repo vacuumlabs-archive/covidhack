@@ -1,4 +1,5 @@
 import {NextApiRequest, NextApiResponse} from 'next'
+import {v4} from 'uuid'
 import {ValidationError} from 'yup'
 import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
@@ -13,10 +14,20 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   }
   try {
     // TODO all of this
-    const validBody = createGridBodySchema.validateSync(req.body)
-    // TODO filter these based on existing applications
-    const createApplicationsForIds = getSampleCodesFromGrid(validBody.json)
-    await client.InsertGridMutation({objects: [validBody]})
+    const validBody = {
+      ...createGridBodySchema.validateSync(req.body),
+      id: v4(),
+    }
+    const applicationsFromCodes = getSampleCodesFromGrid(validBody.grid).map((v) => ({
+      id: v4(),
+      referenced_in_grid_id: validBody.id,
+      sample_code: v,
+    }))
+    // TODO here we can check for specific conflicts, before just upserting
+    await client.InsertGridMutation({
+      gridObjects: [validBody],
+      applicationsObjects: applicationsFromCodes,
+    })
     res.status(201).end()
   } catch (e) {
     if (e instanceof ValidationError) {

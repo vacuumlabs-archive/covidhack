@@ -1,16 +1,23 @@
-mutation InsertGridMutation($objects: [grid_insert_input!]!) {
-  insert_grid(objects: $objects) {
-    returning {
-      id
-    }
-  }
-}
-
 mutation UpdateGridMutation($id: uuid!, $grid: jsonb!) {
   update_grid(_set: {grid: $grid}, where: {id: {_eq: $id}}) {
     returning {
       id
       grid
     }
+  }
+}
+
+mutation InsertGridMutation(
+  $gridObjects: [grid_insert_input!]!
+  $applicationsObjects: [application_insert_input!]!
+) {
+  insert_grid(objects: $gridObjects) {
+    affected_rows
+  }
+  insert_application(
+    objects: $applicationsObjects
+    on_conflict: {constraint: application_sample_code_key, update_columns: referenced_in_grid_id}
+  ) {
+    affected_rows
   }
 }

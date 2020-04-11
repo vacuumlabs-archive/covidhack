@@ -19,6 +19,7 @@ export type Application = {
   id: Scalars['uuid'];
   pacient_name: Scalars['String'];
   personal_number: Scalars['String'];
+  referenced_in_grid_id?: Maybe<Scalars['uuid']>;
   sample_code: Scalars['String'];
   sample_collection_date?: Maybe<Scalars['timestamptz']>;
   sample_receive_date?: Maybe<Scalars['timestamptz']>;
@@ -63,6 +64,7 @@ export type Application_Bool_Exp = {
   id?: Maybe<Uuid_Comparison_Exp>;
   pacient_name?: Maybe<String_Comparison_Exp>;
   personal_number?: Maybe<String_Comparison_Exp>;
+  referenced_in_grid_id?: Maybe<Uuid_Comparison_Exp>;
   sample_code?: Maybe<String_Comparison_Exp>;
   sample_collection_date?: Maybe<Timestamptz_Comparison_Exp>;
   sample_receive_date?: Maybe<Timestamptz_Comparison_Exp>;
@@ -71,13 +73,15 @@ export type Application_Bool_Exp = {
 };
 
 export enum Application_Constraint {
-  ApplicationPkey = 'application_pkey'
+  ApplicationPkey = 'application_pkey',
+  ApplicationSampleCodeKey = 'application_sample_code_key'
 }
 
 export type Application_Insert_Input = {
   id?: Maybe<Scalars['uuid']>;
   pacient_name?: Maybe<Scalars['String']>;
   personal_number?: Maybe<Scalars['String']>;
+  referenced_in_grid_id?: Maybe<Scalars['uuid']>;
   sample_code?: Maybe<Scalars['String']>;
   sample_collection_date?: Maybe<Scalars['timestamptz']>;
   sample_receive_date?: Maybe<Scalars['timestamptz']>;
@@ -144,6 +148,7 @@ export type Application_Order_By = {
   id?: Maybe<Order_By>;
   pacient_name?: Maybe<Order_By>;
   personal_number?: Maybe<Order_By>;
+  referenced_in_grid_id?: Maybe<Order_By>;
   sample_code?: Maybe<Order_By>;
   sample_collection_date?: Maybe<Order_By>;
   sample_receive_date?: Maybe<Order_By>;
@@ -155,6 +160,7 @@ export enum Application_Select_Column {
   Id = 'id',
   PacientName = 'pacient_name',
   PersonalNumber = 'personal_number',
+  ReferencedInGridId = 'referenced_in_grid_id',
   SampleCode = 'sample_code',
   SampleCollectionDate = 'sample_collection_date',
   SampleReceiveDate = 'sample_receive_date',
@@ -166,6 +172,7 @@ export type Application_Set_Input = {
   id?: Maybe<Scalars['uuid']>;
   pacient_name?: Maybe<Scalars['String']>;
   personal_number?: Maybe<Scalars['String']>;
+  referenced_in_grid_id?: Maybe<Scalars['uuid']>;
   sample_code?: Maybe<Scalars['String']>;
   sample_collection_date?: Maybe<Scalars['timestamptz']>;
   sample_receive_date?: Maybe<Scalars['timestamptz']>;
@@ -177,6 +184,7 @@ export enum Application_Update_Column {
   Id = 'id',
   PacientName = 'pacient_name',
   PersonalNumber = 'personal_number',
+  ReferencedInGridId = 'referenced_in_grid_id',
   SampleCode = 'sample_code',
   SampleCollectionDate = 'sample_collection_date',
   SampleReceiveDate = 'sample_receive_date',
@@ -641,22 +649,6 @@ export type Uuid_Comparison_Exp = {
   _nin?: Maybe<Array<Scalars['uuid']>>;
 };
 
-export type InsertGridMutationMutationVariables = {
-  objects: Array<Grid_Insert_Input>;
-};
-
-
-export type InsertGridMutationMutation = (
-  { __typename?: 'mutation_root' }
-  & { insert_grid: Maybe<(
-    { __typename?: 'grid_mutation_response' }
-    & { returning: Array<(
-      { __typename?: 'grid' }
-      & Pick<Grid, 'id'>
-    )> }
-  )> }
-);
-
 export type UpdateGridMutationMutationVariables = {
   id: Scalars['uuid'];
   grid: Scalars['jsonb'];
@@ -671,6 +663,23 @@ export type UpdateGridMutationMutation = (
       { __typename?: 'grid' }
       & Pick<Grid, 'id' | 'grid'>
     )> }
+  )> }
+);
+
+export type InsertGridMutationMutationVariables = {
+  gridObjects: Array<Grid_Insert_Input>;
+  applicationsObjects: Array<Application_Insert_Input>;
+};
+
+
+export type InsertGridMutationMutation = (
+  { __typename?: 'mutation_root' }
+  & { insert_grid: Maybe<(
+    { __typename?: 'grid_mutation_response' }
+    & Pick<Grid_Mutation_Response, 'affected_rows'>
+  )>, insert_application: Maybe<(
+    { __typename?: 'application_mutation_response' }
+    & Pick<Application_Mutation_Response, 'affected_rows'>
   )> }
 );
 
@@ -694,20 +703,24 @@ export type ApplicationsQueryQuery = (
   { __typename?: 'query_root' }
   & { application: Array<(
     { __typename?: 'application' }
-    & Pick<Application, 'id' | 'pacient_name' | 'personal_number' | 'sample_code' | 'sample_collection_date' | 'sample_receive_date' | 'sender'>
+    & Pick<Application, 'id' | 'pacient_name' | 'personal_number' | 'sample_code' | 'sample_collection_date' | 'sample_receive_date' | 'sender' | 'referenced_in_grid_id'>
+  )> }
+);
+
+export type ApplicationsBySampleCodeQeryQueryVariables = {
+  codes: Array<Scalars['String']>;
+};
+
+
+export type ApplicationsBySampleCodeQeryQuery = (
+  { __typename?: 'query_root' }
+  & { application: Array<(
+    { __typename?: 'application' }
+    & Pick<Application, 'id'>
   )> }
 );
 
 
-export const InsertGridMutationDocument = gql`
-    mutation InsertGridMutation($objects: [grid_insert_input!]!) {
-  insert_grid(objects: $objects) {
-    returning {
-      id
-    }
-  }
-}
-    `;
 export const UpdateGridMutationDocument = gql`
     mutation UpdateGridMutation($id: uuid!, $grid: jsonb!) {
   update_grid(_set: {grid: $grid}, where: {id: {_eq: $id}}) {
@@ -715,6 +728,16 @@ export const UpdateGridMutationDocument = gql`
       id
       grid
     }
+  }
+}
+    `;
+export const InsertGridMutationDocument = gql`
+    mutation InsertGridMutation($gridObjects: [grid_insert_input!]!, $applicationsObjects: [application_insert_input!]!) {
+  insert_grid(objects: $gridObjects) {
+    affected_rows
+  }
+  insert_application(objects: $applicationsObjects, on_conflict: {constraint: application_sample_code_key, update_columns: referenced_in_grid_id}) {
+    affected_rows
   }
 }
     `;
@@ -736,22 +759,33 @@ export const ApplicationsQueryDocument = gql`
     sample_collection_date
     sample_receive_date
     sender
+    referenced_in_grid_id
+  }
+}
+    `;
+export const ApplicationsBySampleCodeQeryDocument = gql`
+    query ApplicationsBySampleCodeQery($codes: [String!]!) {
+  application(where: {sample_code: {_in: $codes}}) {
+    id
   }
 }
     `;
 export function getSdk(client: GraphQLClient) {
   return {
-    InsertGridMutation(variables: InsertGridMutationMutationVariables): Promise<InsertGridMutationMutation> {
-      return client.request<InsertGridMutationMutation>(print(InsertGridMutationDocument), variables);
-    },
     UpdateGridMutation(variables: UpdateGridMutationMutationVariables): Promise<UpdateGridMutationMutation> {
       return client.request<UpdateGridMutationMutation>(print(UpdateGridMutationDocument), variables);
+    },
+    InsertGridMutation(variables: InsertGridMutationMutationVariables): Promise<InsertGridMutationMutation> {
+      return client.request<InsertGridMutationMutation>(print(InsertGridMutationDocument), variables);
     },
     GridQuery(variables: GridQueryQueryVariables): Promise<GridQueryQuery> {
       return client.request<GridQueryQuery>(print(GridQueryDocument), variables);
     },
     ApplicationsQuery(variables?: ApplicationsQueryQueryVariables): Promise<ApplicationsQueryQuery> {
       return client.request<ApplicationsQueryQuery>(print(ApplicationsQueryDocument), variables);
+    },
+    ApplicationsBySampleCodeQery(variables: ApplicationsBySampleCodeQeryQueryVariables): Promise<ApplicationsBySampleCodeQeryQuery> {
+      return client.request<ApplicationsBySampleCodeQeryQuery>(print(ApplicationsBySampleCodeQeryDocument), variables);
     }
   };
 }

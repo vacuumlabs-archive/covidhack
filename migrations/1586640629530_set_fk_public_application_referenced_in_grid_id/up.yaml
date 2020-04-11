@@ -1,0 +1,10 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: |-
+      alter table "public"."application"
+                 add constraint "application_referenced_in_grid_id_fkey"
+                 foreign key ("referenced_in_grid_id")
+                 references "public"."grid"
+                 ("id") on update cascade on delete set null;
+  type: run_sql

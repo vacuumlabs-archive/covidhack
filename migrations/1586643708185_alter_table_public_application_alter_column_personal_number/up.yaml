@@ -1,0 +1,6 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."application" ALTER COLUMN "personal_number" DROP NOT
+      NULL;
+  type: run_sql
