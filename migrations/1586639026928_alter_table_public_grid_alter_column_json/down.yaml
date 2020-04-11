@@ -1,0 +1,5 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: alter table "public"."grid" rename column "grid" to "json";
+  type: run_sql

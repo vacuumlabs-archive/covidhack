@@ -1,0 +1,5 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."application" ADD COLUMN "tested_positive" boolean NULL;
+  type: run_sql

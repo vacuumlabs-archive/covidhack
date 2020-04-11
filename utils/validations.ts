@@ -4,6 +4,39 @@ import * as yup from 'yup'
 // in case anyone needed these..
 export type ApplicantType = 'physical' | 'legal' | 'physical-contractor'
 
+// TODO validate existence of control samples
+export const gridSchema = yup
+  .array()
+  .min(8)
+  .max(8)
+  .of(
+    yup
+      .array()
+      .min(12)
+      .max(12)
+      .required()
+      .ensure()
+      .of(
+        yup
+          .object()
+          .shape({value: yup.string().ensure(), positive: yup.boolean()})
+          .noUnknown(),
+      ),
+  )
+  .ensure()
+
+export const createGridBodySchema = yup
+  .object()
+  .shape({
+    grid: gridSchema,
+    title: yup.string().required(),
+    test_initiation_date: yup.string().required(),
+    test_finished_date: yup.string().required(),
+    sample_taken_date: yup.string().required(),
+    sample_arrival_date: yup.string().required(),
+  })
+  .noUnknown()
+
 // these can be run on both frontend and backend
 export const verificationRequestBodySchema = yup
   .object()
