@@ -52,7 +52,6 @@ const Layout = (props: LayoutProps) => (
         background-color: #fff;
         position: relative;
         min-height: 100vh;
-        padding-bottom: 114px;
       }
       .container {
         width: 100%;

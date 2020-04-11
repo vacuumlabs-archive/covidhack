@@ -9,7 +9,7 @@ import {changePassword} from '../../logic/actions'
 const useStyles = makeStyles({
   root: {
     display: 'flex',
-    height: '100vh',
+    height: 'calc(100vh - 75px)',
     justifyContent: 'center',
     flexDirection: 'column',
     marginTop: -100,
