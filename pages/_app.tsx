@@ -1,3 +1,4 @@
+import CssBaseline from '@material-ui/core/CssBaseline'
 import {AppProps} from 'next/app'
 import React from 'react'
 import {Provider as ReduxProvider} from 'react-redux'
@@ -15,6 +16,7 @@ function App({Component, pageProps}: AppProps) {
   }
   return (
     <ReduxProvider store={store}>
+      <CssBaseline />
       <Component {...pageProps} />
     </ReduxProvider>
   )
