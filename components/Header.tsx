@@ -12,6 +12,10 @@ const FormHeader = () => (
           <Link href="/office">
             <a className="menu-link">Kancelária</a>
           </Link>
+          {/* TODO: remove this */}
+          <Link href="/dashboard">
+            <a className="menu-link">Dashboard</a>
+          </Link>
         </div>
       </div>
     </div>
