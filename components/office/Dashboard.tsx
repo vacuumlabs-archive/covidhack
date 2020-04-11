@@ -1,9 +1,19 @@
-import {Button, Paper, Tab, Tabs} from '@material-ui/core'
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Paper,
+  Tab,
+  Tabs,
+} from '@material-ui/core'
 import WarningIcon from '@material-ui/icons/Warning'
-import React from 'react'
+import React, {useState} from 'react'
 
 const Dashboard = () => {
   const [value, setValue] = React.useState(0)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   return (
     <div style={{margin: 16}}>
@@ -27,9 +37,30 @@ const Dashboard = () => {
           TODO: display tables or form depending on the selected tab
         </div>
       </Paper>
-      <Button fullWidth color="primary" variant="contained">
+      <Button fullWidth color="primary" variant="contained" onClick={() => setDialogOpen(true)}>
         Nový žiadateľ
       </Button>
+
+      {
+        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+          <DialogTitle>Údaje o novom žiadeťelovi</DialogTitle>
+          <DialogContent>TODO: create the form</DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                /*TODO: create */
+              }}
+              color="primary"
+              variant="contained"
+            >
+              Vytvoriť žiadateľa
+            </Button>
+            <Button onClick={() => setDialogOpen(false)} autoFocus variant="contained">
+              Zrušiť
+            </Button>
+          </DialogActions>
+        </Dialog>
+      }
     </div>
   )
 }
