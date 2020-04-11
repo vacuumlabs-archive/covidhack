@@ -8,20 +8,17 @@ const OfficePage = () => {
   const password = useSelector((state) => state.officePassword)
   const dispatch = useDispatch()
 
-  if (!password)
-    return (
-      <Layout>
-        <OfficePassword />
-      </Layout>
-    )
-  else {
-    return (
-      <div>
-        Office, {password}{' '}
-        <button onClick={() => dispatch(changePassword('heslo'))}>Zmen heslo</button>
-      </div>
-    )
-  }
+  return (
+    <Layout>
+      {!password && <OfficePassword />}
+      {password && (
+        <div>
+          Office, {password}{' '}
+          <button onClick={() => dispatch(changePassword('heslo'))}>Zmen heslo</button>
+        </div>
+      )}
+    </Layout>
+  )
 }
 
 export default OfficePage
