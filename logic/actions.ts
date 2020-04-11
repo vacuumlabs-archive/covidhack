@@ -5,3 +5,8 @@ export const changePassword = (pass: string): Action<string> => ({
   payload: pass,
   reducer: (state) => ({...state, officePassword: pass}),
 })
+
+export const createNewApplicant = (): Action<any> => ({
+  type: 'Change new applicant',
+  reducer: (state) => state,
+})
