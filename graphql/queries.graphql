@@ -21,3 +21,15 @@ query ApplicationsBySampleCodeQery($codes: [String!]!) {
     id
   }
 }
+
+query ApplicationQuery($id: uuid!) {
+  application(where: {id: {_eq: $id}}) {
+    id
+    pacient_name
+    personal_number
+    sample_code
+    sample_collection_date
+    sample_receive_date
+    sender
+  }
+}

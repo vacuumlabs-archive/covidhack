@@ -999,6 +999,19 @@ export type ApplicationsBySampleCodeQeryQuery = (
   )> }
 );
 
+export type ApplicationQueryQueryVariables = {
+  id: Scalars['uuid'];
+};
+
+
+export type ApplicationQueryQuery = (
+  { __typename?: 'query_root' }
+  & { application: Array<(
+    { __typename?: 'application' }
+    & Pick<Application, 'id' | 'pacient_name' | 'personal_number' | 'sample_code' | 'sample_collection_date' | 'sample_receive_date' | 'sender'>
+  )> }
+);
+
 
 export const InsertGridMutationDocument = gql`
     mutation InsertGridMutation($gridObjects: [grid_insert_input!]!, $labResultsObjects: [lab_result_insert_input!]!) {
@@ -1044,6 +1057,19 @@ export const ApplicationsBySampleCodeQeryDocument = gql`
   }
 }
     `;
+export const ApplicationQueryDocument = gql`
+    query ApplicationQuery($id: uuid!) {
+  application(where: {id: {_eq: $id}}) {
+    id
+    pacient_name
+    personal_number
+    sample_code
+    sample_collection_date
+    sample_receive_date
+    sender
+  }
+}
+    `;
 export function getSdk(client: GraphQLClient) {
   return {
     InsertGridMutation(variables: InsertGridMutationMutationVariables): Promise<InsertGridMutationMutation> {
@@ -1060,6 +1086,9 @@ export function getSdk(client: GraphQLClient) {
     },
     ApplicationsBySampleCodeQery(variables: ApplicationsBySampleCodeQeryQueryVariables): Promise<ApplicationsBySampleCodeQeryQuery> {
       return client.request<ApplicationsBySampleCodeQeryQuery>(print(ApplicationsBySampleCodeQeryDocument), variables);
+    },
+    ApplicationQuery(variables: ApplicationQueryQueryVariables): Promise<ApplicationQueryQuery> {
+      return client.request<ApplicationQueryQuery>(print(ApplicationQueryDocument), variables);
     }
   };
 }

@@ -1,9 +1,11 @@
-import { Button, Paper, Tab, Tabs, Typography } from '@material-ui/core'
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
-import { makeStyles } from '@material-ui/styles'
+import {Button, IconButton, Paper, Tab, Tabs, Typography} from '@material-ui/core'
+import {createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles'
+import EditIcon from '@material-ui/icons/Edit'
+import {makeStyles} from '@material-ui/styles'
 import MUIDataTable from 'mui-datatables'
-import React, { useState } from 'react'
-import { ApplicationsQueryQuery } from '../../utils/graphqlSdk'
+import Router from 'next/router'
+import React, {useState} from 'react'
+import {ApplicationsQueryQuery} from '../../utils/graphqlSdk'
 import NewApplicant from './NewApplicant'
 
 const useStyles = makeStyles({
@@ -85,6 +87,9 @@ const Dashboard = ({applications}: Props) => {
               row.sample_collection_date,
               row.sample_receive_date,
               row.sender,
+              <IconButton key={row.id} onClick={() => Router.push(`/office/${row.id}`)}>
+                <EditIcon />
+              </IconButton>,
             ])}
             columns={[
               'Číslo vzorky',
@@ -93,10 +98,17 @@ const Dashboard = ({applications}: Props) => {
               'Dátum odberu',
               'Dátum príjmu',
               'Odosielateľ',
+              'Upraviť',
             ]}
             options={{
               filterType: 'dropdown',
+              // TODO: might consider this later
+              expandableRows: false,
               responsive: 'scroll',
+              // onRowsSelect: (row) => console.log('select', row),
+              // onRowsExpand: (row) => console.log('expand', row),
+              // onRowClick: (row) => console.log('click', row),
+              // onCellClick: (row) => console.log('cell', row),
             }}
           />
         </MuiThemeProvider>
