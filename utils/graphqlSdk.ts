@@ -11,7 +11,6 @@ export type Scalars = {
   Float: number;
   uuid: any;
   timestamptz: any;
-  jsonb: any;
 };
 
 export type Application = {
@@ -208,7 +207,6 @@ export type Grid = {
    __typename?: 'grid';
   created_at: Scalars['timestamptz'];
   finished: Scalars['Boolean'];
-  grid: Scalars['jsonb'];
   id: Scalars['uuid'];
   sample_arrival_date: Scalars['timestamptz'];
   sample_taken_date: Scalars['timestamptz'];
@@ -216,11 +214,6 @@ export type Grid = {
   test_initiation_date: Scalars['timestamptz'];
   title?: Maybe<Scalars['String']>;
   updated_at: Scalars['timestamptz'];
-};
-
-
-export type GridGridArgs = {
-  path?: Maybe<Scalars['String']>;
 };
 
 export type Grid_Aggregate = {
@@ -248,10 +241,6 @@ export type Grid_Aggregate_Order_By = {
   min?: Maybe<Grid_Min_Order_By>;
 };
 
-export type Grid_Append_Input = {
-  grid?: Maybe<Scalars['jsonb']>;
-};
-
 export type Grid_Arr_Rel_Insert_Input = {
   data: Array<Grid_Insert_Input>;
   on_conflict?: Maybe<Grid_On_Conflict>;
@@ -263,7 +252,6 @@ export type Grid_Bool_Exp = {
   _or?: Maybe<Array<Maybe<Grid_Bool_Exp>>>;
   created_at?: Maybe<Timestamptz_Comparison_Exp>;
   finished?: Maybe<Boolean_Comparison_Exp>;
-  grid?: Maybe<Jsonb_Comparison_Exp>;
   id?: Maybe<Uuid_Comparison_Exp>;
   sample_arrival_date?: Maybe<Timestamptz_Comparison_Exp>;
   sample_taken_date?: Maybe<Timestamptz_Comparison_Exp>;
@@ -277,22 +265,9 @@ export enum Grid_Constraint {
   GridPkey = 'grid_pkey'
 }
 
-export type Grid_Delete_At_Path_Input = {
-  grid?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
-export type Grid_Delete_Elem_Input = {
-  grid?: Maybe<Scalars['Int']>;
-};
-
-export type Grid_Delete_Key_Input = {
-  grid?: Maybe<Scalars['String']>;
-};
-
 export type Grid_Insert_Input = {
   created_at?: Maybe<Scalars['timestamptz']>;
   finished?: Maybe<Scalars['Boolean']>;
-  grid?: Maybe<Scalars['jsonb']>;
   id?: Maybe<Scalars['uuid']>;
   sample_arrival_date?: Maybe<Scalars['timestamptz']>;
   sample_taken_date?: Maybe<Scalars['timestamptz']>;
@@ -364,7 +339,6 @@ export type Grid_On_Conflict = {
 export type Grid_Order_By = {
   created_at?: Maybe<Order_By>;
   finished?: Maybe<Order_By>;
-  grid?: Maybe<Order_By>;
   id?: Maybe<Order_By>;
   sample_arrival_date?: Maybe<Order_By>;
   sample_taken_date?: Maybe<Order_By>;
@@ -374,14 +348,9 @@ export type Grid_Order_By = {
   updated_at?: Maybe<Order_By>;
 };
 
-export type Grid_Prepend_Input = {
-  grid?: Maybe<Scalars['jsonb']>;
-};
-
 export enum Grid_Select_Column {
   CreatedAt = 'created_at',
   Finished = 'finished',
-  Grid = 'grid',
   Id = 'id',
   SampleArrivalDate = 'sample_arrival_date',
   SampleTakenDate = 'sample_taken_date',
@@ -394,7 +363,6 @@ export enum Grid_Select_Column {
 export type Grid_Set_Input = {
   created_at?: Maybe<Scalars['timestamptz']>;
   finished?: Maybe<Scalars['Boolean']>;
-  grid?: Maybe<Scalars['jsonb']>;
   id?: Maybe<Scalars['uuid']>;
   sample_arrival_date?: Maybe<Scalars['timestamptz']>;
   sample_taken_date?: Maybe<Scalars['timestamptz']>;
@@ -407,7 +375,6 @@ export type Grid_Set_Input = {
 export enum Grid_Update_Column {
   CreatedAt = 'created_at',
   Finished = 'finished',
-  Grid = 'grid',
   Id = 'id',
   SampleArrivalDate = 'sample_arrival_date',
   SampleTakenDate = 'sample_taken_date',
@@ -417,32 +384,298 @@ export enum Grid_Update_Column {
   UpdatedAt = 'updated_at'
 }
 
-
-export type Jsonb_Comparison_Exp = {
-  _contained_in?: Maybe<Scalars['jsonb']>;
-  _contains?: Maybe<Scalars['jsonb']>;
-  _eq?: Maybe<Scalars['jsonb']>;
-  _gt?: Maybe<Scalars['jsonb']>;
-  _gte?: Maybe<Scalars['jsonb']>;
-  _has_key?: Maybe<Scalars['String']>;
-  _has_keys_all?: Maybe<Array<Scalars['String']>>;
-  _has_keys_any?: Maybe<Array<Scalars['String']>>;
-  _in?: Maybe<Array<Scalars['jsonb']>>;
+export type Int_Comparison_Exp = {
+  _eq?: Maybe<Scalars['Int']>;
+  _gt?: Maybe<Scalars['Int']>;
+  _gte?: Maybe<Scalars['Int']>;
+  _in?: Maybe<Array<Scalars['Int']>>;
   _is_null?: Maybe<Scalars['Boolean']>;
-  _lt?: Maybe<Scalars['jsonb']>;
-  _lte?: Maybe<Scalars['jsonb']>;
-  _neq?: Maybe<Scalars['jsonb']>;
-  _nin?: Maybe<Array<Scalars['jsonb']>>;
+  _lt?: Maybe<Scalars['Int']>;
+  _lte?: Maybe<Scalars['Int']>;
+  _neq?: Maybe<Scalars['Int']>;
+  _nin?: Maybe<Array<Scalars['Int']>>;
+};
+
+export type Lab_Result = {
+   __typename?: 'lab_result';
+  column: Scalars['Int'];
+  created_at: Scalars['timestamptz'];
+  id: Scalars['uuid'];
+  referenced_in_grid_id: Scalars['uuid'];
+  row: Scalars['Int'];
+  sample_code: Scalars['String'];
+  updated_at: Scalars['timestamptz'];
+};
+
+export type Lab_Result_Aggregate = {
+   __typename?: 'lab_result_aggregate';
+  aggregate?: Maybe<Lab_Result_Aggregate_Fields>;
+  nodes: Array<Lab_Result>;
+};
+
+export type Lab_Result_Aggregate_Fields = {
+   __typename?: 'lab_result_aggregate_fields';
+  avg?: Maybe<Lab_Result_Avg_Fields>;
+  count?: Maybe<Scalars['Int']>;
+  max?: Maybe<Lab_Result_Max_Fields>;
+  min?: Maybe<Lab_Result_Min_Fields>;
+  stddev?: Maybe<Lab_Result_Stddev_Fields>;
+  stddev_pop?: Maybe<Lab_Result_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Lab_Result_Stddev_Samp_Fields>;
+  sum?: Maybe<Lab_Result_Sum_Fields>;
+  var_pop?: Maybe<Lab_Result_Var_Pop_Fields>;
+  var_samp?: Maybe<Lab_Result_Var_Samp_Fields>;
+  variance?: Maybe<Lab_Result_Variance_Fields>;
+};
+
+
+export type Lab_Result_Aggregate_FieldsCountArgs = {
+  columns?: Maybe<Array<Lab_Result_Select_Column>>;
+  distinct?: Maybe<Scalars['Boolean']>;
+};
+
+export type Lab_Result_Aggregate_Order_By = {
+  avg?: Maybe<Lab_Result_Avg_Order_By>;
+  count?: Maybe<Order_By>;
+  max?: Maybe<Lab_Result_Max_Order_By>;
+  min?: Maybe<Lab_Result_Min_Order_By>;
+  stddev?: Maybe<Lab_Result_Stddev_Order_By>;
+  stddev_pop?: Maybe<Lab_Result_Stddev_Pop_Order_By>;
+  stddev_samp?: Maybe<Lab_Result_Stddev_Samp_Order_By>;
+  sum?: Maybe<Lab_Result_Sum_Order_By>;
+  var_pop?: Maybe<Lab_Result_Var_Pop_Order_By>;
+  var_samp?: Maybe<Lab_Result_Var_Samp_Order_By>;
+  variance?: Maybe<Lab_Result_Variance_Order_By>;
+};
+
+export type Lab_Result_Arr_Rel_Insert_Input = {
+  data: Array<Lab_Result_Insert_Input>;
+  on_conflict?: Maybe<Lab_Result_On_Conflict>;
+};
+
+export type Lab_Result_Avg_Fields = {
+   __typename?: 'lab_result_avg_fields';
+  column?: Maybe<Scalars['Float']>;
+  row?: Maybe<Scalars['Float']>;
+};
+
+export type Lab_Result_Avg_Order_By = {
+  column?: Maybe<Order_By>;
+  row?: Maybe<Order_By>;
+};
+
+export type Lab_Result_Bool_Exp = {
+  _and?: Maybe<Array<Maybe<Lab_Result_Bool_Exp>>>;
+  _not?: Maybe<Lab_Result_Bool_Exp>;
+  _or?: Maybe<Array<Maybe<Lab_Result_Bool_Exp>>>;
+  column?: Maybe<Int_Comparison_Exp>;
+  created_at?: Maybe<Timestamptz_Comparison_Exp>;
+  id?: Maybe<Uuid_Comparison_Exp>;
+  referenced_in_grid_id?: Maybe<Uuid_Comparison_Exp>;
+  row?: Maybe<Int_Comparison_Exp>;
+  sample_code?: Maybe<String_Comparison_Exp>;
+  updated_at?: Maybe<Timestamptz_Comparison_Exp>;
+};
+
+export enum Lab_Result_Constraint {
+  LabResultPkey = 'lab_result_pkey',
+  LabResultSampleCodeKey = 'lab_result_sample_code_key'
+}
+
+export type Lab_Result_Inc_Input = {
+  column?: Maybe<Scalars['Int']>;
+  row?: Maybe<Scalars['Int']>;
+};
+
+export type Lab_Result_Insert_Input = {
+  column?: Maybe<Scalars['Int']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
+  id?: Maybe<Scalars['uuid']>;
+  referenced_in_grid_id?: Maybe<Scalars['uuid']>;
+  row?: Maybe<Scalars['Int']>;
+  sample_code?: Maybe<Scalars['String']>;
+  updated_at?: Maybe<Scalars['timestamptz']>;
+};
+
+export type Lab_Result_Max_Fields = {
+   __typename?: 'lab_result_max_fields';
+  column?: Maybe<Scalars['Int']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
+  row?: Maybe<Scalars['Int']>;
+  sample_code?: Maybe<Scalars['String']>;
+  updated_at?: Maybe<Scalars['timestamptz']>;
+};
+
+export type Lab_Result_Max_Order_By = {
+  column?: Maybe<Order_By>;
+  created_at?: Maybe<Order_By>;
+  row?: Maybe<Order_By>;
+  sample_code?: Maybe<Order_By>;
+  updated_at?: Maybe<Order_By>;
+};
+
+export type Lab_Result_Min_Fields = {
+   __typename?: 'lab_result_min_fields';
+  column?: Maybe<Scalars['Int']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
+  row?: Maybe<Scalars['Int']>;
+  sample_code?: Maybe<Scalars['String']>;
+  updated_at?: Maybe<Scalars['timestamptz']>;
+};
+
+export type Lab_Result_Min_Order_By = {
+  column?: Maybe<Order_By>;
+  created_at?: Maybe<Order_By>;
+  row?: Maybe<Order_By>;
+  sample_code?: Maybe<Order_By>;
+  updated_at?: Maybe<Order_By>;
+};
+
+export type Lab_Result_Mutation_Response = {
+   __typename?: 'lab_result_mutation_response';
+  affected_rows: Scalars['Int'];
+  returning: Array<Lab_Result>;
+};
+
+export type Lab_Result_Obj_Rel_Insert_Input = {
+  data: Lab_Result_Insert_Input;
+  on_conflict?: Maybe<Lab_Result_On_Conflict>;
+};
+
+export type Lab_Result_On_Conflict = {
+  constraint: Lab_Result_Constraint;
+  update_columns: Array<Lab_Result_Update_Column>;
+  where?: Maybe<Lab_Result_Bool_Exp>;
+};
+
+export type Lab_Result_Order_By = {
+  column?: Maybe<Order_By>;
+  created_at?: Maybe<Order_By>;
+  id?: Maybe<Order_By>;
+  referenced_in_grid_id?: Maybe<Order_By>;
+  row?: Maybe<Order_By>;
+  sample_code?: Maybe<Order_By>;
+  updated_at?: Maybe<Order_By>;
+};
+
+export enum Lab_Result_Select_Column {
+  Column = 'column',
+  CreatedAt = 'created_at',
+  Id = 'id',
+  ReferencedInGridId = 'referenced_in_grid_id',
+  Row = 'row',
+  SampleCode = 'sample_code',
+  UpdatedAt = 'updated_at'
+}
+
+export type Lab_Result_Set_Input = {
+  column?: Maybe<Scalars['Int']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
+  id?: Maybe<Scalars['uuid']>;
+  referenced_in_grid_id?: Maybe<Scalars['uuid']>;
+  row?: Maybe<Scalars['Int']>;
+  sample_code?: Maybe<Scalars['String']>;
+  updated_at?: Maybe<Scalars['timestamptz']>;
+};
+
+export type Lab_Result_Stddev_Fields = {
+   __typename?: 'lab_result_stddev_fields';
+  column?: Maybe<Scalars['Float']>;
+  row?: Maybe<Scalars['Float']>;
+};
+
+export type Lab_Result_Stddev_Order_By = {
+  column?: Maybe<Order_By>;
+  row?: Maybe<Order_By>;
+};
+
+export type Lab_Result_Stddev_Pop_Fields = {
+   __typename?: 'lab_result_stddev_pop_fields';
+  column?: Maybe<Scalars['Float']>;
+  row?: Maybe<Scalars['Float']>;
+};
+
+export type Lab_Result_Stddev_Pop_Order_By = {
+  column?: Maybe<Order_By>;
+  row?: Maybe<Order_By>;
+};
+
+export type Lab_Result_Stddev_Samp_Fields = {
+   __typename?: 'lab_result_stddev_samp_fields';
+  column?: Maybe<Scalars['Float']>;
+  row?: Maybe<Scalars['Float']>;
+};
+
+export type Lab_Result_Stddev_Samp_Order_By = {
+  column?: Maybe<Order_By>;
+  row?: Maybe<Order_By>;
+};
+
+export type Lab_Result_Sum_Fields = {
+   __typename?: 'lab_result_sum_fields';
+  column?: Maybe<Scalars['Int']>;
+  row?: Maybe<Scalars['Int']>;
+};
+
+export type Lab_Result_Sum_Order_By = {
+  column?: Maybe<Order_By>;
+  row?: Maybe<Order_By>;
+};
+
+export enum Lab_Result_Update_Column {
+  Column = 'column',
+  CreatedAt = 'created_at',
+  Id = 'id',
+  ReferencedInGridId = 'referenced_in_grid_id',
+  Row = 'row',
+  SampleCode = 'sample_code',
+  UpdatedAt = 'updated_at'
+}
+
+export type Lab_Result_Var_Pop_Fields = {
+   __typename?: 'lab_result_var_pop_fields';
+  column?: Maybe<Scalars['Float']>;
+  row?: Maybe<Scalars['Float']>;
+};
+
+export type Lab_Result_Var_Pop_Order_By = {
+  column?: Maybe<Order_By>;
+  row?: Maybe<Order_By>;
+};
+
+export type Lab_Result_Var_Samp_Fields = {
+   __typename?: 'lab_result_var_samp_fields';
+  column?: Maybe<Scalars['Float']>;
+  row?: Maybe<Scalars['Float']>;
+};
+
+export type Lab_Result_Var_Samp_Order_By = {
+  column?: Maybe<Order_By>;
+  row?: Maybe<Order_By>;
+};
+
+export type Lab_Result_Variance_Fields = {
+   __typename?: 'lab_result_variance_fields';
+  column?: Maybe<Scalars['Float']>;
+  row?: Maybe<Scalars['Float']>;
+};
+
+export type Lab_Result_Variance_Order_By = {
+  column?: Maybe<Order_By>;
+  row?: Maybe<Order_By>;
 };
 
 export type Mutation_Root = {
    __typename?: 'mutation_root';
   delete_application?: Maybe<Application_Mutation_Response>;
   delete_grid?: Maybe<Grid_Mutation_Response>;
+  delete_lab_result?: Maybe<Lab_Result_Mutation_Response>;
   insert_application?: Maybe<Application_Mutation_Response>;
   insert_grid?: Maybe<Grid_Mutation_Response>;
+  insert_lab_result?: Maybe<Lab_Result_Mutation_Response>;
   update_application?: Maybe<Application_Mutation_Response>;
   update_grid?: Maybe<Grid_Mutation_Response>;
+  update_lab_result?: Maybe<Lab_Result_Mutation_Response>;
 };
 
 
@@ -453,6 +686,11 @@ export type Mutation_RootDelete_ApplicationArgs = {
 
 export type Mutation_RootDelete_GridArgs = {
   where: Grid_Bool_Exp;
+};
+
+
+export type Mutation_RootDelete_Lab_ResultArgs = {
+  where: Lab_Result_Bool_Exp;
 };
 
 
@@ -468,6 +706,12 @@ export type Mutation_RootInsert_GridArgs = {
 };
 
 
+export type Mutation_RootInsert_Lab_ResultArgs = {
+  objects: Array<Lab_Result_Insert_Input>;
+  on_conflict?: Maybe<Lab_Result_On_Conflict>;
+};
+
+
 export type Mutation_RootUpdate_ApplicationArgs = {
   _set?: Maybe<Application_Set_Input>;
   where: Application_Bool_Exp;
@@ -475,13 +719,15 @@ export type Mutation_RootUpdate_ApplicationArgs = {
 
 
 export type Mutation_RootUpdate_GridArgs = {
-  _append?: Maybe<Grid_Append_Input>;
-  _delete_at_path?: Maybe<Grid_Delete_At_Path_Input>;
-  _delete_elem?: Maybe<Grid_Delete_Elem_Input>;
-  _delete_key?: Maybe<Grid_Delete_Key_Input>;
-  _prepend?: Maybe<Grid_Prepend_Input>;
   _set?: Maybe<Grid_Set_Input>;
   where: Grid_Bool_Exp;
+};
+
+
+export type Mutation_RootUpdate_Lab_ResultArgs = {
+  _inc?: Maybe<Lab_Result_Inc_Input>;
+  _set?: Maybe<Lab_Result_Set_Input>;
+  where: Lab_Result_Bool_Exp;
 };
 
 export enum Order_By {
@@ -501,6 +747,9 @@ export type Query_Root = {
   grid: Array<Grid>;
   grid_aggregate: Grid_Aggregate;
   grid_by_pk?: Maybe<Grid>;
+  lab_result: Array<Lab_Result>;
+  lab_result_aggregate: Lab_Result_Aggregate;
+  lab_result_by_pk?: Maybe<Lab_Result>;
 };
 
 
@@ -549,6 +798,29 @@ export type Query_RootGrid_By_PkArgs = {
   id: Scalars['uuid'];
 };
 
+
+export type Query_RootLab_ResultArgs = {
+  distinct_on?: Maybe<Array<Lab_Result_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Lab_Result_Order_By>>;
+  where?: Maybe<Lab_Result_Bool_Exp>;
+};
+
+
+export type Query_RootLab_Result_AggregateArgs = {
+  distinct_on?: Maybe<Array<Lab_Result_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Lab_Result_Order_By>>;
+  where?: Maybe<Lab_Result_Bool_Exp>;
+};
+
+
+export type Query_RootLab_Result_By_PkArgs = {
+  id: Scalars['uuid'];
+};
+
 export type String_Comparison_Exp = {
   _eq?: Maybe<Scalars['String']>;
   _gt?: Maybe<Scalars['String']>;
@@ -575,6 +847,9 @@ export type Subscription_Root = {
   grid: Array<Grid>;
   grid_aggregate: Grid_Aggregate;
   grid_by_pk?: Maybe<Grid>;
+  lab_result: Array<Lab_Result>;
+  lab_result_aggregate: Lab_Result_Aggregate;
+  lab_result_by_pk?: Maybe<Lab_Result>;
 };
 
 
@@ -624,6 +899,29 @@ export type Subscription_RootGrid_By_PkArgs = {
 };
 
 
+export type Subscription_RootLab_ResultArgs = {
+  distinct_on?: Maybe<Array<Lab_Result_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Lab_Result_Order_By>>;
+  where?: Maybe<Lab_Result_Bool_Exp>;
+};
+
+
+export type Subscription_RootLab_Result_AggregateArgs = {
+  distinct_on?: Maybe<Array<Lab_Result_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Lab_Result_Order_By>>;
+  where?: Maybe<Lab_Result_Bool_Exp>;
+};
+
+
+export type Subscription_RootLab_Result_By_PkArgs = {
+  id: Scalars['uuid'];
+};
+
+
 export type Timestamptz_Comparison_Exp = {
   _eq?: Maybe<Scalars['timestamptz']>;
   _gt?: Maybe<Scalars['timestamptz']>;
@@ -649,40 +947,9 @@ export type Uuid_Comparison_Exp = {
   _nin?: Maybe<Array<Scalars['uuid']>>;
 };
 
-export type UpdateGridMutationMutationVariables = {
-  id: Scalars['uuid'];
-  grid: Scalars['jsonb'];
-};
-
-
-export type UpdateGridMutationMutation = (
-  { __typename?: 'mutation_root' }
-  & { update_grid: Maybe<(
-    { __typename?: 'grid_mutation_response' }
-    & { returning: Array<(
-      { __typename?: 'grid' }
-      & Pick<Grid, 'id' | 'grid'>
-    )> }
-  )> }
-);
-
-export type UpdateApplicationBySampleCodePositiveMutationVariables = {
-  sample_code: Scalars['String'];
-  positive: Scalars['Boolean'];
-};
-
-
-export type UpdateApplicationBySampleCodePositiveMutation = (
-  { __typename?: 'mutation_root' }
-  & { update_application: Maybe<(
-    { __typename?: 'application_mutation_response' }
-    & Pick<Application_Mutation_Response, 'affected_rows'>
-  )> }
-);
-
 export type InsertGridMutationMutationVariables = {
   gridObjects: Array<Grid_Insert_Input>;
-  applicationsObjects: Array<Application_Insert_Input>;
+  labResultsObjects: Array<Lab_Result_Insert_Input>;
 };
 
 
@@ -691,9 +958,9 @@ export type InsertGridMutationMutation = (
   & { insert_grid: Maybe<(
     { __typename?: 'grid_mutation_response' }
     & Pick<Grid_Mutation_Response, 'affected_rows'>
-  )>, insert_application: Maybe<(
-    { __typename?: 'application_mutation_response' }
-    & Pick<Application_Mutation_Response, 'affected_rows'>
+  )>, insert_lab_result: Maybe<(
+    { __typename?: 'lab_result_mutation_response' }
+    & Pick<Lab_Result_Mutation_Response, 'affected_rows'>
   )> }
 );
 
@@ -706,7 +973,7 @@ export type GridQueryQuery = (
   { __typename?: 'query_root' }
   & { grid_by_pk: Maybe<(
     { __typename?: 'grid' }
-    & Pick<Grid, 'id' | 'grid'>
+    & Pick<Grid, 'id'>
   )> }
 );
 
@@ -735,29 +1002,12 @@ export type ApplicationsBySampleCodeQeryQuery = (
 );
 
 
-export const UpdateGridMutationDocument = gql`
-    mutation UpdateGridMutation($id: uuid!, $grid: jsonb!) {
-  update_grid(_set: {grid: $grid}, where: {id: {_eq: $id}}) {
-    returning {
-      id
-      grid
-    }
-  }
-}
-    `;
-export const UpdateApplicationBySampleCodePositiveDocument = gql`
-    mutation UpdateApplicationBySampleCodePositive($sample_code: String!, $positive: Boolean!) {
-  update_application(where: {sample_code: {_eq: $sample_code}}, _set: {tested_positive: $positive}) {
-    affected_rows
-  }
-}
-    `;
 export const InsertGridMutationDocument = gql`
-    mutation InsertGridMutation($gridObjects: [grid_insert_input!]!, $applicationsObjects: [application_insert_input!]!) {
+    mutation InsertGridMutation($gridObjects: [grid_insert_input!]!, $labResultsObjects: [lab_result_insert_input!]!) {
   insert_grid(objects: $gridObjects) {
     affected_rows
   }
-  insert_application(objects: $applicationsObjects, on_conflict: {constraint: application_sample_code_key, update_columns: referenced_in_grid_id}) {
+  insert_lab_result(objects: $labResultsObjects) {
     affected_rows
   }
 }
@@ -766,7 +1016,6 @@ export const GridQueryDocument = gql`
     query GridQuery($id: uuid!) {
   grid_by_pk(id: $id) {
     id
-    grid
   }
 }
     `;
@@ -794,12 +1043,6 @@ export const ApplicationsBySampleCodeQeryDocument = gql`
     `;
 export function getSdk(client: GraphQLClient) {
   return {
-    UpdateGridMutation(variables: UpdateGridMutationMutationVariables): Promise<UpdateGridMutationMutation> {
-      return client.request<UpdateGridMutationMutation>(print(UpdateGridMutationDocument), variables);
-    },
-    UpdateApplicationBySampleCodePositive(variables: UpdateApplicationBySampleCodePositiveMutationVariables): Promise<UpdateApplicationBySampleCodePositiveMutation> {
-      return client.request<UpdateApplicationBySampleCodePositiveMutation>(print(UpdateApplicationBySampleCodePositiveDocument), variables);
-    },
     InsertGridMutation(variables: InsertGridMutationMutationVariables): Promise<InsertGridMutationMutation> {
       return client.request<InsertGridMutationMutation>(print(InsertGridMutationDocument), variables);
     },
