@@ -387,6 +387,7 @@ export type Lab_Result = {
   column: Scalars['Int'];
   created_at: Scalars['timestamptz'];
   id: Scalars['uuid'];
+  positive?: Maybe<Scalars['Boolean']>;
   referenced_in_grid_id: Scalars['uuid'];
   row: Scalars['Int'];
   sample_code: Scalars['String'];
@@ -457,6 +458,7 @@ export type Lab_Result_Bool_Exp = {
   column?: Maybe<Int_Comparison_Exp>;
   created_at?: Maybe<Timestamptz_Comparison_Exp>;
   id?: Maybe<Uuid_Comparison_Exp>;
+  positive?: Maybe<Boolean_Comparison_Exp>;
   referenced_in_grid_id?: Maybe<Uuid_Comparison_Exp>;
   row?: Maybe<Int_Comparison_Exp>;
   sample_code?: Maybe<String_Comparison_Exp>;
@@ -476,6 +478,7 @@ export type Lab_Result_Insert_Input = {
   column?: Maybe<Scalars['Int']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
+  positive?: Maybe<Scalars['Boolean']>;
   referenced_in_grid_id?: Maybe<Scalars['uuid']>;
   row?: Maybe<Scalars['Int']>;
   sample_code?: Maybe<Scalars['String']>;
@@ -537,6 +540,7 @@ export type Lab_Result_Order_By = {
   column?: Maybe<Order_By>;
   created_at?: Maybe<Order_By>;
   id?: Maybe<Order_By>;
+  positive?: Maybe<Order_By>;
   referenced_in_grid_id?: Maybe<Order_By>;
   row?: Maybe<Order_By>;
   sample_code?: Maybe<Order_By>;
@@ -547,6 +551,7 @@ export enum Lab_Result_Select_Column {
   Column = 'column',
   CreatedAt = 'created_at',
   Id = 'id',
+  Positive = 'positive',
   ReferencedInGridId = 'referenced_in_grid_id',
   Row = 'row',
   SampleCode = 'sample_code',
@@ -557,6 +562,7 @@ export type Lab_Result_Set_Input = {
   column?: Maybe<Scalars['Int']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
+  positive?: Maybe<Scalars['Boolean']>;
   referenced_in_grid_id?: Maybe<Scalars['uuid']>;
   row?: Maybe<Scalars['Int']>;
   sample_code?: Maybe<Scalars['String']>;
@@ -611,6 +617,7 @@ export enum Lab_Result_Update_Column {
   Column = 'column',
   CreatedAt = 'created_at',
   Id = 'id',
+  Positive = 'positive',
   ReferencedInGridId = 'referenced_in_grid_id',
   Row = 'row',
   SampleCode = 'sample_code',
@@ -962,6 +969,21 @@ export type InsertApplicationMutationMutation = (
   )> }
 );
 
+export type UpdateLabResultMutationMutationVariables = {
+  gridId: Scalars['uuid'];
+  column: Scalars['Int'];
+  row: Scalars['Int'];
+};
+
+
+export type UpdateLabResultMutationMutation = (
+  { __typename?: 'mutation_root' }
+  & { update_lab_result: Maybe<(
+    { __typename?: 'lab_result_mutation_response' }
+    & Pick<Lab_Result_Mutation_Response, 'affected_rows'>
+  )> }
+);
+
 export type GridQueryQueryVariables = {
   id: Scalars['uuid'];
 };
@@ -999,6 +1021,22 @@ export type ApplicationsBySampleCodeQeryQuery = (
   )> }
 );
 
+export type GridWithLabResultsQueryQueryVariables = {
+  id: Scalars['uuid'];
+};
+
+
+export type GridWithLabResultsQueryQuery = (
+  { __typename?: 'query_root' }
+  & { grid_by_pk: Maybe<(
+    { __typename?: 'grid' }
+    & Pick<Grid, 'created_at' | 'finished' | 'id' | 'sample_arrival_date' | 'sample_taken_date' | 'test_finished_date' | 'test_initiation_date' | 'title' | 'updated_at'>
+  )>, lab_result: Array<(
+    { __typename?: 'lab_result' }
+    & Pick<Lab_Result, 'column' | 'created_at' | 'id' | 'referenced_in_grid_id' | 'row' | 'sample_code' | 'updated_at'>
+  )> }
+);
+
 
 export const InsertGridMutationDocument = gql`
     mutation InsertGridMutation($gridObjects: [grid_insert_input!]!, $labResultsObjects: [lab_result_insert_input!]!) {
@@ -1013,6 +1051,13 @@ export const InsertGridMutationDocument = gql`
 export const InsertApplicationMutationDocument = gql`
     mutation InsertApplicationMutation($application: [application_insert_input!]!) {
   insert_application(objects: $application) {
+    affected_rows
+  }
+}
+    `;
+export const UpdateLabResultMutationDocument = gql`
+    mutation UpdateLabResultMutation($gridId: uuid!, $column: Int!, $row: Int!) {
+  update_lab_result(where: {referenced_in_grid_id: {_eq: $gridId}, _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}}) {
     affected_rows
   }
 }
@@ -1044,6 +1089,30 @@ export const ApplicationsBySampleCodeQeryDocument = gql`
   }
 }
     `;
+export const GridWithLabResultsQueryDocument = gql`
+    query GridWithLabResultsQuery($id: uuid!) {
+  grid_by_pk(id: $id) {
+    created_at
+    finished
+    id
+    sample_arrival_date
+    sample_taken_date
+    test_finished_date
+    test_initiation_date
+    title
+    updated_at
+  }
+  lab_result(where: {referenced_in_grid_id: {_eq: $id}}) {
+    column
+    created_at
+    id
+    referenced_in_grid_id
+    row
+    sample_code
+    updated_at
+  }
+}
+    `;
 export function getSdk(client: GraphQLClient) {
   return {
     InsertGridMutation(variables: InsertGridMutationMutationVariables): Promise<InsertGridMutationMutation> {
@@ -1051,6 +1120,9 @@ export function getSdk(client: GraphQLClient) {
     },
     InsertApplicationMutation(variables: InsertApplicationMutationMutationVariables): Promise<InsertApplicationMutationMutation> {
       return client.request<InsertApplicationMutationMutation>(print(InsertApplicationMutationDocument), variables);
+    },
+    UpdateLabResultMutation(variables: UpdateLabResultMutationMutationVariables): Promise<UpdateLabResultMutationMutation> {
+      return client.request<UpdateLabResultMutationMutation>(print(UpdateLabResultMutationDocument), variables);
     },
     GridQuery(variables: GridQueryQueryVariables): Promise<GridQueryQuery> {
       return client.request<GridQueryQuery>(print(GridQueryDocument), variables);
@@ -1060,6 +1132,9 @@ export function getSdk(client: GraphQLClient) {
     },
     ApplicationsBySampleCodeQery(variables: ApplicationsBySampleCodeQeryQueryVariables): Promise<ApplicationsBySampleCodeQeryQuery> {
       return client.request<ApplicationsBySampleCodeQeryQuery>(print(ApplicationsBySampleCodeQeryDocument), variables);
+    },
+    GridWithLabResultsQuery(variables: GridWithLabResultsQueryQueryVariables): Promise<GridWithLabResultsQueryQuery> {
+      return client.request<GridWithLabResultsQueryQuery>(print(GridWithLabResultsQueryDocument), variables);
     }
   };
 }
