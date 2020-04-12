@@ -1,17 +1,6 @@
-import {
-  Button,
-  Paper,
-  Tab,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tabs,
-  Typography,
-} from '@material-ui/core'
+import {Button, Paper, Tab, Tabs, Typography} from '@material-ui/core'
 import {makeStyles} from '@material-ui/styles'
+import MUIDataTable from 'mui-datatables'
 import React, {useState} from 'react'
 import {ApplicationsQueryQuery} from '../../utils/graphqlSdk'
 import NewApplicant from './NewApplicant'
@@ -39,6 +28,7 @@ const Dashboard = ({applications}: Props) => {
 
   return (
     <div style={{margin: 16}}>
+      {/* TODO: maybe remove this row */}
       <div className={classes.titleWrapper}>
         <Typography variant="h3" style={{display: 'inline-block'}}>
           Zoznam záznamov
@@ -70,32 +60,29 @@ const Dashboard = ({applications}: Props) => {
       </Tabs>
 
       <Paper style={{marginBottom: 16}}>
-        <TableContainer component={Paper} style={{height: 'calc(100vh - 250px)'}}>
-          <Table size="small">
-            <TableHead style={{backgroundColor: 'lightgrey'}}>
-              <TableRow>
-                <TableCell align="center">Číslo vzorky</TableCell>
-                <TableCell align="center">Priezvisko a meno</TableCell>
-                <TableCell align="center">Rodné číslo</TableCell>
-                <TableCell align="center">Dátum odberu</TableCell>
-                <TableCell align="center">Dátum príjmu</TableCell>
-                <TableCell align="center">Odosielateľ</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {applications.application.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell align="center">{row.sample_code}</TableCell>
-                  <TableCell align="center">{row.pacient_name}</TableCell>
-                  <TableCell align="center">{row.personal_number}</TableCell>
-                  <TableCell align="center">{row.sample_collection_date}</TableCell>
-                  <TableCell align="center">{row.sample_receive_date || '-'}</TableCell>
-                  <TableCell align="center">{row.sender}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <MUIDataTable
+          title={'Zoznam záznamov'}
+          data={applications.application.map((row) => [
+            row.sample_code,
+            row.pacient_name,
+            row.personal_number,
+            row.sample_collection_date,
+            row.sample_receive_date,
+            row.sender,
+          ])}
+          columns={[
+            'Číslo vzorky',
+            'Priezvisko a meno',
+            'Rodné číslo',
+            'Dátum odberu',
+            'Dátum príjmu',
+            'Odosielateľ',
+          ]}
+          options={{
+            filterType: 'dropdown',
+            responsive: 'scroll',
+          }}
+        />
       </Paper>
       <NewApplicant open={dialogOpen} setOpen={setDialogOpen} />
     </div>
