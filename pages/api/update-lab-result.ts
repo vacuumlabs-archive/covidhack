@@ -18,7 +18,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(400).end()
   } else if (typeof validBody.positive === 'boolean') {
     const a = await client.UpdateLabResultPositiveMutation(validBody)
-    console.log(a)
     // return the grid query to use for updating local cache
     const result = await client.GridWithLabResultsQuery({id: validBody.gridId})
 
