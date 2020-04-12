@@ -1,21 +1,20 @@
 import {GetServerSideProps} from 'next'
 import React from 'react'
 import {allowAccessFor} from '../utils/auth'
-import LabDoc from '../components/docs/LabDoc'
-import OfficeDoc from '../components/docs/OfficeDoc'
 import PrintDocButton from '../components/PrintDocButton'
+import {getLabDocContent, getOfficeDocContent} from '../utils/pdf/pdf'
 
 const PrintTest = () => {
   const samples = []
 
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 32; i++) {
     samples.push({sampleCode: (i + 10200).toString(10), testResult: 'neg'})
   }
 
   return (
     <>
-      <PrintDocButton doc={<LabDoc content={{samples}} />} label="Print Lab" pdfName="lab.pdf" />
-      <PrintDocButton doc={<OfficeDoc />} label="Print Office" pdfName="office.pdf" />
+      <PrintDocButton doc={getLabDocContent({content: {samples}})} label="Print Lab" pdfName="lab.pdf" />
+      <PrintDocButton doc={getOfficeDocContent()} label="Print Office" pdfName="office.pdf" />
     </>
   )
 }
