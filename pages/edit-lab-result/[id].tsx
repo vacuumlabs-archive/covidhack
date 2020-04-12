@@ -1,50 +1,62 @@
-import {formatISO} from 'date-fns'
 import produce from 'immer'
 import {GetServerSideProps} from 'next'
-import React, {useCallback, useState} from 'react'
+import React, {useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
-import Layout from '../components/Layout'
-import {allowAccessFor} from '../utils/auth'
-import {createEmptyGrid} from '../utils/helpers'
-import {createGridBodySchema} from '../utils/validations'
+import Layout from '../../components/Layout'
+import {allowAccessFor} from '../../utils/auth'
+import {mapLabResultsToGrid} from '../../utils/helpers'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
+  positive: boolean
 }
 
 class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
 
+const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = (props) => {
+  const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
+  return (
+    <div style={backgroundStyle}>
+      {props.cell.value}
+      <input type="checkbox" checked={props.cell.positive} onChange={() => null} />
+    </div>
+  )
+}
+
 const SuccessRegistration = () => {
-  const [grid, setGrid] = useState(createEmptyGrid())
-  const [testInitiationDate, setTestInitiationDate] = useState(new Date())
-  const [testFinishedDate, setTestFinishedDate] = useState(new Date())
-  const [sampleTakenDate, setSampleTakenDate] = useState(new Date())
-  const [sampleArrivalDate, setSampleArrivalDate] = useState(new Date())
-  console.log(testInitiationDate)
-  const [title, setTitle] = useState()
-  const submit = useCallback(async () => {
-    const body = {
-      grid,
-      title: 'Title',
-      test_initiation_date: formatISO(testInitiationDate),
-      test_finished_date: formatISO(testFinishedDate),
-      sample_taken_date: formatISO(sampleTakenDate),
-      sample_arrival_date: formatISO(sampleArrivalDate),
-    }
-    // TODO do something if validation fails
-    createGridBodySchema.validateSync(body)
-    const response = await fetch('/api/create-grid', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+  const [grid, setGrid] = useState(
+    mapLabResultsToGrid([
+      {
+        column: 0,
+        created_at: '2020-04-12T09:03:19.708132+00:00',
+        id: '1b3e829b-c3dc-413f-8555-0cecb08fc8d1',
+        referenced_in_grid_id: '32db8cae-058f-47bb-8c16-ec5e2e1c2cce',
+        row: 0,
+        sample_code: '751442',
+        updated_at: '2020-04-12T09:03:19.708132+00:00',
+        positive: true,
       },
-      body: JSON.stringify(body),
-    })
-    // if (response.ok)
-    //   response.json().then((data) => {
-    //     // Router.push(`/success-registration/${data.id}`)
-    //   })
-  }, [grid])
+      {
+        column: 1,
+        created_at: '2020-04-12T09:03:19.708132+00:00',
+        id: '9f5400ed-6917-4172-bdc4-c39e3a82bf64',
+        referenced_in_grid_id: '32db8cae-058f-47bb-8c16-ec5e2e1c2cce',
+        row: 0,
+        sample_code: '181161',
+        updated_at: '2020-04-12T09:03:19.708132+00:00',
+      },
+      {
+        column: 2,
+        created_at: '2020-04-12T09:03:19.708132+00:00',
+        id: 'b5faa800-548d-4e79-8bb1-a77d70be1b78',
+        referenced_in_grid_id: '32db8cae-058f-47bb-8c16-ec5e2e1c2cce',
+        row: 0,
+        sample_code: '743744',
+        updated_at: '2020-04-12T09:03:19.708132+00:00',
+        positive: true,
+      },
+    ]),
+  )
   return (
     <>
       <Layout isFormPage>
@@ -62,8 +74,8 @@ const SuccessRegistration = () => {
                   }),
                 )
               }}
+              valueViewer={valueViewer}
             />
-            <button onClick={submit}>Submit</button>
           </div>
         </div>
       </Layout>

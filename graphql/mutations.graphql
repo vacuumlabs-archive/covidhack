@@ -15,3 +15,14 @@ mutation InsertApplicationMutation($application: [application_insert_input!]!) {
     affected_rows
   }
 }
+
+mutation UpdateLabResultMutation($gridId: uuid!, $column: Int!, $row: Int!) {
+  update_lab_result(
+    where: {
+      referenced_in_grid_id: {_eq: $gridId}
+      _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}
+    }
+  ) {
+    affected_rows
+  }
+}
