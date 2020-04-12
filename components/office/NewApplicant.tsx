@@ -107,7 +107,6 @@ const NewApplicant = ({open, setOpen}: Props) => {
                 name="sampleCollectionDate"
                 value={values.sampleCollectionDate}
                 onChange={(newDate) => {
-                  console.log(newDate)
                   setFieldValue('sampleCollectionDate', newDate)
                 }}
                 disablePast

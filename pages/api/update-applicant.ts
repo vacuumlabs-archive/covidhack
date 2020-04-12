@@ -1,5 +1,4 @@
 import {NextApiRequest, NextApiResponse} from 'next'
-import {v4} from 'uuid'
 import {ValidationError} from 'yup'
 import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
@@ -14,7 +13,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     // TODO: validation
     const application = {
-      id: v4(),
+      id: req.body.id,
       pacient_name: req.body.pacient,
       personal_number: req.body.personalNumber,
       sample_code: req.body.sampleCode,
@@ -24,8 +23,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     } as any
 
     // TODO here we can check for specific conflicts, before just upserting
-    await client.InsertApplicationMutation({
-      application,
+    await client.UpdateApplicationMutation({
+      id: application.id,
+      changes: application,
     })
     res.status(201).end()
   } catch (e) {

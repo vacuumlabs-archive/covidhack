@@ -27,8 +27,6 @@ type Props = {
 const EditApplication = ({application}: Props) => {
   const classes = useStyles()
 
-  console.log(application)
-
   return (
     <Layout>
       <Typography variant="h3" gutterBottom style={{textAlign: 'center'}}>
@@ -37,6 +35,7 @@ const EditApplication = ({application}: Props) => {
       <Paper className={classes.paper}>
         <Formik
           initialValues={{
+            id: application.id,
             pacient: application.pacient_name,
             personalNumber: application.personal_number,
             sampleCollectionDate: application.sample_collection_date,
@@ -45,7 +44,7 @@ const EditApplication = ({application}: Props) => {
             sender: application.sender,
           }}
           onSubmit={async (values) => {
-            const response = await fetch('/api/edit-applicant', {
+            const response = await fetch('/api/update-applicant', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -63,6 +62,18 @@ const EditApplication = ({application}: Props) => {
         >
           {({values, handleChange, errors, touched, setFieldValue}) => (
             <Form>
+              <TextField
+                className={classes.formField}
+                name="id"
+                value={values.id}
+                onChange={handleChange}
+                disabled
+                label="Id"
+                fullWidth
+                error={touched.id && !!errors.id}
+                helperText={touched.id && errors.id}
+              />
+
               <TextField
                 className={classes.formField}
                 name="sender"
