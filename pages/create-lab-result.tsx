@@ -1,3 +1,4 @@
+import {TextField} from '@material-ui/core'
 import {DatePicker} from '@material-ui/pickers'
 import {formatISO} from 'date-fns'
 import produce from 'immer'
@@ -24,11 +25,11 @@ const SuccessRegistration = () => {
   const [sampleTakenDate, setSampleTakenDate] = useState(new Date())
   const [sampleArrivalDate, setSampleArrivalDate] = useState(new Date())
   console.log(testInitiationDate)
-  const [title, setTitle] = useState()
+  const [title, setTitle] = useState<string>('')
   const submit = useCallback(async () => {
     const body = {
       grid: removeFrame(grid),
-      title: 'Title',
+      title: title,
       test_initiation_date: formatISO(testInitiationDate),
       test_finished_date: formatISO(testFinishedDate),
       sample_taken_date: formatISO(sampleTakenDate),
@@ -90,6 +91,13 @@ const SuccessRegistration = () => {
               label="Sample arrival date"
               value={sampleArrivalDate}
               onChange={setSampleArrivalDate}
+            />
+            <TextField
+              value={title}
+              label="Title"
+              onChange={(e) => {
+                setTitle(e.target.value)
+              }}
             />
             <MyReactDataSheet
               data={gridToDisplay}
