@@ -69,3 +69,13 @@ query GridsQuery {
     finished
   }
 }
+
+query LabResultQuery {
+  lab_result(order_by: {updated_at: asc}) {
+    id
+    referenced_in_grid_id
+    sample_code
+    updated_at
+    positive
+  }
+}
