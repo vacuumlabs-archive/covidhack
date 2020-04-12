@@ -1,8 +1,14 @@
-import {Button, Paper, Tab, Tabs, Typography} from '@material-ui/core'
+import {Button, IconButton, Paper, Tab, Tabs, Typography} from '@material-ui/core'
+import {createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles'
+import EditIcon from '@material-ui/icons/Edit'
+import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import {makeStyles} from '@material-ui/styles'
 import MUIDataTable from 'mui-datatables'
+import Router from 'next/router'
 import React, {useState} from 'react'
+import {formatDate} from '../../utils/formatter'
 import {ApplicationsQueryQuery} from '../../utils/graphqlSdk'
+import {createPdf, getOfficeDocContent} from '../../utils/pdf/pdf'
 import NewApplicant from './NewApplicant'
 
 const useStyles = makeStyles({
@@ -12,9 +18,29 @@ const useStyles = makeStyles({
     marginBottom: 8,
   },
   newApplicant: {
-    marginLeft: 'auto !important',
-    padding: '8px 16px !important',
+    marginLeft: '8px !important',
   },
+})
+
+const tableMuiTheme = createMuiTheme({
+  overrides: {
+    MUIDataTable: {
+      responsiveScroll: {
+        height: '63vh',
+      },
+    },
+    MUIDataTableToolbar: {
+      left: {
+        display: 'flex',
+        alignItems: 'center',
+      },
+    },
+    MuiTableCell: {
+      root: {
+        padding: '0 !important',
+      },
+    },
+  } as any,
 })
 
 interface Props {
@@ -28,21 +54,6 @@ const Dashboard = ({applications}: Props) => {
 
   return (
     <div style={{margin: 16}}>
-      {/* TODO: maybe remove this row */}
-      <div className={classes.titleWrapper}>
-        <Typography variant="h3" style={{display: 'inline-block'}}>
-          Zoznam záznamov
-        </Typography>
-        <Button
-          className={classes.newApplicant}
-          color="primary"
-          variant="contained"
-          onClick={() => setDialogOpen(true)}
-        >
-          Nový žiadateľ
-        </Button>
-      </div>
-
       <Tabs
         value={value}
         onChange={(event: React.ChangeEvent<{}>, newValue: number) => {
@@ -60,29 +71,80 @@ const Dashboard = ({applications}: Props) => {
       </Tabs>
 
       <Paper style={{marginBottom: 16}}>
-        <MUIDataTable
-          title={'Zoznam záznamov'}
-          data={applications.application.map((row) => [
-            row.sample_code,
-            row.pacient_name,
-            row.personal_number,
-            row.sample_collection_date,
-            row.sample_receive_date,
-            row.sender,
-          ])}
-          columns={[
-            'Číslo vzorky',
-            'Priezvisko a meno',
-            'Rodné číslo',
-            'Dátum odberu',
-            'Dátum príjmu',
-            'Odosielateľ',
-          ]}
-          options={{
-            filterType: 'dropdown',
-            responsive: 'scroll',
-          }}
-        />
+        <MuiThemeProvider theme={tableMuiTheme}>
+          <MUIDataTable
+            title={
+              <>
+                <Typography variant="h6" style={{display: 'inline-block'}}>
+                  {'Zoznam záznamov'}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  className={classes.newApplicant}
+                  onClick={() => setDialogOpen(true)}
+                >
+                  Nový žiadateľ
+                </Button>
+              </>
+            }
+            data={applications.application.map((row) => [
+              row.sample_code,
+              row.pacient_name,
+              row.personal_number,
+              formatDate(row.sample_collection_date),
+              formatDate(row.sample_receive_date),
+              row.sender,
+              <IconButton key={row.id} onClick={() => Router.push(`/office/${row.id}`)}>
+                <EditIcon />
+              </IconButton>,
+              <IconButton
+                key={row.id}
+                onClick={() =>
+                  createPdf(
+                    `${row.sample_code}.pdf`,
+                    getOfficeDocContent({
+                      content: {
+                        patientName: row.pacient_name,
+                        personalNumber: row.personal_number,
+                        sampleCode: row.sample_code,
+                        sender: row.sender,
+                        sampleCollectionDate: formatDate(row.sample_collection_date),
+                        sampleReceiveDate: formatDate(row.sample_receive_date),
+                        // TODO: need test query for this
+                        testResult: '',
+                        testStartDate: '',
+                        testEndDate: '',
+                      },
+                    }),
+                  )
+                }
+              >
+                <PictureAsPdfIcon />
+              </IconButton>,
+            ])}
+            columns={[
+              'Číslo vzorky',
+              'Priezvisko a meno',
+              'Rodné číslo',
+              'Dátum odberu',
+              'Dátum príjmu',
+              'Odosielateľ',
+              'Upraviť',
+              'Pdf',
+            ]}
+            options={{
+              filterType: 'dropdown',
+              // TODO: might consider this later
+              expandableRows: false,
+              responsive: 'scroll',
+              // onRowsSelect: (row) => console.log('select', row),
+              // onRowsExpand: (row) => console.log('expand', row),
+              // onRowClick: (row) => console.log('click', row),
+              // onCellClick: (row) => console.log('cell', row),
+            }}
+          />
+        </MuiThemeProvider>
       </Paper>
       <NewApplicant open={dialogOpen} setOpen={setDialogOpen} />
     </div>

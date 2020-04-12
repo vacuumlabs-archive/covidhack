@@ -49,3 +49,9 @@ mutation UpdateLabResultSampleCodeMutation(
     affected_rows
   }
 }
+
+mutation UpdateApplicationMutation($id: uuid!, $changes: application_set_input!) {
+  update_application(where: {id: {_eq: $id}}, _set: $changes) {
+    affected_rows
+  }
+}

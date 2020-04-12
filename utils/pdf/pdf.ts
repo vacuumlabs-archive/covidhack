@@ -1,5 +1,5 @@
-import pdfMake from 'pdfmake'
 import _ from 'lodash'
+import pdfMake from 'pdfmake'
 import vfsPTSerif from './vfs_ptserif'
 
 const NORMAL_ROW_HEIGHT = 20
@@ -185,7 +185,10 @@ export const getLabDocContent = (props: LabDocProps = {}) => {
   )
 
   const formattedSamples = content.samples.map(({sampleCode, testResult}) => [
-    sampleCode, content.testParameter, testResult, content.testMethod
+    sampleCode,
+    content.testParameter,
+    testResult,
+    content.testMethod,
   ])
 
   return {
@@ -438,48 +441,48 @@ export const getOfficeDocContent = (props: OfficeDocProps = {}): object => {
 }
 
 export const createPdf = (fileName = 'sample.pdf', props: object = getLabDocContent()) => {
-    pdfMake
-      .createPdf(
-        {
-          // PageSize Object { width: 595.28, height: 841.89, orientation: "portrait" }
-          pageSize: 'A4',
-          pageOrientation: 'portrait',
-          footer: (currentPage, pageCount) => [
-            {
-              text: `Strana ${currentPage} z ${pageCount}`,
-              alignment: 'right',
-              margin: [0, 0, 20, 20],
-            },
-          ],
-          defaultStyle: {
-            font: 'PTSerif',
-            fontSize: 11,
+  pdfMake
+    .createPdf(
+      {
+        // PageSize Object { width: 595.28, height: 841.89, orientation: "portrait" }
+        pageSize: 'A4',
+        pageOrientation: 'portrait',
+        footer: (currentPage, pageCount) => [
+          {
+            text: `Strana ${currentPage} z ${pageCount}`,
+            alignment: 'right',
+            margin: [0, 0, 20, 20],
           },
-          styles: {
-            title: {
-              fontSize: 13,
-              bold: true,
-              alignment: 'center',
-            },
-            table: {
-              margin: [0, 0, 0, 10],
-            },
-            notes: {
-              fontSize: 9,
-            },
-          },
-          ...props,
+        ],
+        defaultStyle: {
+          font: 'PTSerif',
+          fontSize: 11,
         },
-        null,
-        {
-          PTSerif: {
-            normal: 'PTSerif-Regular.ttf',
-            bold: 'PTSerif-Bold.ttf',
-            italics: 'PTSerif-Italic.ttf',
-            bolditalics: 'PTSerif-BoldItalic.ttf',
+        styles: {
+          title: {
+            fontSize: 13,
+            bold: true,
+            alignment: 'center',
+          },
+          table: {
+            margin: [0, 0, 0, 10],
+          },
+          notes: {
+            fontSize: 9,
           },
         },
-        vfsPTSerif,
-      )
-      .download(fileName)
+        ...props,
+      },
+      null,
+      {
+        PTSerif: {
+          normal: 'PTSerif-Regular.ttf',
+          bold: 'PTSerif-Bold.ttf',
+          italics: 'PTSerif-Italic.ttf',
+          bolditalics: 'PTSerif-BoldItalic.ttf',
+        },
+      },
+      vfsPTSerif,
+    )
+    .download(fileName)
 }

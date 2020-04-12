@@ -1,12 +1,12 @@
 import {GetServerSideProps} from 'next'
 import React from 'react'
+import LabDashboard from '../components/lab/Dashboard'
 import Layout from '../components/Layout'
 import {client} from '../utils/gql'
-import {GridsQuery} from '../utils/graphqlSdk'
-import LabDashboard from '../components/lab/Dashboard'
+import {GridsQueryQuery} from '../utils/graphqlSdk'
 
 interface Props {
-  grids: GridsQuery
+  grids: GridsQueryQuery
 }
 
 const Lab = (props: Props) => {

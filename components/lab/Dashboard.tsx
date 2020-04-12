@@ -1,15 +1,14 @@
-
-import React from 'react'
-import Link from 'next/link'
-import {Paper, Button} from '@material-ui/core'
+import {Button, Paper} from '@material-ui/core'
 import MUIDataTable from 'mui-datatables'
-import {GridsQuery} from '../../utils/graphqlSdk'
+import Link from 'next/link'
+import React from 'react'
 import {formatDate} from '../../utils/formatter'
-import {createPdf, getLabDocContent} from '../../utils/pdf/pdf'
+import {GridsQueryQuery} from '../../utils/graphqlSdk'
 import {isNormalInteger} from '../../utils/helpers'
+import {createPdf, getLabDocContent} from '../../utils/pdf/pdf'
 
 interface Props {
-  grids: GridsQuery
+  grids: GridsQueryQuery
 }
 
 const LabDashboard = ({grids}: Props) => {
@@ -21,14 +20,12 @@ const LabDashboard = ({grids}: Props) => {
       },
     }).then((r) => r.json())
 
-    const samples = labResults.lab_result.map(({sample_code: sampleCode, positive}) => {
-      const testResult = positive === true
-        ? 'Pozitívny'
-        : positive === false
-          ? 'Negatívny'
-          : ''
-      return {sampleCode, testResult}
-    }).filter(({sampleCode}) => isNormalInteger(sampleCode))
+    const samples = labResults.lab_result
+      .map(({sample_code: sampleCode, positive}) => {
+        const testResult = positive === true ? 'Pozitívny' : positive === false ? 'Negatívny' : ''
+        return {sampleCode, testResult}
+      })
+      .filter(({sampleCode}) => isNormalInteger(sampleCode))
 
     samples.sort(({sampleCode: a}, {sampleCode: b}) => parseInt(a) - parseInt(b))
 
@@ -74,7 +71,12 @@ const LabDashboard = ({grids}: Props) => {
                   </Link>
                 </span>
                 <span className="button">
-                  <Button color="primary" variant="contained" onClick={() => printLabDoc(row)} disabled={!row.finished}>
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    onClick={() => printLabDoc(row)}
+                    disabled={!row.finished}
+                  >
                     Tlačiť
                   </Button>
                 </span>

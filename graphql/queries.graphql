@@ -22,6 +22,18 @@ query ApplicationsBySampleCodeQery($codes: [String!]!) {
   }
 }
 
+query ApplicationQuery($id: uuid!) {
+  application(where: {id: {_eq: $id}}) {
+    id
+    pacient_name
+    personal_number
+    sample_code
+    sample_collection_date
+    sample_receive_date
+    sender
+  }
+}
+
 query GridWithLabResultsQuery($id: uuid!) {
   grid_by_pk(id: $id) {
     created_at
@@ -43,5 +55,17 @@ query GridWithLabResultsQuery($id: uuid!) {
     sample_code
     updated_at
     positive
+  }
+}
+
+query GridsQuery {
+  grid {
+    id
+    title
+    sample_arrival_date
+    sample_taken_date
+    test_finished_date
+    test_initiation_date
+    finished
   }
 }

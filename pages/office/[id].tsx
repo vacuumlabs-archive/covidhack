@@ -1,49 +1,57 @@
-import {Button, Dialog, DialogActions, DialogTitle, TextField} from '@material-ui/core'
+import {Button, DialogActions, Paper, TextField, Typography} from '@material-ui/core'
 import {DateTimePicker} from '@material-ui/pickers'
 import {makeStyles} from '@material-ui/styles'
 import {Form, Formik} from 'formik'
+import {GetServerSideProps} from 'next'
+import Router from 'next/router'
 import React from 'react'
-import {useDispatch} from 'react-redux'
 import * as Yup from 'yup'
+import Layout from '../../components/Layout'
+import {allowAccessFor} from '../../utils/auth'
+import {client} from '../../utils/gql'
+import {Application} from '../../utils/graphqlSdk'
 
 const useStyles = makeStyles({
   dialog: {maxWidth: '450px !important', padding: 24},
   formField: {marginBottom: '8px !important'},
+  paper: {
+    margin: 16,
+    padding: 16,
+  },
 })
 
-type Props = any
+type Props = {
+  application: Application
+}
 
-const NewApplicant = ({open, setOpen}: Props) => {
-  const dispatch = useDispatch()
+const EditApplication = ({application}: Props) => {
   const classes = useStyles()
 
   return (
-    <>
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        classes={{paperScrollPaper: classes.dialog}}
-      >
-        <DialogTitle style={{textAlign: 'center'}}>Údaje o novom žiadeťeľovi</DialogTitle>
+    <Layout>
+      <Typography variant="h3" gutterBottom style={{textAlign: 'center'}}>
+        Upraviť žiadosť {application.sample_code}
+      </Typography>
+      <Paper className={classes.paper}>
         <Formik
           initialValues={{
-            pacient: '',
-            personalNumber: '',
-            sampleCollectionDate: new Date(),
-            sampleReceiveDate: new Date(),
-            sampleCode: '',
-            sender: '',
+            id: application.id,
+            pacient: application.pacient_name,
+            personalNumber: application.personal_number,
+            sampleCollectionDate: application.sample_collection_date,
+            sampleReceiveDate: application.sample_receive_date,
+            sampleCode: application.sample_code,
+            sender: application.sender,
           }}
           onSubmit={async (values) => {
-            setOpen(false)
-            // TODO: maybe wait for response first
-            const response = await fetch('/api/create-applicant', {
+            const response = await fetch('/api/update-applicant', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify(values),
             })
+            Router.push('/dashboard')
           }}
           validationSchema={Yup.object({
             pacient: Yup.string().required('Toto pole nesmie byť prázdne'),
@@ -52,8 +60,20 @@ const NewApplicant = ({open, setOpen}: Props) => {
             sender: Yup.string().required('Toto pole nesmie byť prázdne'),
           })}
         >
-          {({values, handleChange, errors, touched, setFieldValue, setFieldError}) => (
+          {({values, handleChange, errors, touched, setFieldValue}) => (
             <Form>
+              <TextField
+                className={classes.formField}
+                name="id"
+                value={values.id}
+                onChange={handleChange}
+                disabled
+                label="Id"
+                fullWidth
+                error={touched.id && !!errors.id}
+                helperText={touched.id && errors.id}
+              />
+
               <TextField
                 className={classes.formField}
                 name="sender"
@@ -107,6 +127,7 @@ const NewApplicant = ({open, setOpen}: Props) => {
                 name="sampleCollectionDate"
                 value={values.sampleCollectionDate}
                 onChange={(newDate) => {
+                  console.log(newDate)
                   setFieldValue('sampleCollectionDate', newDate)
                 }}
                 disablePast
@@ -132,18 +153,37 @@ const NewApplicant = ({open, setOpen}: Props) => {
 
               <DialogActions style={{padding: '8px 0'}}>
                 <Button type="submit" color="primary" variant="contained">
-                  Vytvoriť žiadateľa
+                  Uložiť
                 </Button>
-                <Button onClick={() => setOpen(false)} autoFocus variant="contained">
+                <Button onClick={() => Router.push('/dashboard')} autoFocus variant="contained">
                   Zrušiť
                 </Button>
               </DialogActions>
             </Form>
           )}
         </Formik>
-      </Dialog>
-    </>
+      </Paper>
+    </Layout>
   )
 }
 
-export default NewApplicant
+export const getServerSideProps: GetServerSideProps = async (context): Promise<{props: Props}> => {
+  if (!allowAccessFor(context.req.headers.authorization, ['kancelaria', 'laboratorium'])) {
+    context.res.statusCode = 401
+    context.res.setHeader('WWW-Authenticate', 'Basic')
+    context.res.end('Unauthorized')
+    return
+  }
+
+  const {application} = await client.ApplicationQuery({
+    id: context.params.id,
+  })
+
+  return {
+    props: {
+      application: application[0],
+    },
+  }
+}
+
+export default EditApplication
