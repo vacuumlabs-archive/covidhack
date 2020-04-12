@@ -2,21 +2,23 @@ import {DatePicker} from '@material-ui/pickers'
 import {formatISO} from 'date-fns'
 import produce from 'immer'
 import {GetServerSideProps} from 'next'
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useMemo, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
 import Layout from '../components/Layout'
 import {allowAccessFor} from '../utils/auth'
-import {createEmptyGrid} from '../utils/helpers'
+import {addFrame, createEmptyGrid, removeFrame} from '../utils/helpers'
 import {createGridBodySchema} from '../utils/validations'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
+  readonly?: boolean
+  className?: string
 }
 
 class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
 
 const SuccessRegistration = () => {
-  const [grid, setGrid] = useState(createEmptyGrid())
+  const [grid, setGrid] = useState<GridElement[][]>(addFrame(createEmptyGrid()))
   const [testInitiationDate, setTestInitiationDate] = useState(new Date())
   const [testFinishedDate, setTestFinishedDate] = useState(new Date())
   const [sampleTakenDate, setSampleTakenDate] = useState(new Date())
@@ -25,7 +27,7 @@ const SuccessRegistration = () => {
   const [title, setTitle] = useState()
   const submit = useCallback(async () => {
     const body = {
-      grid,
+      grid: removeFrame(grid),
       title: 'Title',
       test_initiation_date: formatISO(testInitiationDate),
       test_finished_date: formatISO(testFinishedDate),
@@ -46,6 +48,20 @@ const SuccessRegistration = () => {
     //     // Router.push(`/success-registration/${data.id}`)
     //   })
   }, [grid])
+
+  // higlight row and collumn label of the selected cell by adding a className to it
+  const [selected, onSelect] = useState<ReactDataSheet.Selection>(null)
+  const gridToDisplay = useMemo(
+    () =>
+      produce(grid, (draft) => {
+        if (!selected) return draft
+        draft[selected.start.i][0].className = 'selected'
+        draft[0][selected.start.j].className = 'selected'
+        return draft
+      }),
+    [grid, selected],
+  )
+
   return (
     <>
       <Layout isFormPage>
@@ -76,7 +92,7 @@ const SuccessRegistration = () => {
               onChange={setSampleArrivalDate}
             />
             <MyReactDataSheet
-              data={grid}
+              data={gridToDisplay}
               valueRenderer={(cell) => cell.value}
               onCellsChanged={(changes) => {
                 setGrid(
@@ -87,6 +103,8 @@ const SuccessRegistration = () => {
                   }),
                 )
               }}
+              onSelect={onSelect}
+              selected={selected}
             />
             <button onClick={submit}>Submit</button>
           </div>
