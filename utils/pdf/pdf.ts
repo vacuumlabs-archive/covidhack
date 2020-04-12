@@ -96,29 +96,54 @@ const getFooter = ({
   preparedBy,
 }: DocFooterProps) => [
   {
-    style: 'table',
+    layout: 'noBorders',
     table: {
+      dontBreakRows: true,
       widths: ['*'],
-      pageBreak: 'before',
-      heights: [LARGE_ROW_HEIGHT, LARGE_ROW_HEIGHT],
-      body: [[`Poznámka/komentár: ${comment}`], [`Interpretácia výsledku: ${interpretation}`]],
+      body: [
+        [
+          {
+            style: 'table',
+            table: {
+              dontBreakRows: true,
+              widths: ['*'],
+              heights: [LARGE_ROW_HEIGHT, LARGE_ROW_HEIGHT],
+              body: [
+                [`Poznámka/komentár: ${comment}`],
+                [`Interpretácia výsledku: ${interpretation}`],
+              ],
+            },
+          },
+        ],
+      ],
     },
   },
   {
-    style: 'table',
+    layout: 'noBorders',
     table: {
-      widths: ['*', '*'],
-      pageBreak: 'before',
-      heights: [EXTRA_LARGE_ROW_HEIGHT, LARGE_ROW_HEIGHT],
+      dontBreakRows: true,
+      widths: ['*'],
       body: [
         [
-          `Dátum vyhotovenia protokolu o skúške:\n${protocolDate}`,
           {
-            rowSpan: 2,
-            text: `Výsledky preskúmal a protokol o skúške uvoľnil:\n${reviewedBy}`,
+            style: 'table',
+            table: {
+              dontBreakRows: true,
+              widths: ['*', '*'],
+              heights: [EXTRA_LARGE_ROW_HEIGHT, LARGE_ROW_HEIGHT],
+              body: [
+                [
+                  `Dátum vyhotovenia protokolu o skúške:\n${protocolDate}`,
+                  {
+                    rowSpan: 2,
+                    text: `Výsledky preskúmal a protokol o skúške uvoľnil:\n${reviewedBy}`,
+                  },
+                ],
+                [`Vyhotovil:\n${preparedBy}`],
+              ],
+            },
           },
         ],
-        [`Vyhotovil:\n${preparedBy}`],
       ],
     },
   },
@@ -231,19 +256,6 @@ export const getLabDocContent = (props: LabDocProps = {}) => {
           'Výsledky skúšok sa vzťahujú len na vzorku dodanú na OLM.\nVýsledky skúšok je možné reklamovať do 14 dní odo dňa prevzatia protokolu o skúške.\nVysvetlivky: LMD – Laboratórium molekulárnej diagnostiky, LM – Lekárska mikrobiológia, ŠPP – štandardný pracovný postup, NRC – Národné referenčné centrum, CH – chrípka, NK – nukleová kyselina, RT-PCR – polymerázová reťazová reakcia predchádzaná reverznou transkripciou, negat – negatívny, pozit – pozitívny, SARS – severe acute respiratory syndrome, CoV – koronavírus',
       },
     ],
-    styles: {
-      title: {
-        fontSize: 13,
-        bold: true,
-        alignment: 'center',
-      },
-      table: {
-        margin: [0, 0, 0, 10],
-      },
-      notes: {
-        fontSize: 9,
-      },
-    },
   }
 }
 
@@ -422,19 +434,6 @@ export const getOfficeDocContent = (props: OfficeDocProps = {}): object => {
         ],
       },
     ],
-    styles: {
-      title: {
-        fontSize: 13,
-        bold: true,
-        alignment: 'center',
-      },
-      table: {
-        margin: [0, 0, 0, 10],
-      },
-      notes: {
-        fontSize: 9,
-      },
-    },
   }
 }
 
@@ -455,6 +454,19 @@ export const createPdf = (fileName = 'sample.pdf', props: object = getLabDocCont
           defaultStyle: {
             font: 'PTSerif',
             fontSize: 11,
+          },
+          styles: {
+            title: {
+              fontSize: 13,
+              bold: true,
+              alignment: 'center',
+            },
+            table: {
+              margin: [0, 0, 0, 10],
+            },
+            notes: {
+              fontSize: 9,
+            },
           },
           ...props,
         },
