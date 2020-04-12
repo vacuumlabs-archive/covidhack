@@ -1,69 +1,80 @@
-import {formatISO} from 'date-fns'
-import produce from 'immer'
 import {GetServerSideProps} from 'next'
-import React, {useCallback, useState} from 'react'
+import {useRouter} from 'next/router'
+import React, {useCallback, useMemo} from 'react'
 import ReactDataSheet from 'react-datasheet'
-import Layout from '../components/Layout'
-import {allowAccessFor} from '../utils/auth'
-import {createEmptyGrid} from '../utils/helpers'
-import {createGridBodySchema} from '../utils/validations'
+import useSWR from 'swr'
+import Layout from '../../components/Layout'
+import {allowAccessFor} from '../../utils/auth'
+import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
+import {mapLabResultsToGrid} from '../../utils/helpers'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
+  positive: boolean
+  readOnly: boolean
 }
 
 class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
 
+const fetcher = (url) => fetch(url).then((r) => r.json())
+
 const SuccessRegistration = () => {
-  const [grid, setGrid] = useState(createEmptyGrid())
-  const [testInitiationDate, setTestInitiationDate] = useState(new Date())
-  const [testFinishedDate, setTestFinishedDate] = useState(new Date())
-  const [sampleTakenDate, setSampleTakenDate] = useState(new Date())
-  const [sampleArrivalDate, setSampleArrivalDate] = useState(new Date())
-  console.log(testInitiationDate)
-  const [title, setTitle] = useState()
-  const submit = useCallback(async () => {
-    const body = {
-      grid,
-      title: 'Title',
-      test_initiation_date: formatISO(testInitiationDate),
-      test_finished_date: formatISO(testFinishedDate),
-      sample_taken_date: formatISO(sampleTakenDate),
-      sample_arrival_date: formatISO(sampleArrivalDate),
-    }
-    // TODO do something if validation fails
-    createGridBodySchema.validateSync(body)
-    const response = await fetch('/api/create-grid', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    })
-    // if (response.ok)
-    //   response.json().then((data) => {
-    //     // Router.push(`/success-registration/${data.id}`)
-    //   })
-  }, [grid])
+  const router = useRouter()
+  const {id} = router.query
+  const {data, error, mutate} = useSWR(`/api/grid/${id}`, fetcher)
+  const typedData = data as GridWithLabResultsQueryQuery
+  const mappedLabResultData = useMemo(() => {
+    if (!data) return null
+    return mapLabResultsToGrid(typedData.lab_result)
+  }, [typedData, error])
+  const updateLabResult = useCallback(
+    (updateProps) =>
+      fetch('/api/update-lab-result', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateProps),
+      }).then((r) => r.json()),
+    [],
+  )
+  const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback(
+    (props) => {
+      const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
+      return (
+        <div style={backgroundStyle}>
+          {props.cell.value}
+          <input
+            type="checkbox"
+            checked={props.cell.positive}
+            onChange={() => {
+              mutate(
+                updateLabResult({
+                  gridId: id,
+                  column: props.col,
+                  row: props.row,
+                  positive: !props.cell.positive,
+                }),
+              )
+            }}
+          />
+        </div>
+      )
+    },
+    [id, mutate, updateLabResult],
+  )
+
+  if (!data) return <div>loading</div>
   return (
     <>
       <Layout isFormPage>
         <div className="container">
           <div className="wrapper">
             <MyReactDataSheet
-              data={grid}
+              data={mappedLabResultData}
               valueRenderer={(cell) => cell.value}
-              onCellsChanged={(changes) => {
-                setGrid(
-                  produce(grid, (draft) => {
-                    changes.forEach(({row, col, value}) => {
-                      draft[row][col] = {...draft[row][col], value}
-                    })
-                  }),
-                )
-              }}
+              valueViewer={valueViewer}
             />
-            <button onClick={submit}>Submit</button>
           </div>
         </div>
       </Layout>

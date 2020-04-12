@@ -33,3 +33,27 @@ query ApplicationQuery($id: uuid!) {
     sender
   }
 }
+
+query GridWithLabResultsQuery($id: uuid!) {
+  grid_by_pk(id: $id) {
+    created_at
+    finished
+    id
+    sample_arrival_date
+    sample_taken_date
+    test_finished_date
+    test_initiation_date
+    title
+    updated_at
+  }
+  lab_result(where: {referenced_in_grid_id: {_eq: $id}}) {
+    column
+    created_at
+    id
+    referenced_in_grid_id
+    row
+    sample_code
+    updated_at
+    positive
+  }
+}

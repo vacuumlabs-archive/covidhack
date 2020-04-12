@@ -15,3 +15,37 @@ mutation InsertApplicationMutation($application: [application_insert_input!]!) {
     affected_rows
   }
 }
+
+mutation UpdateLabResultPositiveMutation(
+  $gridId: uuid!
+  $column: Int!
+  $row: Int!
+  $positive: Boolean!
+) {
+  update_lab_result(
+    _set: {positive: $positive}
+    where: {
+      referenced_in_grid_id: {_eq: $gridId}
+      _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}
+    }
+  ) {
+    affected_rows
+  }
+}
+
+mutation UpdateLabResultSampleCodeMutation(
+  $gridId: uuid!
+  $column: Int!
+  $row: Int!
+  $sampleCode: String!
+) {
+  update_lab_result(
+    _set: {sample_code: $sampleCode}
+    where: {
+      referenced_in_grid_id: {_eq: $gridId}
+      _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}
+    }
+  ) {
+    affected_rows
+  }
+}

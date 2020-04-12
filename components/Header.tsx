@@ -16,6 +16,10 @@ const FormHeader = () => (
           <Link href="/dashboard">
             <a className="menu-link">Dashboard</a>
           </Link>
+          {/* TODO: only lab should see this */}
+          <Link href="/lab">
+            <a className="menu-link">Lab-Dashboard</a>
+          </Link>
         </div>
       </div>
     </div>
