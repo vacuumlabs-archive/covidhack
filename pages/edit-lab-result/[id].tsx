@@ -92,7 +92,7 @@ const SuccessRegistration = () => {
         </div>
       )
     },
-    [loadingCell, typedData, updateCell],
+    [loadingCell],
   )
 
   const cellRenderer: ReactDataSheet.CellRenderer<GridElement, string> = useCallback(

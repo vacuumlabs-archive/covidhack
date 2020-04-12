@@ -6,13 +6,14 @@ import React, {useCallback, useMemo, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
 import Layout from '../components/Layout'
 import {allowAccessFor} from '../utils/auth'
-import {addFrame, createEmptyGrid, removeFrame} from '../utils/helpers'
+import {addFrame, autofillGrid, createEmptyGrid, removeFrame} from '../utils/helpers'
 import {createGridBodySchema} from '../utils/validations'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
   readonly?: boolean
   className?: string
+  broken?: boolean
 }
 
 class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
@@ -22,6 +23,7 @@ const SuccessRegistration = () => {
   const router = useRouter()
   const [title, setTitle] = useState<string>('')
   const [error, setError] = useState('')
+  const [brokenFieldsEditMode, setBrokenFieldsEditMode] = useState(false)
   const submit = useCallback(async () => {
     setError('')
     const body = {
@@ -60,6 +62,46 @@ const SuccessRegistration = () => {
     [grid, selected],
   )
 
+  // used for backgrounds only, because cellRenderer seems to break drag-to-select
+  const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback((props) => {
+    const backgroundStyle = props.cell.broken ? {backgroundColor: 'yellow'} : {}
+    return (
+      <div style={backgroundStyle}>
+        {props.cell.value}
+        {/* a super hacky fix - the div (with color) did not render when value was empty,  add text with opacity 0 to force it */}
+        {/* TODO correct way to do this is with cellRenderer, but having that always breaks drag-selection */}
+        <span style={{opacity: 0}}>.</span>
+      </div>
+    )
+  }, [])
+
+  const cellRenderer: ReactDataSheet.CellRenderer<GridElement, string> = useCallback(
+    (props) => {
+      // don't change the behaviour for the frame
+      const style = props.cell.readOnly ? undefined : {cursor: 'pointer', width: 200}
+      const onMouseDown = props.cell.readOnly
+        ? props.onMouseDown
+        : () => {
+            setGrid(
+              produce(grid, (draft) => {
+                draft[props.row][props.col].broken = !draft[props.row][props.col].broken
+              }),
+            )
+          }
+      return (
+        <td
+          style={style}
+          onMouseDown={onMouseDown}
+          onMouseOver={props.onMouseOver}
+          className="cell"
+        >
+          {props.children}
+        </td>
+      )
+    },
+    [grid],
+  )
+
   return (
     <>
       <Layout isFormPage>
@@ -72,6 +114,22 @@ const SuccessRegistration = () => {
                 setTitle(e.target.value)
               }}
             />
+            <button onClick={() => setBrokenFieldsEditMode(!brokenFieldsEditMode)}>
+              {brokenFieldsEditMode ? 'Nastavit Hodnoty' : 'Nastavit nefunkcne polia'}
+            </button>
+            <button onClick={() => setGrid(addFrame(autofillGrid(removeFrame(grid))))}>
+              Doplnit automaticky
+            </button>
+            <div style={{color: 'green'}}>
+              Tlacitko doplnit automaticky vyplni cisla vzoriek zaradom, po stlpcoch. Ak narazi na
+              existujucu hodnotu, bude pokracovat v cislovani od nej. Automaticky preskoci nefunkcne
+              polia.
+            </div>
+            {brokenFieldsEditMode && (
+              <div style={{color: 'red'}}>
+                Kliknutim nastavte ktore polia maju byt vynechane pri automatickom vyplnani
+              </div>
+            )}
             <MyReactDataSheet
               data={gridToDisplay}
               valueRenderer={(cell) => cell.value}
@@ -86,6 +144,8 @@ const SuccessRegistration = () => {
               }}
               onSelect={onSelect}
               selected={selected}
+              cellRenderer={brokenFieldsEditMode ? cellRenderer : undefined}
+              valueViewer={valueViewer}
             />
             <button onClick={submit}>Submit</button>
             <div style={{color: 'red'}}>{error}</div>
