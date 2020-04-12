@@ -85,9 +85,9 @@ const Dashboard = ({applications}: Props) => {
             <TableBody>
               {applications.application.map((row) => (
                 <TableRow key={row.id}>
+                  <TableCell align="center">{row.sample_code}</TableCell>
                   <TableCell align="center">{row.pacient_name}</TableCell>
                   <TableCell align="center">{row.personal_number}</TableCell>
-                  <TableCell align="center">{row.sample_code}</TableCell>
                   <TableCell align="center">{row.sample_collection_date}</TableCell>
                   <TableCell align="center">{row.sample_receive_date || '-'}</TableCell>
                   <TableCell align="center">{row.sender}</TableCell>

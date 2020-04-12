@@ -30,3 +30,9 @@ mutation InsertGridMutation(
     affected_rows
   }
 }
+
+mutation InsertApplicationMutation($application: [application_insert_input!]!) {
+  insert_application(objects: $application) {
+    affected_rows
+  }
+}

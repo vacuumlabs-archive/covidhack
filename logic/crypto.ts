@@ -2,11 +2,8 @@ const encode = (str: string) => new TextEncoder().encode(str)
 
 const decode = (data: ArrayBuffer) => new TextDecoder().decode(data)
 
-let SALT
-const getSalt = () => {
-  if (SALT) return SALT
-  else return (SALT = crypto.getRandomValues(new Uint8Array(16)))
-}
+// we have SALT as constant, not optimal, but not a disaster.
+const SALT = new Uint8Array(16)
 
 // https://medium.com/coinmonks/fun-times-with-webcrypto-part-1-pbkdf2-815b1c978c9d
 async function getDerivation(password: string): Promise<ArrayBuffer> {
@@ -15,7 +12,7 @@ async function getDerivation(password: string): Promise<ArrayBuffer> {
     'deriveBits',
   ])
 
-  const params = {name: 'PBKDF2', hash: 'SHA-256', salt: getSalt(), iterations: 4096}
+  const params = {name: 'PBKDF2', hash: 'SHA-256', salt: SALT, iterations: 4096}
   const derivation = await crypto.subtle.deriveBits(params, importedKey, 48 * 8)
   return derivation
 }

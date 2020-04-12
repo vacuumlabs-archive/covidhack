@@ -697,6 +697,19 @@ export type InsertGridMutationMutation = (
   )> }
 );
 
+export type InsertApplicationMutationMutationVariables = {
+  application: Array<Application_Insert_Input>;
+};
+
+
+export type InsertApplicationMutationMutation = (
+  { __typename?: 'mutation_root' }
+  & { insert_application: Maybe<(
+    { __typename?: 'application_mutation_response' }
+    & Pick<Application_Mutation_Response, 'affected_rows'>
+  )> }
+);
+
 export type GridQueryQueryVariables = {
   id: Scalars['uuid'];
 };
@@ -762,6 +775,13 @@ export const InsertGridMutationDocument = gql`
   }
 }
     `;
+export const InsertApplicationMutationDocument = gql`
+    mutation InsertApplicationMutation($application: [application_insert_input!]!) {
+  insert_application(objects: $application) {
+    affected_rows
+  }
+}
+    `;
 export const GridQueryDocument = gql`
     query GridQuery($id: uuid!) {
   grid_by_pk(id: $id) {
@@ -802,6 +822,9 @@ export function getSdk(client: GraphQLClient) {
     },
     InsertGridMutation(variables: InsertGridMutationMutationVariables): Promise<InsertGridMutationMutation> {
       return client.request<InsertGridMutationMutation>(print(InsertGridMutationDocument), variables);
+    },
+    InsertApplicationMutation(variables: InsertApplicationMutationMutationVariables): Promise<InsertApplicationMutationMutation> {
+      return client.request<InsertApplicationMutationMutation>(print(InsertApplicationMutationDocument), variables);
     },
     GridQuery(variables: GridQueryQueryVariables): Promise<GridQueryQuery> {
       return client.request<GridQueryQuery>(print(GridQueryDocument), variables);

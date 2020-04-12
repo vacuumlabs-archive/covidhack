@@ -4,7 +4,6 @@ import {Form, Formik} from 'formik'
 import React from 'react'
 import {useDispatch} from 'react-redux'
 import * as Yup from 'yup'
-import {createNewApplicant} from '../../logic/actions'
 
 const useStyles = makeStyles({
   dialog: {maxWidth: '450px !important', padding: 24},
@@ -34,12 +33,23 @@ const NewApplicant = ({open, setOpen}: Props) => {
             sampleCode: '',
             sender: '',
           }}
-          onSubmit={(values) => dispatch(createNewApplicant())}
+          onSubmit={async (values) => {
+            setOpen(false)
+            // TODO: maybe wait for response first
+            const response = await fetch('/api/create-applicant', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(values),
+            })
+          }}
           validationSchema={Yup.object({
             pacient: Yup.string().required('Toto pole nesmie byť prázdne'),
             personalNumber: Yup.string().required('Toto pole nesmie byť prázdne'),
-            sampleCollectionDate: Yup.string().required('Toto pole nesmie byť prázdne'),
-            sampleReceiveDate: Yup.string().required('Toto pole nesmie byť prázdne'),
+            // make optional for now
+            // sampleCollectionDate: Yup.string().required('Toto pole nesmie byť prázdne'),
+            // sampleReceiveDate: Yup.string().required('Toto pole nesmie byť prázdne'),
             sampleCode: Yup.string().required('Toto pole nesmie byť prázdne'),
             sender: Yup.string().required('Toto pole nesmie byť prázdne'),
           })}
