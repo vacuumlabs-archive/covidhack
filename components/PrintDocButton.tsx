@@ -14,7 +14,9 @@ const PrintDocButton = ({doc, label = 'Print', pdfName = 'my.pdf'}: PrintDocButt
 
   return (
     <>
-      <div onClick={handlePrint} className="button">{label}</div>
+      <div onClick={handlePrint} className="button">
+        {label}
+      </div>
       <style jsx>{`
         .button {
           cursor: pointer;

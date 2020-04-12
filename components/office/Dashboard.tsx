@@ -1,11 +1,13 @@
 import {Button, IconButton, Paper, Tab, Tabs, Typography} from '@material-ui/core'
 import {createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles'
 import EditIcon from '@material-ui/icons/Edit'
+import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import {makeStyles} from '@material-ui/styles'
 import MUIDataTable from 'mui-datatables'
 import Router from 'next/router'
 import React, {useState} from 'react'
 import {ApplicationsQueryQuery} from '../../utils/graphqlSdk'
+import {createPdf, getOfficeDocContent} from '../../utils/pdf/pdf'
 import NewApplicant from './NewApplicant'
 
 const useStyles = makeStyles({
@@ -90,6 +92,30 @@ const Dashboard = ({applications}: Props) => {
               <IconButton key={row.id} onClick={() => Router.push(`/office/${row.id}`)}>
                 <EditIcon />
               </IconButton>,
+              <IconButton
+                key={row.id}
+                onClick={() =>
+                  createPdf(
+                    `${row.sample_code}.pdf`,
+                    getOfficeDocContent({
+                      content: {
+                        patientName: row.pacient_name,
+                        personalNumber: row.personal_number,
+                        sampleCode: row.sample_code,
+                        sender: row.sender,
+                        sampleCollectionDate: row.sample_collection_date,
+                        sampleReceiveDate: row.sample_receive_date,
+                        // TODO: need test query for this
+                        testResult: '',
+                        testStartDate: '',
+                        testEndDate: '',
+                      },
+                    }),
+                  )
+                }
+              >
+                <PictureAsPdfIcon />
+              </IconButton>,
             ])}
             columns={[
               'Číslo vzorky',
@@ -99,6 +125,7 @@ const Dashboard = ({applications}: Props) => {
               'Dátum príjmu',
               'Odosielateľ',
               'Upraviť',
+              'Pdf',
             ]}
             options={{
               filterType: 'dropdown',
