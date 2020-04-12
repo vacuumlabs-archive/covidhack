@@ -1,9 +1,11 @@
+import _ from 'lodash'
 import {NextApiRequest, NextApiResponse} from 'next'
 import {v4} from 'uuid'
 import {ValidationError} from 'yup'
 import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
-import {getSampleCodesFromGrid} from '../../utils/helpers'
+import {Lab_Result_Insert_Input} from '../../utils/graphqlSdk'
+import {isNormalInteger} from '../../utils/helpers'
 import {createGridBodySchema} from '../../utils/validations'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -13,20 +15,29 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     res.end('Unauthorized')
   }
   try {
-    // TODO all of this
+    // need to pre-generate id so that we can reference from labResults
     const validBody = {
       ...createGridBodySchema.validateSync(req.body),
       id: v4(),
     }
-    const applicationsFromCodes = getSampleCodesFromGrid(validBody.grid).map((v) => ({
-      id: v4(),
-      referenced_in_grid_id: validBody.id,
-      sample_code: v,
-    }))
-    // TODO here we can check for specific conflicts, before just upserting
+
+    const labResults: Lab_Result_Insert_Input[] = []
+    validBody.grid.forEach((row, i) => {
+      row.forEach((cell, j) => {
+        // omit control samples
+        if (!isNormalInteger(cell.value)) return
+        labResults.push({
+          row: i,
+          column: j,
+          sample_code: cell.value,
+          referenced_in_grid_id: validBody.id,
+        })
+      })
+    })
+
     await client.InsertGridMutation({
-      gridObjects: [validBody],
-      applicationsObjects: applicationsFromCodes,
+      gridObjects: [_.omit(validBody, 'grid')],
+      labResultsObjects: labResults,
     })
     res.status(201).end()
   } catch (e) {

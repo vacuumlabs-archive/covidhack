@@ -6,7 +6,11 @@ export type ApplicantType = 'physical' | 'legal' | 'physical-contractor'
 
 export const updatePositiveSampleBodySchema = yup
   .object()
-  .shape({sample_code: yup.string().required(), positive: yup.boolean().required()})
+  .shape({
+    referenced_in_grid_id: yup.string().required(),
+    sample_code: yup.string().required(),
+    positive: yup.boolean().required(),
+  })
   .noUnknown()
 
 // TODO validate existence of control samples
