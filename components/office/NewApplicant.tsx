@@ -17,7 +17,7 @@ const useStyles = makeStyles({
 
 type Props = any
 
-const NewApplicant = ({open, setOpen}: Props) => {
+const NewApplicant = ({open, code, close}: Props) => {
   const password = useSelector((state: State) => state.officePassword)
   const classes = useStyles()
 
@@ -25,7 +25,7 @@ const NewApplicant = ({open, setOpen}: Props) => {
     <>
       <Dialog
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={close}
         classes={{paperScrollPaper: classes.dialog}}
       >
         <DialogTitle style={{textAlign: 'center'}}>Údaje o novom žiadeťeľovi</DialogTitle>
@@ -35,11 +35,11 @@ const NewApplicant = ({open, setOpen}: Props) => {
             personalNumber: '',
             sampleCollectionDate: new Date(),
             sampleReceiveDate: new Date(),
-            sampleCode: '',
+            sampleCode: code || '',
             sender: '',
           }}
           onSubmit={async (values) => {
-            setOpen(false)
+            close()
             // TODO: maybe wait for response first
             console.log(
               'bodycko',
@@ -154,7 +154,7 @@ const NewApplicant = ({open, setOpen}: Props) => {
                 <Button type="submit" color="primary" variant="contained">
                   Vytvoriť žiadateľa
                 </Button>
-                <Button onClick={() => setOpen(false)} autoFocus variant="contained">
+                <Button onClick={() => close(false)} autoFocus variant="contained">
                   Zrušiť
                 </Button>
               </DialogActions>

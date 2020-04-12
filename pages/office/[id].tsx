@@ -1,4 +1,4 @@
-import {Button, DialogActions, Paper, TextField, Typography} from '@material-ui/core'
+import {Button, DialogActions, Paper, TextField, Typography, CircularProgress} from '@material-ui/core'
 import {DateTimePicker} from '@material-ui/pickers'
 import {makeStyles} from '@material-ui/styles'
 import {Form, Formik} from 'formik'
@@ -45,8 +45,7 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
   }, [])
 
   if (error) return <div>Chyba pri nacitavani udajov, pravdepodobne nespravne heslo kancelarie</div>
-  if (!application) return <div>Loading...</div>
-
+  if (!application) return <Layout><CircularProgress /></Layout>
   return (
     <Layout>
       <Typography variant="h3" gutterBottom style={{textAlign: 'center'}}>

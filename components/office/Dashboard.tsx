@@ -1,9 +1,11 @@
-import {Button, IconButton, Paper, Tab, Tabs, Typography} from '@material-ui/core'
+import {Button, IconButton, Paper, Tab, Tabs, Typography, CircularProgress} from '@material-ui/core'
 import {createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles'
 import EditIcon from '@material-ui/icons/Edit'
+import PostAdd from '@material-ui/icons/PostAdd'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
+import Cancel from '@material-ui/icons/Cancel'
 import {makeStyles} from '@material-ui/styles'
-import {pick} from 'lodash'
+import {pick, keyBy, Dictionary, clone} from 'lodash'
 import MUIDataTable from 'mui-datatables'
 import Router from 'next/router'
 import React, {useState} from 'react'
@@ -12,7 +14,7 @@ import useSWR from 'swr'
 import {decrypt} from '../../logic/crypto'
 import {State} from '../../logic/state'
 import {formatDate} from '../../utils/formatter'
-import {Application} from '../../utils/graphqlSdk'
+import {Application, Grid, Lab_Result} from '../../utils/graphqlSdk'
 import {mapValuesAsync} from '../../utils/helpers'
 import {createPdf, getOfficeDocContent} from '../../utils/pdf/pdf'
 import NewApplicant from './NewApplicant'
@@ -66,17 +68,90 @@ const createFetcher = (password) => (url) =>
       return ans
     })
 
+
+const getEntries = (mode, {applications, grids, labResults}) => {
+  const labResultsCopy = clone(labResults)
+
+  const allApplications = applications.map((row) => {
+    const labResult = labResults[row.sample_code]
+    delete labResultsCopy[row.sample_code]
+    const grid = grids[labResult?.referenced_in_grid_id]
+
+    return {
+      ...row,
+      sample_collection_date: formatDate(row.sample_collection_date),
+      sample_receive_date: formatDate(row.sample_receive_date),
+      test_initiation_date: grid?.test_initiation_date && formatDate(grid?.test_initiation_date),
+      test_finished_date: grid?.test_finished_date && formatDate(grid?.test_finished_date),
+      test_result: grid?.finished ? (labResult.positive ? 'Pozitívny' : 'Negatívny') : null,
+    }
+  })
+
+  const withNoApplication = Object.values(labResultsCopy).map((lr: Lab_Result) => {
+    const grid = grids[lr?.referenced_in_grid_id]
+
+    return {
+      sample_code: lr.sample_code,
+      pacient_name: null,
+      personal_number: null,
+      sample_collection_date: null,
+      sample_receive_date: null,
+      sender: null,
+      test_initiation_date: grid?.test_initiation_date && formatDate(grid?.test_initiation_date),
+      test_finished_date: grid?.test_finished_date && formatDate(grid?.test_finished_date),
+      test_result: grid?.finished ? (lr.positive ? 'Pozitívny' : 'Negatívny') : null,
+    }
+  })
+
+  if (mode === 0) {
+    return [...allApplications, ...withNoApplication]
+  } else if (mode === 1) {
+    return [...allApplications, ...withNoApplication].filter(
+      ({test_result}) => test_result === null,
+    )
+  } else if (mode === 2) {
+    return [...allApplications, ...withNoApplication].filter(
+      ({test_result}) => test_result !== null,
+    )
+  } else if (mode === 3) {
+    // todo what is processed?
+    return [...allApplications, ...withNoApplication]
+  }
+}
+
 const Dashboard = () => {
   const [value, setValue] = React.useState(0)
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialog, setDialog] = useState({open: false, code: null})
   const classes = useStyles()
   const password = useSelector((state: State) => state.officePassword)
-  const {data, error, mutate} = useSWR<Array<Application> | undefined, any>(
+  const {data: applications, error: applicationsError} = useSWR<Array<Application> | undefined, any>(
     `/api/applications`,
     createFetcher(password),
   )
+  const {data: grids, error: gridsError} = useSWR<Dictionary<Grid> | undefined, any>(
+    `/api/grids`,
+    (url) =>
+      fetch(url)
+        .then((r) => r.json())
+        .then((a) => keyBy(a, 'id')),
+  )
+  const {data: labResults, error: labResultsError} = useSWR<Dictionary<Lab_Result> | undefined, any>(
+    `/api/lab-results`, (url) =>
+      fetch(url)
+        .then((r) => r.json())
+        // todo if there are more la
+        .then((a) => keyBy(a, 'sample_code')),
+  )
 
-  if (error) return <div>Chyba pri nacitavani udajov, pravdepodobne nespravne heslo kancelarie</div>
+  console.error(applicationsError)
+  if (applicationsError || gridsError || labResultsError)
+    return <div>Chyba pri nacitavani udajov, pravdepodobne nespravne heslo kancelarie</div>
+
+  if (!applications || !grids || !labResults) {
+    return <CircularProgress />
+  }
+
+  const entries = getEntries(value, {applications, grids, labResults})
 
   return (
     <div style={{margin: 16}}>
@@ -108,52 +183,58 @@ const Dashboard = () => {
                   variant="contained"
                   color="primary"
                   className={classes.newApplicant}
-                  onClick={() => setDialogOpen(true)}
+                  onClick={() => setDialog({open: true, code: null})}
                 >
                   Nový žiadateľ
                 </Button>
               </>
             }
-            data={
-              data?.map((row) => [
-                row.sample_code,
-                row.pacient_name,
-                row.personal_number,
-                formatDate(row.sample_collection_date),
-                formatDate(row.sample_receive_date),
-                row.sender,
+            data={entries.map((row) => [
+              row.sample_code,
+              row.pacient_name,
+              row.personal_number,
+              row.sample_collection_date,
+              row.sample_receive_date,
+              row.sender,
+              row.test_initiation_date || <Cancel color="disabled" />,
+              row.test_finished_date || <Cancel color="disabled" />,
+              row.test_result || <Cancel color="disabled" />,
+              row.pacient_name ? (
                 <IconButton
                   key={row.id}
                   onClick={() => Router.push('/office/[id]', `/office/${row.id}`)}
                 >
                   <EditIcon />
-                </IconButton>,
-                <IconButton
-                  key={row.id}
-                  onClick={() =>
-                    createPdf(
-                      `${row.sample_code}.pdf`,
-                      getOfficeDocContent({
-                        content: {
-                          patientName: row.pacient_name,
-                          personalNumber: row.personal_number,
-                          sampleCode: row.sample_code,
-                          sender: row.sender,
-                          sampleCollectionDate: formatDate(row.sample_collection_date),
-                          sampleReceiveDate: formatDate(row.sample_receive_date),
-                          // TODO: need test query for this
-                          testResult: '',
-                          testStartDate: '',
-                          testEndDate: '',
-                        },
-                      }),
-                    )
-                  }
-                >
-                  <PictureAsPdfIcon />
-                </IconButton>,
-              ]) || []
-            }
+                </IconButton>
+              ) : (
+                <IconButton key={row.id} onClick={() => setDialog({open: true, code: row.sample_code})}>
+                  <PostAdd />
+                </IconButton>
+              ),
+              <IconButton
+                key={row.id}
+                onClick={() =>
+                  createPdf(
+                    `${row.sample_code}.pdf`,
+                    getOfficeDocContent({
+                      content: {
+                        patientName: row.pacient_name,
+                        personalNumber: row.personal_number,
+                        sampleCode: row.sample_code,
+                        sender: row.sender,
+                        sampleCollectionDate: row.sample_collection_date,
+                        sampleReceiveDate: row.sample_receive_date,
+                        testResult: row.test_result || '',
+                        testStartDate: row.test_initiation_date || '',
+                        testEndDate: row.test_finished_date || '',
+                      },
+                    }),
+                  )
+                }
+              >
+                <PictureAsPdfIcon />
+              </IconButton>,
+            ])}
             columns={[
               'Číslo vzorky',
               'Priezvisko a meno',
@@ -161,6 +242,9 @@ const Dashboard = () => {
               'Dátum odberu',
               'Dátum príjmu',
               'Odosielateľ',
+              'Začiatok skúšky',
+              'Ukončenie skúšky',
+              'Výsledok',
               'Upraviť',
               'Pdf',
             ]}
@@ -177,7 +261,7 @@ const Dashboard = () => {
           />
         </MuiThemeProvider>
       </Paper>
-      <NewApplicant open={dialogOpen} setOpen={setDialogOpen} />
+      <NewApplicant close={() => setDialog({open: false, code: null})} {...dialog} />
     </div>
   )
 }
