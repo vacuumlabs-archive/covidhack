@@ -1,0 +1,5 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."application" DROP COLUMN "tested_positive" CASCADE;
+  type: run_sql

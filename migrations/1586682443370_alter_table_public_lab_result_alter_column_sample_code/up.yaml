@@ -1,0 +1,5 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."lab_result" DROP CONSTRAINT "lab_result_sample_code_key";
+  type: run_sql

@@ -1,0 +1,6 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."lab_result" ADD CONSTRAINT "lab_result_sample_code_key"
+      UNIQUE ("sample_code");
+  type: run_sql

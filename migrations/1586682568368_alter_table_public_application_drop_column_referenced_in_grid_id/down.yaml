@@ -1,0 +1,18 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."application" ADD COLUMN "referenced_in_grid_id" uuid;
+  type: run_sql
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."application" ALTER COLUMN "referenced_in_grid_id" DROP
+      NOT NULL;
+  type: run_sql
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."application" ADD CONSTRAINT application_referenced_in_grid_id_fkey
+      FOREIGN KEY (referenced_in_grid_id) REFERENCES "public"."grid" (id) ON DELETE
+      set null ON UPDATE cascade;
+  type: run_sql
