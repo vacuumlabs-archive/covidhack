@@ -16,14 +16,12 @@ export type Scalars = {
 export type Application = {
    __typename?: 'application';
   id: Scalars['uuid'];
-  pacient_name?: Maybe<Scalars['String']>;
-  personal_number?: Maybe<Scalars['String']>;
-  referenced_in_grid_id?: Maybe<Scalars['uuid']>;
+  pacient_name: Scalars['String'];
+  personal_number: Scalars['String'];
   sample_code: Scalars['String'];
   sample_collection_date?: Maybe<Scalars['timestamptz']>;
   sample_receive_date?: Maybe<Scalars['timestamptz']>;
-  sender?: Maybe<Scalars['String']>;
-  tested_positive?: Maybe<Scalars['Boolean']>;
+  sender: Scalars['String'];
 };
 
 export type Application_Aggregate = {
@@ -63,12 +61,10 @@ export type Application_Bool_Exp = {
   id?: Maybe<Uuid_Comparison_Exp>;
   pacient_name?: Maybe<String_Comparison_Exp>;
   personal_number?: Maybe<String_Comparison_Exp>;
-  referenced_in_grid_id?: Maybe<Uuid_Comparison_Exp>;
   sample_code?: Maybe<String_Comparison_Exp>;
   sample_collection_date?: Maybe<Timestamptz_Comparison_Exp>;
   sample_receive_date?: Maybe<Timestamptz_Comparison_Exp>;
   sender?: Maybe<String_Comparison_Exp>;
-  tested_positive?: Maybe<Boolean_Comparison_Exp>;
 };
 
 export enum Application_Constraint {
@@ -80,12 +76,10 @@ export type Application_Insert_Input = {
   id?: Maybe<Scalars['uuid']>;
   pacient_name?: Maybe<Scalars['String']>;
   personal_number?: Maybe<Scalars['String']>;
-  referenced_in_grid_id?: Maybe<Scalars['uuid']>;
   sample_code?: Maybe<Scalars['String']>;
   sample_collection_date?: Maybe<Scalars['timestamptz']>;
   sample_receive_date?: Maybe<Scalars['timestamptz']>;
   sender?: Maybe<Scalars['String']>;
-  tested_positive?: Maybe<Scalars['Boolean']>;
 };
 
 export type Application_Max_Fields = {
@@ -147,48 +141,40 @@ export type Application_Order_By = {
   id?: Maybe<Order_By>;
   pacient_name?: Maybe<Order_By>;
   personal_number?: Maybe<Order_By>;
-  referenced_in_grid_id?: Maybe<Order_By>;
   sample_code?: Maybe<Order_By>;
   sample_collection_date?: Maybe<Order_By>;
   sample_receive_date?: Maybe<Order_By>;
   sender?: Maybe<Order_By>;
-  tested_positive?: Maybe<Order_By>;
 };
 
 export enum Application_Select_Column {
   Id = 'id',
   PacientName = 'pacient_name',
   PersonalNumber = 'personal_number',
-  ReferencedInGridId = 'referenced_in_grid_id',
   SampleCode = 'sample_code',
   SampleCollectionDate = 'sample_collection_date',
   SampleReceiveDate = 'sample_receive_date',
-  Sender = 'sender',
-  TestedPositive = 'tested_positive'
+  Sender = 'sender'
 }
 
 export type Application_Set_Input = {
   id?: Maybe<Scalars['uuid']>;
   pacient_name?: Maybe<Scalars['String']>;
   personal_number?: Maybe<Scalars['String']>;
-  referenced_in_grid_id?: Maybe<Scalars['uuid']>;
   sample_code?: Maybe<Scalars['String']>;
   sample_collection_date?: Maybe<Scalars['timestamptz']>;
   sample_receive_date?: Maybe<Scalars['timestamptz']>;
   sender?: Maybe<Scalars['String']>;
-  tested_positive?: Maybe<Scalars['Boolean']>;
 };
 
 export enum Application_Update_Column {
   Id = 'id',
   PacientName = 'pacient_name',
   PersonalNumber = 'personal_number',
-  ReferencedInGridId = 'referenced_in_grid_id',
   SampleCode = 'sample_code',
   SampleCollectionDate = 'sample_collection_date',
   SampleReceiveDate = 'sample_receive_date',
-  Sender = 'sender',
-  TestedPositive = 'tested_positive'
+  Sender = 'sender'
 }
 
 export type Boolean_Comparison_Exp = {
@@ -478,8 +464,7 @@ export type Lab_Result_Bool_Exp = {
 };
 
 export enum Lab_Result_Constraint {
-  LabResultPkey = 'lab_result_pkey',
-  LabResultSampleCodeKey = 'lab_result_sample_code_key'
+  LabResultPkey = 'lab_result_pkey'
 }
 
 export type Lab_Result_Inc_Input = {
@@ -997,7 +982,7 @@ export type ApplicationsQueryQuery = (
   { __typename?: 'query_root' }
   & { application: Array<(
     { __typename?: 'application' }
-    & Pick<Application, 'id' | 'pacient_name' | 'personal_number' | 'sample_code' | 'sample_collection_date' | 'sample_receive_date' | 'sender' | 'referenced_in_grid_id'>
+    & Pick<Application, 'id' | 'pacient_name' | 'personal_number' | 'sample_code' | 'sample_collection_date' | 'sample_receive_date' | 'sender'>
   )> }
 );
 
@@ -1010,7 +995,7 @@ export type ApplicationsBySampleCodeQeryQuery = (
   { __typename?: 'query_root' }
   & { application: Array<(
     { __typename?: 'application' }
-    & Pick<Application, 'id' | 'tested_positive'>
+    & Pick<Application, 'id'>
   )> }
 );
 
@@ -1049,7 +1034,6 @@ export const ApplicationsQueryDocument = gql`
     sample_collection_date
     sample_receive_date
     sender
-    referenced_in_grid_id
   }
 }
     `;
@@ -1057,7 +1041,6 @@ export const ApplicationsBySampleCodeQeryDocument = gql`
     query ApplicationsBySampleCodeQery($codes: [String!]!) {
   application(where: {sample_code: {_in: $codes}}) {
     id
-    tested_positive
   }
 }
     `;

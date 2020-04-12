@@ -13,13 +13,11 @@ query ApplicationsQuery {
     sample_collection_date
     sample_receive_date
     sender
-    referenced_in_grid_id
   }
 }
 
 query ApplicationsBySampleCodeQery($codes: [String!]!) {
   application(where: {sample_code: {_in: $codes}}) {
     id
-    tested_positive
   }
 }
