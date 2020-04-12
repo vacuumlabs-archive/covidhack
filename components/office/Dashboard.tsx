@@ -1,9 +1,9 @@
-import {Button, Paper, Tab, Tabs} from '@material-ui/core'
-import {createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles'
-import {makeStyles} from '@material-ui/styles'
+import { Button, Paper, Tab, Tabs, Typography } from '@material-ui/core'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/styles'
 import MUIDataTable from 'mui-datatables'
-import React, {useState} from 'react'
-import {ApplicationsQueryQuery} from '../../utils/graphqlSdk'
+import React, { useState } from 'react'
+import { ApplicationsQueryQuery } from '../../utils/graphqlSdk'
 import NewApplicant from './NewApplicant'
 
 const useStyles = makeStyles({
@@ -13,10 +13,7 @@ const useStyles = makeStyles({
     marginBottom: 8,
   },
   newApplicant: {
-    position: 'absolute',
-    left: 187,
-    top: 150,
-    zIndex: 1,
+    marginLeft: '8px !important',
   },
 })
 
@@ -25,6 +22,12 @@ const tableMuiTheme = createMuiTheme({
     MUIDataTable: {
       responsiveScroll: {
         height: '63vh',
+      },
+    },
+    MUIDataTableToolbar: {
+      left: {
+        display: 'flex',
+        alignItems: 'center',
       },
     },
   } as any,
@@ -41,15 +44,6 @@ const Dashboard = ({applications}: Props) => {
 
   return (
     <div style={{margin: 16}}>
-      <Button
-        variant="contained"
-        color="primary"
-        className={classes.newApplicant}
-        onClick={() => setDialogOpen(true)}
-      >
-        Nový žiadateľ
-      </Button>
-
       <Tabs
         value={value}
         onChange={(event: React.ChangeEvent<{}>, newValue: number) => {
@@ -69,7 +63,21 @@ const Dashboard = ({applications}: Props) => {
       <Paper style={{marginBottom: 16}}>
         <MuiThemeProvider theme={tableMuiTheme}>
           <MUIDataTable
-            title={'Zoznam záznamov'}
+            title={
+              <>
+                <Typography variant="h6" style={{display: 'inline-block'}}>
+                  {'Zoznam záznamov'}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  className={classes.newApplicant}
+                  onClick={() => setDialogOpen(true)}
+                >
+                  Nový žiadateľ
+                </Button>
+              </>
+            }
             data={applications.application.map((row) => [
               row.sample_code,
               row.pacient_name,
