@@ -1,79 +1,78 @@
-import produce from 'immer'
 import {GetServerSideProps} from 'next'
-import React, {useState} from 'react'
+import {useRouter} from 'next/router'
+import React, {useCallback, useMemo} from 'react'
 import ReactDataSheet from 'react-datasheet'
+import useSWR from 'swr'
 import Layout from '../../components/Layout'
 import {allowAccessFor} from '../../utils/auth'
+import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
 import {mapLabResultsToGrid} from '../../utils/helpers'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
   positive: boolean
+  readOnly: boolean
 }
 
 class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
 
-const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = (props) => {
-  const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
-  return (
-    <div style={backgroundStyle}>
-      {props.cell.value}
-      <input type="checkbox" checked={props.cell.positive} onChange={() => null} />
-    </div>
-  )
-}
+const fetcher = (url) => fetch(url).then((r) => r.json())
 
 const SuccessRegistration = () => {
-  const [grid, setGrid] = useState(
-    mapLabResultsToGrid([
-      {
-        column: 0,
-        created_at: '2020-04-12T09:03:19.708132+00:00',
-        id: '1b3e829b-c3dc-413f-8555-0cecb08fc8d1',
-        referenced_in_grid_id: '32db8cae-058f-47bb-8c16-ec5e2e1c2cce',
-        row: 0,
-        sample_code: '751442',
-        updated_at: '2020-04-12T09:03:19.708132+00:00',
-        positive: true,
-      },
-      {
-        column: 1,
-        created_at: '2020-04-12T09:03:19.708132+00:00',
-        id: '9f5400ed-6917-4172-bdc4-c39e3a82bf64',
-        referenced_in_grid_id: '32db8cae-058f-47bb-8c16-ec5e2e1c2cce',
-        row: 0,
-        sample_code: '181161',
-        updated_at: '2020-04-12T09:03:19.708132+00:00',
-      },
-      {
-        column: 2,
-        created_at: '2020-04-12T09:03:19.708132+00:00',
-        id: 'b5faa800-548d-4e79-8bb1-a77d70be1b78',
-        referenced_in_grid_id: '32db8cae-058f-47bb-8c16-ec5e2e1c2cce',
-        row: 0,
-        sample_code: '743744',
-        updated_at: '2020-04-12T09:03:19.708132+00:00',
-        positive: true,
-      },
-    ]),
+  const router = useRouter()
+  const {id} = router.query
+  const {data, error, mutate} = useSWR(`/api/grid/${id}`, fetcher)
+  const typedData = data as GridWithLabResultsQueryQuery
+  const mappedLabResultData = useMemo(() => {
+    if (!data) return null
+    return mapLabResultsToGrid(typedData.lab_result)
+  }, [typedData, error])
+  const updateLabResult = useCallback(
+    (updateProps) =>
+      fetch('/api/update-lab-result', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateProps),
+      }).then((r) => r.json()),
+    [],
   )
+  const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback(
+    (props) => {
+      const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
+      return (
+        <div style={backgroundStyle}>
+          {props.cell.value}
+          <input
+            type="checkbox"
+            checked={props.cell.positive}
+            onChange={() => {
+              mutate(
+                updateLabResult({
+                  gridId: id,
+                  column: props.col,
+                  row: props.row,
+                  positive: !props.cell.positive,
+                }),
+              )
+            }}
+          />
+        </div>
+      )
+    },
+    [id, mutate, updateLabResult],
+  )
+
+  if (!data) return <div>loading</div>
   return (
     <>
       <Layout isFormPage>
         <div className="container">
           <div className="wrapper">
             <MyReactDataSheet
-              data={grid}
+              data={mappedLabResultData}
               valueRenderer={(cell) => cell.value}
-              onCellsChanged={(changes) => {
-                setGrid(
-                  produce(grid, (draft) => {
-                    changes.forEach(({row, col, value}) => {
-                      draft[row][col] = {...draft[row][col], value}
-                    })
-                  }),
-                )
-              }}
               valueViewer={valueViewer}
             />
           </div>

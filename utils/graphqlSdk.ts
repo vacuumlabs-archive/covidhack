@@ -969,14 +969,31 @@ export type InsertApplicationMutationMutation = (
   )> }
 );
 
-export type UpdateLabResultMutationMutationVariables = {
+export type UpdateLabResultPositiveMutationMutationVariables = {
   gridId: Scalars['uuid'];
   column: Scalars['Int'];
   row: Scalars['Int'];
+  positive: Scalars['Boolean'];
 };
 
 
-export type UpdateLabResultMutationMutation = (
+export type UpdateLabResultPositiveMutationMutation = (
+  { __typename?: 'mutation_root' }
+  & { update_lab_result: Maybe<(
+    { __typename?: 'lab_result_mutation_response' }
+    & Pick<Lab_Result_Mutation_Response, 'affected_rows'>
+  )> }
+);
+
+export type UpdateLabResultSampleCodeMutationMutationVariables = {
+  gridId: Scalars['uuid'];
+  column: Scalars['Int'];
+  row: Scalars['Int'];
+  sampleCode: Scalars['String'];
+};
+
+
+export type UpdateLabResultSampleCodeMutationMutation = (
   { __typename?: 'mutation_root' }
   & { update_lab_result: Maybe<(
     { __typename?: 'lab_result_mutation_response' }
@@ -1033,7 +1050,7 @@ export type GridWithLabResultsQueryQuery = (
     & Pick<Grid, 'created_at' | 'finished' | 'id' | 'sample_arrival_date' | 'sample_taken_date' | 'test_finished_date' | 'test_initiation_date' | 'title' | 'updated_at'>
   )>, lab_result: Array<(
     { __typename?: 'lab_result' }
-    & Pick<Lab_Result, 'column' | 'created_at' | 'id' | 'referenced_in_grid_id' | 'row' | 'sample_code' | 'updated_at'>
+    & Pick<Lab_Result, 'column' | 'created_at' | 'id' | 'referenced_in_grid_id' | 'row' | 'sample_code' | 'updated_at' | 'positive'>
   )> }
 );
 
@@ -1055,9 +1072,16 @@ export const InsertApplicationMutationDocument = gql`
   }
 }
     `;
-export const UpdateLabResultMutationDocument = gql`
-    mutation UpdateLabResultMutation($gridId: uuid!, $column: Int!, $row: Int!) {
-  update_lab_result(where: {referenced_in_grid_id: {_eq: $gridId}, _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}}) {
+export const UpdateLabResultPositiveMutationDocument = gql`
+    mutation UpdateLabResultPositiveMutation($gridId: uuid!, $column: Int!, $row: Int!, $positive: Boolean!) {
+  update_lab_result(_set: {positive: $positive}, where: {referenced_in_grid_id: {_eq: $gridId}, _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}}) {
+    affected_rows
+  }
+}
+    `;
+export const UpdateLabResultSampleCodeMutationDocument = gql`
+    mutation UpdateLabResultSampleCodeMutation($gridId: uuid!, $column: Int!, $row: Int!, $sampleCode: String!) {
+  update_lab_result(_set: {sample_code: $sampleCode}, where: {referenced_in_grid_id: {_eq: $gridId}, _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}}) {
     affected_rows
   }
 }
@@ -1110,6 +1134,7 @@ export const GridWithLabResultsQueryDocument = gql`
     row
     sample_code
     updated_at
+    positive
   }
 }
     `;
@@ -1121,8 +1146,11 @@ export function getSdk(client: GraphQLClient) {
     InsertApplicationMutation(variables: InsertApplicationMutationMutationVariables): Promise<InsertApplicationMutationMutation> {
       return client.request<InsertApplicationMutationMutation>(print(InsertApplicationMutationDocument), variables);
     },
-    UpdateLabResultMutation(variables: UpdateLabResultMutationMutationVariables): Promise<UpdateLabResultMutationMutation> {
-      return client.request<UpdateLabResultMutationMutation>(print(UpdateLabResultMutationDocument), variables);
+    UpdateLabResultPositiveMutation(variables: UpdateLabResultPositiveMutationMutationVariables): Promise<UpdateLabResultPositiveMutationMutation> {
+      return client.request<UpdateLabResultPositiveMutationMutation>(print(UpdateLabResultPositiveMutationDocument), variables);
+    },
+    UpdateLabResultSampleCodeMutation(variables: UpdateLabResultSampleCodeMutationMutationVariables): Promise<UpdateLabResultSampleCodeMutationMutation> {
+      return client.request<UpdateLabResultSampleCodeMutationMutation>(print(UpdateLabResultSampleCodeMutationDocument), variables);
     },
     GridQuery(variables: GridQueryQueryVariables): Promise<GridQueryQuery> {
       return client.request<GridQueryQuery>(print(GridQueryDocument), variables);

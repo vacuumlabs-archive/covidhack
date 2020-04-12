@@ -5,7 +5,6 @@ import {ValidationError} from 'yup'
 import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {Lab_Result_Insert_Input} from '../../utils/graphqlSdk'
-import {isNormalInteger} from '../../utils/helpers'
 import {createGridBodySchema} from '../../utils/validations'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -17,15 +16,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     // need to pre-generate id so that we can reference from labResults
     const validBody = {
-      ...createGridBodySchema.validateSync(req.body),
+      ...createGridBodySchema.validateSync(req.body, {stripUnknown: true}),
       id: v4(),
     }
 
     const labResults: Lab_Result_Insert_Input[] = []
     validBody.grid.forEach((row, i) => {
       row.forEach((cell, j) => {
-        // omit control samples
-        if (!isNormalInteger(cell.value)) return
         labResults.push({
           row: i,
           column: j,

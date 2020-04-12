@@ -4,12 +4,14 @@ import * as yup from 'yup'
 // in case anyone needed these..
 export type ApplicantType = 'physical' | 'legal' | 'physical-contractor'
 
-export const updatePositiveSampleBodySchema = yup
+export const updateLabResultBodySchema = yup
   .object()
   .shape({
-    referenced_in_grid_id: yup.string().required(),
-    sample_code: yup.string().required(),
-    positive: yup.boolean().required(),
+    gridId: yup.string().required(),
+    column: yup.number().required(),
+    row: yup.number().required(),
+    positive: yup.boolean(),
+    sampleCode: yup.string(),
   })
   .noUnknown()
 
