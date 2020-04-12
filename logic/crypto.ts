@@ -36,20 +36,37 @@ async function getDerivedKey(derivation: ArrayBuffer) {
   }
 }
 
-export const encrypt = async (data: string, pass: string) => {
+// https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
+// but we use Uint8array to preserve utf-8 encoding
+export function ab2str(buf) {
+  return String.fromCharCode.apply(null, new Uint8Array(buf))
+}
+
+export function str2ab(str) {
+  const buf = new ArrayBuffer(str.length)
+  const bufView = new Uint8Array(buf)
+  for (let i = 0, strLen = str.length; i < strLen; i++) {
+    bufView[i] = str.charCodeAt(i)
+  }
+  return buf
+}
+
+export const encrypt = async (data: string, pass: string): Promise<string> => {
   const {iv, key} = await getDerivedKey(await getDerivation(pass))
 
-  return await crypto.subtle.encrypt(
-    {
-      name: 'AES-CBC',
-      iv: iv,
-    },
-    key,
-    encode(data),
+  return ab2str(
+    await crypto.subtle.encrypt(
+      {
+        name: 'AES-CBC',
+        iv: iv,
+      },
+      key,
+      encode(data),
+    ),
   )
 }
 
-export const decrypt = async (data: ArrayBuffer, pass: string) => {
+export const decrypt = async (data: string, pass: string): Promise<string> => {
   const {iv, key} = await getDerivedKey(await getDerivation(pass))
 
   return decode(
@@ -59,7 +76,7 @@ export const decrypt = async (data: ArrayBuffer, pass: string) => {
         iv: iv,
       },
       key,
-      data,
+      str2ab(data),
     ),
   )
 }

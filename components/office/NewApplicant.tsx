@@ -2,9 +2,13 @@ import {Button, Dialog, DialogActions, DialogTitle, TextField} from '@material-u
 import {DateTimePicker} from '@material-ui/pickers'
 import {makeStyles} from '@material-ui/styles'
 import {Form, Formik} from 'formik'
+import {pick} from 'lodash'
 import React from 'react'
-import {useDispatch} from 'react-redux'
+import {useSelector} from 'react-redux'
 import * as Yup from 'yup'
+import {encrypt} from '../../logic/crypto'
+import {State} from '../../logic/state'
+import {mapValuesAsync} from '../../utils/helpers'
 
 const useStyles = makeStyles({
   dialog: {maxWidth: '450px !important', padding: 24},
@@ -14,7 +18,7 @@ const useStyles = makeStyles({
 type Props = any
 
 const NewApplicant = ({open, setOpen}: Props) => {
-  const dispatch = useDispatch()
+  const password = useSelector((state: State) => state.officePassword)
   const classes = useStyles()
 
   return (
@@ -37,12 +41,28 @@ const NewApplicant = ({open, setOpen}: Props) => {
           onSubmit={async (values) => {
             setOpen(false)
             // TODO: maybe wait for response first
+            console.log(
+              'bodycko',
+              JSON.stringify({
+                ...values,
+                ...(await mapValuesAsync(
+                  pick(values, ['pacient', 'personalNumber', 'sampleCode', 'sender']),
+                  (val) => encrypt(val as string, password),
+                )),
+              }),
+            )
             const response = await fetch('/api/create-applicant', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify(values),
+              body: JSON.stringify({
+                ...values,
+                ...(await mapValuesAsync(
+                  pick(values, ['pacient', 'personalNumber', 'sampleCode', 'sender']),
+                  (val) => encrypt(val as string, password),
+                )),
+              }),
             })
           }}
           validationSchema={Yup.object({

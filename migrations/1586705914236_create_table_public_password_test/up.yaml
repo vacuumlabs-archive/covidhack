@@ -1,0 +1,10 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: CREATE TABLE "public"."password_test"("encryptedSampleText" text NOT NULL,
+      PRIMARY KEY ("encryptedSampleText") );
+  type: run_sql
+- args:
+    name: password_test
+    schema: public
+  type: add_existing_table_or_view

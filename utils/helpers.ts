@@ -51,3 +51,16 @@ export const getSampleCodesFromGrid = (grid: ReturnType<typeof createEmptyGrid>)
     .filter(isNormalInteger)
 
 console.log(a[0])
+
+export const mapValuesAsync = async (
+  obj: Record<string, any>,
+  cb: (val: any) => Promise<any>,
+): Promise<any> => {
+  const keys = Object.keys(obj)
+  const ans = {}
+  for (const key of keys) {
+    ans[key] = await cb(obj[key])
+  }
+
+  return ans
+}
