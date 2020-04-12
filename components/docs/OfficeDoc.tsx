@@ -47,7 +47,7 @@ const OfficeDoc = ({header = {}, content = {}, footer = {}}: OfficeDocProps) => 
               <strong>Meno pacienta:</strong> {content.patientName}
             </td>
             <td>
-              <strong>Rodné číslo pacienta:</strong> {content.patientName}
+              <strong>Rodné číslo pacienta:</strong> {content.personalNumber}
             </td>
           </tr>
           <tr>
