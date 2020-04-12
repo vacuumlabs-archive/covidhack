@@ -53,10 +53,10 @@ export const createGridBodySchema = yup
   .shape({
     grid: gridSchema,
     title: yup.string().required(),
-    test_initiation_date: yup.string().required(),
-    test_finished_date: yup.string().required(),
-    sample_taken_date: yup.string().required(),
-    sample_arrival_date: yup.string().required(),
+    // test_initiation_date: yup.string().required(),
+    // test_finished_date: yup.string().required(),
+    // sample_taken_date: yup.string().required(),
+    // sample_arrival_date: yup.string().required(),
   })
   .noUnknown()
 

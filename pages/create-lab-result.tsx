@@ -1,8 +1,7 @@
 import {TextField} from '@material-ui/core'
-import {DatePicker} from '@material-ui/pickers'
-import {formatISO} from 'date-fns'
 import produce from 'immer'
 import {GetServerSideProps} from 'next'
+import {useRouter} from 'next/router'
 import React, {useCallback, useMemo, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
 import Layout from '../components/Layout'
@@ -20,35 +19,33 @@ class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
 
 const SuccessRegistration = () => {
   const [grid, setGrid] = useState<GridElement[][]>(addFrame(createEmptyGrid()))
-  const [testInitiationDate, setTestInitiationDate] = useState(new Date())
-  const [testFinishedDate, setTestFinishedDate] = useState(new Date())
-  const [sampleTakenDate, setSampleTakenDate] = useState(new Date())
-  const [sampleArrivalDate, setSampleArrivalDate] = useState(new Date())
-  console.log(testInitiationDate)
+  const router = useRouter()
   const [title, setTitle] = useState<string>('')
+  const [error, setError] = useState('')
   const submit = useCallback(async () => {
+    setError('')
     const body = {
       grid: removeFrame(grid),
       title: title,
-      test_initiation_date: formatISO(testInitiationDate),
-      test_finished_date: formatISO(testFinishedDate),
-      sample_taken_date: formatISO(sampleTakenDate),
-      sample_arrival_date: formatISO(sampleArrivalDate),
     }
-    // TODO do something if validation fails
-    createGridBodySchema.validateSync(body)
-    const response = await fetch('/api/create-grid', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    })
-    // if (response.ok)
-    //   response.json().then((data) => {
-    //     // Router.push(`/success-registration/${data.id}`)
-    //   })
-  }, [grid])
+    try {
+      createGridBodySchema.validateSync(body)
+      const response = await fetch('/api/create-grid', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+      if (response.ok) router.push('/lab')
+    } catch (e) {
+      if (e && e.message) {
+        setError(e.message)
+      } else {
+        setError('Something went wrong, please try again.')
+      }
+    }
+  }, [grid, router, title])
 
   // higlight row and collumn label of the selected cell by adding a className to it
   const [selected, onSelect] = useState<ReactDataSheet.Selection>(null)
@@ -68,30 +65,6 @@ const SuccessRegistration = () => {
       <Layout isFormPage>
         <div className="container">
           <div className="wrapper">
-            <DatePicker
-              variant="inline"
-              label="Test initiation date"
-              value={testInitiationDate}
-              onChange={setTestInitiationDate}
-            />
-            <DatePicker
-              variant="inline"
-              label="Test finished date"
-              value={testFinishedDate}
-              onChange={setTestFinishedDate}
-            />
-            <DatePicker
-              variant="inline"
-              label="Sample taken date"
-              value={sampleTakenDate}
-              onChange={setSampleTakenDate}
-            />
-            <DatePicker
-              variant="inline"
-              label="Sample arrival date"
-              value={sampleArrivalDate}
-              onChange={setSampleArrivalDate}
-            />
             <TextField
               value={title}
               label="Title"
@@ -115,6 +88,7 @@ const SuccessRegistration = () => {
               selected={selected}
             />
             <button onClick={submit}>Submit</button>
+            <div style={{color: 'red'}}>{error}</div>
           </div>
         </div>
       </Layout>
@@ -242,14 +216,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return
   }
 
-  // const grid = await client.GridQuery({
-  //   id: context.params.id,
-  // })
-
   return {
-    props: {
-      // grid,
-    },
+    props: {},
   }
 }
 

@@ -7,7 +7,7 @@ export const createEmptyGrid = () =>
       positive: false,
       width: 200,
       height: 100,
-      value: Math.round(Math.random() * 1000000).toString(),
+      value: '',
       readOnly: false,
     })),
   )
