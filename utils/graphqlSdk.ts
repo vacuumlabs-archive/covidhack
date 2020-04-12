@@ -1021,6 +1021,22 @@ export type ApplicationsBySampleCodeQeryQuery = (
   )> }
 );
 
+
+export type GridsQuery = {__typename?: 'query_root'} & {
+  grid: Array<
+    {__typename?: 'grid'} & Pick<
+      Grid,
+      | 'id'
+      | 'title'
+      | 'sample_arrival_date'
+      | 'sample_taken_date'
+      | 'test_finished_date'
+      | 'test_initiation_date'
+      | 'finished'
+    >
+  >
+}
+
 export type GridWithLabResultsQueryQueryVariables = {
   id: Scalars['uuid'];
 };
@@ -1113,6 +1129,20 @@ export const GridWithLabResultsQueryDocument = gql`
   }
 }
     `;
+
+export const GridsQueryDocument = gql`
+  query GridsQuery {
+    grid {
+      id
+      title
+      sample_arrival_date
+      sample_taken_date
+      test_finished_date
+      test_initiation_date
+      finished
+    }
+  }
+`
 export function getSdk(client: GraphQLClient) {
   return {
     InsertGridMutation(variables: InsertGridMutationMutationVariables): Promise<InsertGridMutationMutation> {
@@ -1126,6 +1156,9 @@ export function getSdk(client: GraphQLClient) {
     },
     GridQuery(variables: GridQueryQueryVariables): Promise<GridQueryQuery> {
       return client.request<GridQueryQuery>(print(GridQueryDocument), variables);
+    },
+    GridsQuery(variables?: {}): Promise<GridsQuery> {
+      return client.request<GridsQuery>(print(GridsQueryDocument), variables)
     },
     ApplicationsQuery(variables?: ApplicationsQueryQueryVariables): Promise<ApplicationsQueryQuery> {
       return client.request<ApplicationsQueryQuery>(print(ApplicationsQueryDocument), variables);
