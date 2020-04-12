@@ -6,6 +6,7 @@ import {makeStyles} from '@material-ui/styles'
 import MUIDataTable from 'mui-datatables'
 import Router from 'next/router'
 import React, {useState} from 'react'
+import {formatDate} from '../../utils/formatter'
 import {ApplicationsQueryQuery} from '../../utils/graphqlSdk'
 import {createPdf, getOfficeDocContent} from '../../utils/pdf/pdf'
 import NewApplicant from './NewApplicant'
@@ -32,6 +33,11 @@ const tableMuiTheme = createMuiTheme({
       left: {
         display: 'flex',
         alignItems: 'center',
+      },
+    },
+    MuiTableCell: {
+      root: {
+        padding: '0 !important',
       },
     },
   } as any,
@@ -86,8 +92,8 @@ const Dashboard = ({applications}: Props) => {
               row.sample_code,
               row.pacient_name,
               row.personal_number,
-              row.sample_collection_date,
-              row.sample_receive_date,
+              formatDate(row.sample_collection_date),
+              formatDate(row.sample_receive_date),
               row.sender,
               <IconButton key={row.id} onClick={() => Router.push(`/office/${row.id}`)}>
                 <EditIcon />
@@ -103,8 +109,8 @@ const Dashboard = ({applications}: Props) => {
                         personalNumber: row.personal_number,
                         sampleCode: row.sample_code,
                         sender: row.sender,
-                        sampleCollectionDate: row.sample_collection_date,
-                        sampleReceiveDate: row.sample_receive_date,
+                        sampleCollectionDate: formatDate(row.sample_collection_date),
+                        sampleReceiveDate: formatDate(row.sample_receive_date),
                         // TODO: need test query for this
                         testResult: '',
                         testStartDate: '',

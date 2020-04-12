@@ -1081,6 +1081,17 @@ export type GridWithLabResultsQueryQuery = (
   )> }
 );
 
+export type GridsQueryQueryVariables = {};
+
+
+export type GridsQueryQuery = (
+  { __typename?: 'query_root' }
+  & { grid: Array<(
+    { __typename?: 'grid' }
+    & Pick<Grid, 'id' | 'title' | 'sample_arrival_date' | 'sample_taken_date' | 'test_finished_date' | 'test_initiation_date' | 'finished'>
+  )> }
+);
+
 
 export const InsertGridMutationDocument = gql`
     mutation InsertGridMutation($gridObjects: [grid_insert_input!]!, $labResultsObjects: [lab_result_insert_input!]!) {
@@ -1185,6 +1196,19 @@ export const GridWithLabResultsQueryDocument = gql`
   }
 }
     `;
+export const GridsQueryDocument = gql`
+    query GridsQuery {
+  grid {
+    id
+    title
+    sample_arrival_date
+    sample_taken_date
+    test_finished_date
+    test_initiation_date
+    finished
+  }
+}
+    `;
 export function getSdk(client: GraphQLClient) {
   return {
     InsertGridMutation(variables: InsertGridMutationMutationVariables): Promise<InsertGridMutationMutation> {
@@ -1216,6 +1240,9 @@ export function getSdk(client: GraphQLClient) {
     },
     GridWithLabResultsQuery(variables: GridWithLabResultsQueryQueryVariables): Promise<GridWithLabResultsQueryQuery> {
       return client.request<GridWithLabResultsQueryQuery>(print(GridWithLabResultsQueryDocument), variables);
+    },
+    GridsQuery(variables?: GridsQueryQueryVariables): Promise<GridsQueryQuery> {
+      return client.request<GridsQueryQuery>(print(GridsQueryDocument), variables);
     }
   };
 }

@@ -1,13 +1,12 @@
-
-import React from 'react'
-import Link from 'next/link'
-import {Paper, Button} from '@material-ui/core'
+import {Button, Paper} from '@material-ui/core'
 import MUIDataTable from 'mui-datatables'
-import {GridsQuery} from '../../utils/graphqlSdk'
+import Link from 'next/link'
+import React from 'react'
 import {formatDate} from '../../utils/formatter'
+import {GridsQueryQuery} from '../../utils/graphqlSdk'
 
 interface Props {
-  grids: GridsQuery
+  grids: GridsQueryQuery
 }
 
 const LabDashboard = ({grids}: Props) => {
