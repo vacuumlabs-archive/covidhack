@@ -42,5 +42,6 @@ query GridWithLabResultsQuery($id: uuid!) {
     row
     sample_code
     updated_at
+    positive
   }
 }

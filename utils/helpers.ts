@@ -8,6 +8,7 @@ export const createEmptyGrid = () =>
       width: 200,
       height: 100,
       value: Math.round(Math.random() * 1000000).toString(),
+      readOnly: false,
     })),
   )
 
@@ -18,6 +19,7 @@ export const mapLabResultsToGrid = (labResults: Lab_Result[]) => {
       ...grid[result.row][result.column],
       value: result.sample_code,
       positive: result.positive,
+      readOnly: true,
     }
   })
   return grid
