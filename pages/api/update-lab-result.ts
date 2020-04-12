@@ -11,9 +11,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     res.end('Unauthorized')
   }
 
-  console.log('UPDATING!')
   const validBody = updateLabResultBodySchema.validateSync(req.body, {stripUnknown: true})
-  console.log(validBody)
   // some manual validation as yup's oneOf does not work that great with typescript
   // the idea is that we expect to update either 'positive' or 'sampleCode', never both
   if (validBody.positive && validBody.sampleCode) {

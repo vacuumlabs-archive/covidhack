@@ -55,3 +55,19 @@ mutation UpdateApplicationMutation($id: uuid!, $changes: application_set_input!)
     affected_rows
   }
 }
+
+mutation UpdateGridMutation($id: uuid!, $changes: grid_set_input!) {
+  update_grid(where: {id: {_eq: $id}}, _set: $changes) {
+    returning {
+      created_at
+      finished
+      id
+      sample_arrival_date
+      sample_taken_date
+      test_finished_date
+      test_initiation_date
+      title
+      updated_at
+    }
+  }
+}

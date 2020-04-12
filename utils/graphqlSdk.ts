@@ -1015,6 +1015,23 @@ export type UpdateApplicationMutationMutation = (
   )> }
 );
 
+export type UpdateGridMutationMutationVariables = {
+  id: Scalars['uuid'];
+  changes: Grid_Set_Input;
+};
+
+
+export type UpdateGridMutationMutation = (
+  { __typename?: 'mutation_root' }
+  & { update_grid: Maybe<(
+    { __typename?: 'grid_mutation_response' }
+    & { returning: Array<(
+      { __typename?: 'grid' }
+      & Pick<Grid, 'created_at' | 'finished' | 'id' | 'sample_arrival_date' | 'sample_taken_date' | 'test_finished_date' | 'test_initiation_date' | 'title' | 'updated_at'>
+    )> }
+  )> }
+);
+
 export type GridQueryQueryVariables = {
   id: Scalars['uuid'];
 };
@@ -1131,6 +1148,23 @@ export const UpdateApplicationMutationDocument = gql`
   }
 }
     `;
+export const UpdateGridMutationDocument = gql`
+    mutation UpdateGridMutation($id: uuid!, $changes: grid_set_input!) {
+  update_grid(where: {id: {_eq: $id}}, _set: $changes) {
+    returning {
+      created_at
+      finished
+      id
+      sample_arrival_date
+      sample_taken_date
+      test_finished_date
+      test_initiation_date
+      title
+      updated_at
+    }
+  }
+}
+    `;
 export const GridQueryDocument = gql`
     query GridQuery($id: uuid!) {
   grid_by_pk(id: $id) {
@@ -1225,6 +1259,9 @@ export function getSdk(client: GraphQLClient) {
     },
     UpdateApplicationMutation(variables: UpdateApplicationMutationMutationVariables): Promise<UpdateApplicationMutationMutation> {
       return client.request<UpdateApplicationMutationMutation>(print(UpdateApplicationMutationDocument), variables);
+    },
+    UpdateGridMutation(variables: UpdateGridMutationMutationVariables): Promise<UpdateGridMutationMutation> {
+      return client.request<UpdateGridMutationMutation>(print(UpdateGridMutationDocument), variables);
     },
     GridQuery(variables: GridQueryQueryVariables): Promise<GridQueryQuery> {
       return client.request<GridQueryQuery>(print(GridQueryDocument), variables);

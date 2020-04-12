@@ -15,6 +15,18 @@ export const updateLabResultBodySchema = yup
   })
   .noUnknown()
 
+export const updateGridBodySchema = yup
+  .object()
+  .shape({
+    title: yup.string(),
+    test_initiation_date: yup.string(),
+    test_finished_date: yup.string(),
+    sample_taken_date: yup.string(),
+    sample_arrival_date: yup.string(),
+    finished: yup.boolean(),
+  })
+  .noUnknown()
+
 // TODO validate existence of control samples
 export const gridSchema = yup
   .array()
