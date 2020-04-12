@@ -4,12 +4,17 @@ import {makeStyles} from '@material-ui/styles'
 import {Form, Formik} from 'formik'
 import {GetServerSideProps} from 'next'
 import Router from 'next/router'
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import * as Yup from 'yup'
+import {pick} from 'lodash'
+import {useSelector} from 'react-redux'
+import {encrypt, decrypt} from '../../logic/crypto'
+import {State} from '../../logic/state'
 import Layout from '../../components/Layout'
 import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {Application} from '../../utils/graphqlSdk'
+import {mapValuesAsync} from '../../utils/helpers'
 
 const useStyles = makeStyles({
   dialog: {maxWidth: '450px !important', padding: 24},
@@ -24,8 +29,23 @@ type Props = {
   application: Application
 }
 
-const EditApplication = ({application}: Props) => {
+const EditApplication = ({application: encryptedApplication}: Props) => {
+  const password = useSelector((state: State) => state.officePassword)
+  const [application, setApplication] = useState<Application>(null)
+  const [error, setError] = useState()
   const classes = useStyles()
+
+  useEffect(() => {
+    mapValuesAsync(
+      pick(encryptedApplication, ['pacient_name', 'personal_number', 'sample_code', 'sender']),
+      (val) => decrypt(val as string, 'a'),
+    ).then((decryptedValues) => {
+      setApplication({...encryptedApplication, ...decryptedValues})
+    }).catch((err) => setError(err))
+  }, [])
+
+  if (error) return <div>Chyba pri nacitavani udajov, pravdepodobne nespravne heslo kancelarie</div>
+  if (!application) return <div>Loading...</div>
 
   return (
     <Layout>
@@ -49,9 +69,15 @@ const EditApplication = ({application}: Props) => {
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify(values),
+              body: JSON.stringify({
+                ...values,
+                ...(await mapValuesAsync(
+                  pick(values, ['pacient', 'personalNumber', 'sampleCode', 'sender']),
+                  (val) => encrypt(val as string, password),
+                )),
+              }),
             })
-            Router.push('/dashboard')
+            Router.push('/office')
           }}
           validationSchema={Yup.object({
             pacient: Yup.string().required('Toto pole nesmie byť prázdne'),
@@ -155,7 +181,7 @@ const EditApplication = ({application}: Props) => {
                 <Button type="submit" color="primary" variant="contained">
                   Uložiť
                 </Button>
-                <Button onClick={() => Router.push('/dashboard')} autoFocus variant="contained">
+                <Button onClick={() => Router.push('/office')} autoFocus variant="contained">
                   Zrušiť
                 </Button>
               </DialogActions>
