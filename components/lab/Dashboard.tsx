@@ -65,13 +65,13 @@ const LabDashboard = ({grids}: Props) => {
               formatDate(row.sample_arrival_date),
               formatDate(row.test_initiation_date),
               formatDate(row.test_finished_date),
-              <IconButton key={row.id} onClick={() => Router.push(`/edit-lab-result/${row.id}`)}>
-                <EditIcon />
-              </IconButton>,
               <IconButton
                 key={row.id}
-                onClick={() => printLabDoc(row)}
+                onClick={() => Router.push('/edit-lab-result/[id]', `/edit-lab-result/${row.id}`)}
               >
+                <EditIcon />
+              </IconButton>,
+              <IconButton key={row.id} onClick={() => printLabDoc(row)}>
                 <PictureAsPdfIcon />
               </IconButton>,
             ])}

@@ -122,7 +122,10 @@ const Dashboard = () => {
                 formatDate(row.sample_collection_date),
                 formatDate(row.sample_receive_date),
                 row.sender,
-                <IconButton key={row.id} onClick={() => Router.push(`/office/${row.id}`)}>
+                <IconButton
+                  key={row.id}
+                  onClick={() => Router.push('/office/[id]', `/office/${row.id}`)}
+                >
                   <EditIcon />
                 </IconButton>,
                 <IconButton
