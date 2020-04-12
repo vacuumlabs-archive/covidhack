@@ -12,9 +12,8 @@ const FormHeader = () => (
           <Link href="/office">
             <a className="menu-link">Kancelária</a>
           </Link>
-          {/* TODO: only lab should see this */}
           <Link href="/lab">
-            <a className="menu-link">Lab-Dashboard</a>
+            <a className="menu-link">Laboratórium</a>
           </Link>
         </div>
       </div>

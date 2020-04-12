@@ -1,7 +1,10 @@
-import {Button, Paper} from '@material-ui/core'
+import {Button, Paper, IconButton} from '@material-ui/core'
+import EditIcon from '@material-ui/icons/Edit'
+import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import MUIDataTable from 'mui-datatables'
 import Link from 'next/link'
 import React from 'react'
+import Router from 'next/router'
 import {formatDate} from '../../utils/formatter'
 import {GridsQueryQuery} from '../../utils/graphqlSdk'
 import {isNormalInteger} from '../../utils/helpers'
@@ -62,25 +65,15 @@ const LabDashboard = ({grids}: Props) => {
               formatDate(row.sample_arrival_date),
               formatDate(row.test_initiation_date),
               formatDate(row.test_finished_date),
-              <>
-                <span className="button">
-                  <Link href={`/edit-lab-result/${row.id}`}>
-                    <Button color="primary" variant="contained">
-                      Otvoriť
-                    </Button>
-                  </Link>
-                </span>
-                <span className="button">
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    onClick={() => printLabDoc(row)}
-                    disabled={!row.finished}
-                  >
-                    Tlačiť
-                  </Button>
-                </span>
-              </>,
+              <IconButton key={row.id} onClick={() => Router.push(`/edit-lab-result/${row.id}`)}>
+                <EditIcon />
+              </IconButton>,
+              <IconButton
+                key={row.id}
+                onClick={() => printLabDoc(row)}
+              >
+                <PictureAsPdfIcon />
+              </IconButton>,
             ])}
             columns={[
               'Meno',
@@ -88,7 +81,8 @@ const LabDashboard = ({grids}: Props) => {
               'Dátum príjmu',
               'Dátum začiatku skúšky',
               'Dátum ukončenia skúšky',
-              '',
+              'Upraviť',
+              'Pdf',
             ]}
             options={{
               filterType: 'dropdown',
