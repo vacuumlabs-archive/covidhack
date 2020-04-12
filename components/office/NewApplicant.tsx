@@ -1,5 +1,5 @@
 import {Button, Dialog, DialogActions, DialogTitle, TextField} from '@material-ui/core'
-import {KeyboardDateTimePicker} from '@material-ui/pickers'
+import {DateTimePicker} from '@material-ui/pickers'
 import {makeStyles} from '@material-ui/styles'
 import {Form, Formik} from 'formik'
 import React from 'react'
@@ -29,8 +29,8 @@ const NewApplicant = ({open, setOpen}: Props) => {
           initialValues={{
             pacient: '',
             personalNumber: '',
-            sampleCollectionDate: '',
-            sampleReceiveDate: '',
+            sampleCollectionDate: new Date(),
+            sampleReceiveDate: new Date(),
             sampleCode: '',
             sender: '',
           }}
@@ -48,9 +48,6 @@ const NewApplicant = ({open, setOpen}: Props) => {
           validationSchema={Yup.object({
             pacient: Yup.string().required('Toto pole nesmie byť prázdne'),
             personalNumber: Yup.string().required('Toto pole nesmie byť prázdne'),
-            // make optional for now
-            // sampleCollectionDate: Yup.string().required('Toto pole nesmie byť prázdne'),
-            // sampleReceiveDate: Yup.string().required('Toto pole nesmie byť prázdne'),
             sampleCode: Yup.string().required('Toto pole nesmie byť prázdne'),
             sender: Yup.string().required('Toto pole nesmie byť prázdne'),
           })}
@@ -101,48 +98,37 @@ const NewApplicant = ({open, setOpen}: Props) => {
                 helperText={touched.personalNumber && errors.personalNumber}
               />
 
-              <KeyboardDateTimePicker
+              <DateTimePicker
+                className={classes.formField}
                 variant="inline"
                 autoOk
                 ampm={false}
-                label="Dátum prijatia vzorky"
+                label="Dátum odberu vzorky"
                 name="sampleCollectionDate"
                 value={values.sampleCollectionDate}
                 onChange={(newDate) => {
+                  console.log(newDate)
                   setFieldValue('sampleCollectionDate', newDate)
                 }}
                 disablePast
-                format="yyyy/MM/dd HH:mm"
+                format="dd.MM.yyyy - HH:mm"
                 style={{width: '100%'}}
-                helperText={touched.personalNumber && errors.sampleCollectionDate}
-                error={Boolean(touched.personalNumber && !!errors.sampleCollectionDate)}
-                onError={(error) => {
-                  if (error !== errors.sampleCollectionDate) {
-                    setFieldError('sampleCollectionDate', error as any)
-                  }
-                }}
               />
 
-              <KeyboardDateTimePicker
+              <DateTimePicker
+                className={classes.formField}
                 variant="inline"
                 autoOk
                 ampm={false}
                 label="Dátum prijatia vzorky"
-                name="sampleCollectionDate"
-                value={values.sampleCollectionDate}
+                name="sampleReceiveDate"
+                value={values.sampleReceiveDate}
                 onChange={(newDate) => {
                   setFieldValue('sampleReceiveDate', newDate)
                 }}
                 disablePast
-                format="yyyy/MM/dd HH:mm"
+                format="dd.MM.yyyy - HH:mm"
                 style={{width: '100%'}}
-                helperText={touched.personalNumber && errors.sampleReceiveDate}
-                error={Boolean(touched.personalNumber && !!errors.sampleReceiveDate)}
-                onError={(error) => {
-                  if (error !== errors.sampleReceiveDate) {
-                    setFieldError('sampleReceiveDate', error as any)
-                  }
-                }}
               />
 
               <DialogActions style={{padding: '8px 0'}}>

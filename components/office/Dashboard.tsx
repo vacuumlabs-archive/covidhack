@@ -1,4 +1,5 @@
-import {Button, Paper, Tab, Tabs, Typography} from '@material-ui/core'
+import {Button, Paper, Tab, Tabs} from '@material-ui/core'
+import {createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles'
 import {makeStyles} from '@material-ui/styles'
 import MUIDataTable from 'mui-datatables'
 import React, {useState} from 'react'
@@ -12,9 +13,21 @@ const useStyles = makeStyles({
     marginBottom: 8,
   },
   newApplicant: {
-    marginLeft: 'auto !important',
-    padding: '8px 16px !important',
+    position: 'absolute',
+    left: 187,
+    top: 150,
+    zIndex: 1,
   },
+})
+
+const tableMuiTheme = createMuiTheme({
+  overrides: {
+    MUIDataTable: {
+      responsiveScroll: {
+        height: '63vh',
+      },
+    },
+  } as any,
 })
 
 interface Props {
@@ -28,20 +41,14 @@ const Dashboard = ({applications}: Props) => {
 
   return (
     <div style={{margin: 16}}>
-      {/* TODO: maybe remove this row */}
-      <div className={classes.titleWrapper}>
-        <Typography variant="h3" style={{display: 'inline-block'}}>
-          Zoznam záznamov
-        </Typography>
-        <Button
-          className={classes.newApplicant}
-          color="primary"
-          variant="contained"
-          onClick={() => setDialogOpen(true)}
-        >
-          Nový žiadateľ
-        </Button>
-      </div>
+      <Button
+        variant="contained"
+        color="primary"
+        className={classes.newApplicant}
+        onClick={() => setDialogOpen(true)}
+      >
+        Nový žiadateľ
+      </Button>
 
       <Tabs
         value={value}
@@ -60,29 +67,31 @@ const Dashboard = ({applications}: Props) => {
       </Tabs>
 
       <Paper style={{marginBottom: 16}}>
-        <MUIDataTable
-          title={'Zoznam záznamov'}
-          data={applications.application.map((row) => [
-            row.sample_code,
-            row.pacient_name,
-            row.personal_number,
-            row.sample_collection_date,
-            row.sample_receive_date,
-            row.sender,
-          ])}
-          columns={[
-            'Číslo vzorky',
-            'Priezvisko a meno',
-            'Rodné číslo',
-            'Dátum odberu',
-            'Dátum príjmu',
-            'Odosielateľ',
-          ]}
-          options={{
-            filterType: 'dropdown',
-            responsive: 'scroll',
-          }}
-        />
+        <MuiThemeProvider theme={tableMuiTheme}>
+          <MUIDataTable
+            title={'Zoznam záznamov'}
+            data={applications.application.map((row) => [
+              row.sample_code,
+              row.pacient_name,
+              row.personal_number,
+              row.sample_collection_date,
+              row.sample_receive_date,
+              row.sender,
+            ])}
+            columns={[
+              'Číslo vzorky',
+              'Priezvisko a meno',
+              'Rodné číslo',
+              'Dátum odberu',
+              'Dátum príjmu',
+              'Odosielateľ',
+            ]}
+            options={{
+              filterType: 'dropdown',
+              responsive: 'scroll',
+            }}
+          />
+        </MuiThemeProvider>
       </Paper>
       <NewApplicant open={dialogOpen} setOpen={setDialogOpen} />
     </div>
