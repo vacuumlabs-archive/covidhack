@@ -1,6 +1,7 @@
+import {CircularProgress, Typography} from '@material-ui/core'
 import {GetServerSideProps} from 'next'
 import {useRouter} from 'next/router'
-import React, {useCallback, useMemo} from 'react'
+import React, {useCallback, useMemo, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
 import useSWR from 'swr'
 import Layout from '../../components/Layout'
@@ -21,12 +22,15 @@ const fetcher = (url) => fetch(url).then((r) => r.json())
 const SuccessRegistration = () => {
   const router = useRouter()
   const {id} = router.query
-  const {data, error, mutate} = useSWR(`/api/grid/${id}`, fetcher)
+  const {data, mutate} = useSWR(`/api/grid/${id}`, fetcher)
   const typedData = data as GridWithLabResultsQueryQuery
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [loadingCell, setLoadingCell] = useState(null)
+  const [newTitle, setNewTitle] = useState(typedData ? typedData.grid_by_pk.title : '')
   const mappedLabResultData = useMemo(() => {
     if (!data) return null
     return mapLabResultsToGrid(typedData.lab_result)
-  }, [typedData, error])
+  }, [data, typedData])
   const updateLabResult = useCallback(
     (updateProps) =>
       fetch('/api/update-lab-result', {
@@ -38,30 +42,81 @@ const SuccessRegistration = () => {
       }).then((r) => r.json()),
     [],
   )
+  const updateGrid = useCallback(
+    (updateProps) =>
+      fetch('/api/update-grid', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateProps),
+      }).then((r) => r.json()),
+    [],
+  )
+  const updateCell = useCallback(
+    (row, col, value) => {
+      setLoadingCell({row, col})
+      mutate(
+        updateLabResult({
+          gridId: id,
+          column: col,
+          row: row,
+          positive: value,
+        }),
+      ).finally(() => setLoadingCell(null))
+    },
+    [id, mutate, updateLabResult],
+  )
+
   const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback(
     (props) => {
+      const loading =
+        loadingCell?.row === props.row && loadingCell?.col === props.col ? (
+          <CircularProgress size={18} />
+        ) : (
+          undefined
+        )
       const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
+      // if we want to reintroduce checkbox uncomment and change the condition below
+      // (
+      //   <input
+      //     type="checkbox"
+      //     checked={props.cell.positive}
+      //     onChange={() => updateCell(props.row, props.col, !props.cell.positive)}
+      //   />
+      // )
       return (
         <div style={backgroundStyle}>
           {props.cell.value}
-          <input
-            type="checkbox"
-            checked={props.cell.positive}
-            onChange={() => {
-              mutate(
-                updateLabResult({
-                  gridId: id,
-                  column: props.col,
-                  row: props.row,
-                  positive: !props.cell.positive,
-                }),
-              )
-            }}
-          />
+          {loading}
         </div>
       )
     },
-    [id, mutate, updateLabResult],
+    [loadingCell, typedData, updateCell],
+  )
+
+  const cellRenderer: ReactDataSheet.CellRenderer<GridElement, string> = useCallback(
+    (props) => {
+      const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
+      const cursorStyle = typedData?.grid_by_pk.finished ? {} : {cursor: 'pointer'}
+      return (
+        <td
+          style={{...backgroundStyle, ...cursorStyle}}
+          onMouseDown={
+            typedData?.grid_by_pk.finished
+              ? props.onMouseDown
+              : () => {
+                  updateCell(props.row, props.col, !props.cell.positive)
+                }
+          }
+          onMouseOver={props.onMouseOver}
+          className="cell"
+        >
+          {props.children}
+        </td>
+      )
+    },
+    [typedData, updateCell],
   )
 
   if (!data) return <div>loading</div>
@@ -70,11 +125,31 @@ const SuccessRegistration = () => {
       <Layout isFormPage>
         <div className="container">
           <div className="wrapper">
+            <div>
+              <Typography variant="h2" style={{display: 'inline-block'}}>
+                {typedData.grid_by_pk.title}
+              </Typography>
+              <button onClick={() => setIsEditingTitle(!isEditingTitle)}>Edit</button>
+            </div>
+            {isEditingTitle && (
+              <div>
+                <input type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+                <button onClick={() => newTitle && mutate(updateGrid({id, title: newTitle}))}>
+                  Change Title
+                </button>
+              </div>
+            )}
             <MyReactDataSheet
               data={mappedLabResultData}
               valueRenderer={(cell) => cell.value}
               valueViewer={valueViewer}
+              cellRenderer={!typedData.grid_by_pk.finished ? cellRenderer : undefined}
             />
+            <button
+              onClick={() => mutate(updateGrid({id, finished: !typedData.grid_by_pk.finished}))}
+            >
+              {typedData.grid_by_pk.finished ? 'Reopen for editing' : 'Mark Results as Finished'}
+            </button>
           </div>
         </div>
       </Layout>
@@ -133,8 +208,6 @@ const SuccessRegistration = () => {
         }
 
         .data-grid-container .data-grid .cell.read-only {
-          background: whitesmoke;
-          color: #999;
           text-align: center;
         }
 
