@@ -1,6 +1,7 @@
 query GridQuery($id: uuid!) {
   grid_by_pk(id: $id) {
     id
+    test_finished_date
   }
 }
 

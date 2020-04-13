@@ -1,4 +1,5 @@
 // update whole-grid meta-data - title, dates, finished..
+import formatISO from 'date-fns/formatISO'
 import {NextApiRequest, NextApiResponse} from 'next'
 import {ValidationError} from 'yup'
 import {allowAccessFor} from '../../utils/auth'
@@ -14,8 +15,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const gridId = req.body.id
     if (!gridId) return res.status(400).end()
+
+    const currentGrid = await client.GridQuery({id: gridId})
+    if (!currentGrid.grid_by_pk.id) return res.status(400).end()
+
     // id is stripped from validBody
-    const validBody = updateGridBodySchema.validateSync(req.body, {stripUnknown: true})
+    let validBody = updateGridBodySchema.validateSync(req.body, {stripUnknown: true})
+
+    // set lab results finished date if not set yet
+    if (validBody.finished && !currentGrid.grid_by_pk.test_finished_date) {
+      validBody = {...validBody, test_finished_date: formatISO(Date.now())}
+    }
 
     await client.UpdateGridMutation({id: gridId, changes: validBody})
     // return the grid query to use for updating local cache (nice-to-have & optional, we can just refetch after success)

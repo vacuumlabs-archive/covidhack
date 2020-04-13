@@ -1041,7 +1041,7 @@ export type GridQueryQuery = (
   { __typename?: 'query_root' }
   & { grid_by_pk: Maybe<(
     { __typename?: 'grid' }
-    & Pick<Grid, 'id'>
+    & Pick<Grid, 'id' | 'test_finished_date'>
   )> }
 );
 
@@ -1180,6 +1180,7 @@ export const GridQueryDocument = gql`
     query GridQuery($id: uuid!) {
   grid_by_pk(id: $id) {
     id
+    test_finished_date
   }
 }
     `;
