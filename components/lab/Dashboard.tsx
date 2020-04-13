@@ -1,6 +1,7 @@
 import {Button, Paper, IconButton} from '@material-ui/core'
 import EditIcon from '@material-ui/icons/Edit'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
+import Done from '@material-ui/icons/Done'
 import MUIDataTable from 'mui-datatables'
 import Link from 'next/link'
 import React from 'react'
@@ -65,13 +66,14 @@ const LabDashboard = ({grids}: Props) => {
               formatDate(row.sample_arrival_date),
               formatDate(row.test_initiation_date),
               formatDate(row.test_finished_date),
+              row.finished ? <Done style={{color: '#61d800'}} /> : <></>,
               <IconButton
                 key={row.id}
                 onClick={() => Router.push('/edit-lab-result/[id]', `/edit-lab-result/${row.id}`)}
               >
                 <EditIcon />
               </IconButton>,
-              <IconButton key={row.id} onClick={() => printLabDoc(row)}>
+              <IconButton key={row.id} onClick={() => printLabDoc(row)} disabled={!row.finished} >
                 <PictureAsPdfIcon />
               </IconButton>,
             ])}
@@ -81,6 +83,7 @@ const LabDashboard = ({grids}: Props) => {
               'Dátum príjmu',
               'Dátum začiatku skúšky',
               'Dátum ukončenia skúšky',
+              'Dokončená',
               'Upraviť',
               'Pdf',
             ]}

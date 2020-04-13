@@ -18,6 +18,7 @@ import {Application, Grid, Lab_Result} from '../../utils/graphqlSdk'
 import {mapValuesAsync} from '../../utils/helpers'
 import {createPdf, getOfficeDocContent} from '../../utils/pdf/pdf'
 import NewApplicant from './NewApplicant'
+import WrongPassword from './WrongPassword'
 
 const useStyles = makeStyles({
   titleWrapper: {
@@ -68,6 +69,24 @@ const createFetcher = (password) => (url) =>
       return ans
     })
 
+const handlePrint = (row) => {
+  createPdf(
+    `${row.sample_code}.pdf`,
+    getOfficeDocContent({
+      content: {
+        patientName: row.pacient_name,
+        personalNumber: row.personal_number,
+        sampleCode: row.sample_code,
+        sender: row.sender,
+        sampleCollectionDate: row.sample_collection_date,
+        sampleReceiveDate: row.sample_receive_date,
+        testResult: row.test_result || '',
+        testStartDate: row.test_initiation_date || '',
+        testEndDate: row.test_finished_date || '',
+      },
+    }),
+  )
+}
 
 const getEntries = (mode, {applications, grids, labResults}) => {
   const labResultsCopy = clone(labResults)
@@ -81,6 +100,7 @@ const getEntries = (mode, {applications, grids, labResults}) => {
       ...row,
       sample_collection_date: formatDate(row.sample_collection_date),
       sample_receive_date: formatDate(row.sample_receive_date),
+      test_finished: grid?.finished,
       test_initiation_date: grid?.test_initiation_date && formatDate(grid?.test_initiation_date),
       test_finished_date: grid?.test_finished_date && formatDate(grid?.test_finished_date),
       test_result: grid?.finished ? (labResult.positive ? 'Pozitívny' : 'Negatívny') : null,
@@ -97,6 +117,7 @@ const getEntries = (mode, {applications, grids, labResults}) => {
       sample_collection_date: null,
       sample_receive_date: null,
       sender: null,
+      test_finished: grid?.finished,
       test_initiation_date: grid?.test_initiation_date && formatDate(grid?.test_initiation_date),
       test_finished_date: grid?.test_finished_date && formatDate(grid?.test_finished_date),
       test_result: grid?.finished ? (lr.positive ? 'Pozitívny' : 'Negatívny') : null,
@@ -104,7 +125,7 @@ const getEntries = (mode, {applications, grids, labResults}) => {
   })
 
   if (mode === 0) {
-    return [...allApplications, ...withNoApplication]
+    return withNoApplication
   } else if (mode === 1) {
     return [...allApplications, ...withNoApplication].filter(
       ({test_result}) => test_result === null,
@@ -143,12 +164,17 @@ const Dashboard = () => {
         .then((a) => keyBy(a, 'sample_code')),
   )
 
-  console.error(applicationsError)
-  if (applicationsError || gridsError || labResultsError)
-    return <div>Chyba pri nacitavani udajov, pravdepodobne nespravne heslo kancelarie</div>
+  if (applicationsError || gridsError || labResultsError) {
+    console.error(applicationsError)
+    return <WrongPassword />
+  }
 
   if (!applications || !grids || !labResults) {
-    return <CircularProgress />
+    return (
+      <div style={{textAlign: 'center', marginTop: '20px'}}>
+        <CircularProgress />
+      </div>
+    )
   }
 
   const entries = getEntries(value, {applications, grids, labResults})
@@ -211,27 +237,7 @@ const Dashboard = () => {
                   <PostAdd />
                 </IconButton>
               ),
-              <IconButton
-                key={row.id}
-                onClick={() =>
-                  createPdf(
-                    `${row.sample_code}.pdf`,
-                    getOfficeDocContent({
-                      content: {
-                        patientName: row.pacient_name,
-                        personalNumber: row.personal_number,
-                        sampleCode: row.sample_code,
-                        sender: row.sender,
-                        sampleCollectionDate: row.sample_collection_date,
-                        sampleReceiveDate: row.sample_receive_date,
-                        testResult: row.test_result || '',
-                        testStartDate: row.test_initiation_date || '',
-                        testEndDate: row.test_finished_date || '',
-                      },
-                    }),
-                  )
-                }
-              >
+              <IconButton key={row.id} onClick={() => handlePrint(row)} disabled={!row.test_finished}>
                 <PictureAsPdfIcon />
               </IconButton>,
             ])}
