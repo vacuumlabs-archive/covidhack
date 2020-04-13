@@ -76,6 +76,15 @@ interface LabDocProps {
   footer?: Partial<DocFooterProps>
 }
 
+interface OfficeJournalProps {
+  patientName?: string
+  personalNumber?: string
+  sampleCode?: string
+  sender?: string
+  sampleCollectionDate?: string
+  sampleReceiveDate?: string
+}
+
 const getHeader = ({phoneNumber, title, protocolNumber}: DocHeaderProps) => [
   {text: 'ÚRAD VEREJNÉHO ZDRAVOTNÍCTVA', bold: true},
   {text: 'SLOVENSKEJ REPUBLIKY\n\n', bold: true},
@@ -200,6 +209,7 @@ export const getLabDocContent = (props: LabDocProps = {}) => {
         style: 'table',
         table: {
           widths: ['*', '*'],
+          // patient info
           heights: [LARGE_ROW_HEIGHT, LARGE_ROW_HEIGHT, LARGE_ROW_HEIGHT, LARGE_ROW_HEIGHT],
           body: [
             [
@@ -264,7 +274,19 @@ export const getLabDocContent = (props: LabDocProps = {}) => {
   }
 }
 
-export const getOfficeDocContent = (props: OfficeDocProps = {}): object => {
+export const getOfficeDocsContent = (arrayOfProps: Array<OfficeDocProps> = [{}]) => {
+  return {
+    content: _.flatten(
+      arrayOfProps.map((props, i) =>
+        i === 0
+          ? getOfficeDocContent(props).content
+          : [{text: '', pageBreak: 'before'}, ...getOfficeDocContent(props).content],
+      ),
+    ),
+  }
+}
+
+export const getOfficeDocContent = (props: OfficeDocProps = {}): any => {
   const {header, content, footer} = _.merge(
     {
       header: {
@@ -444,7 +466,108 @@ export const getOfficeDocContent = (props: OfficeDocProps = {}): object => {
   }
 }
 
-export const createPdf = (fileName = 'sample.pdf', props: object = getLabDocContent()) => {
+export const getJournalContent = (entries: Array<OfficeJournalProps> = [{}, {}, {}, {}]) => {
+  const BASIC_SIZE = 23
+
+  const getSingleRecord = ({
+    patientName = '',
+    personalNumber = '',
+    sampleCode = '',
+    sender = '',
+    sampleCollectionDate = '',
+    sampleReceiveDate = '',
+  }) => {
+    return [
+      [
+        {
+          layout: 'noBorders',
+          table: {
+            widths: ['*', '*', '*', '*'],
+            heights: [
+              BASIC_SIZE,
+              BASIC_SIZE * 3,
+              BASIC_SIZE,
+              BASIC_SIZE * 2,
+              BASIC_SIZE,
+              BASIC_SIZE * 2,
+              BASIC_SIZE * 2,
+              BASIC_SIZE,
+              BASIC_SIZE + 10,
+            ],
+            body: [
+              [
+                {
+                  colSpan: 2,
+                  text: `Odosielateľ: ${sender}`,
+                },
+                '',
+                {
+                  colSpan: 2,
+                  text: `Číslo vzorky: ${sampleCode}`,
+                },
+                '',
+              ],
+              [
+                {
+                  colSpan: 2,
+                  text: `Priezvisko a Meno: ${patientName}`,
+                },
+                '',
+                {
+                  colSpan: 2,
+                  text: `Rodné číslo: ${personalNumber}`,
+                },
+                '',
+              ],
+              ['Materiál:', 'TT/TN / iné:', 'Symptómy:', 'áno / nie'],
+              ['Dg.:', '', '', ''],
+              [
+                {
+                  colSpan: 4,
+                  text: `Odber: ${sampleCollectionDate}`,
+                },
+                '',
+                '',
+                '',
+              ],
+              [
+                {
+                  colSpan: 2,
+                  text: `Príjem: ${sampleReceiveDate}`,
+                },
+                '',
+                'Číslo protokolu: ',
+                '',
+              ],
+              [
+                {
+                  colSpan: 4,
+                  text: ['PCR:       ', {text: 'COVID-19', bold: true, margin: [20, 0, 0, 0]}],
+                },
+              ],
+              [{colSpan: 4, text: 'Izolácia RNA:', margin: [45, 0, 0, 0]}],
+              [{colSpan: 4, text: 'Real-Time RT-PCR SARS CoV-2:', margin: [45, 0, 0, 0]}],
+            ],
+          },
+        },
+      ],
+    ]
+  }
+
+  return {
+    content: [
+      {
+        table: {
+          widths: ['*'],
+          dontBreakRows: true,
+          body: entries.map(getSingleRecord),
+        },
+      },
+    ],
+  }
+}
+
+export const createPdf = (fileName: string, props: object) => {
   pdfMake
     .createPdf(
       {
