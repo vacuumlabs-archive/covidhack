@@ -15,6 +15,7 @@ import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {Application} from '../../utils/graphqlSdk'
 import {mapValuesAsync} from '../../utils/helpers'
+import WrongPassword from '../../components/office/WrongPassword'
 
 const useStyles = makeStyles({
   dialog: {maxWidth: '450px !important', padding: 24},
@@ -44,7 +45,7 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
     }).catch((err) => setError(err))
   }, [])
 
-  if (error) return <div>Chyba pri nacitavani udajov, pravdepodobne nespravne heslo kancelarie</div>
+  if (error) return <WrongPassword />
 
   if (!application) return (
     <Layout>

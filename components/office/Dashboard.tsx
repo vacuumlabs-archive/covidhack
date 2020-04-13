@@ -18,6 +18,7 @@ import {Application, Grid, Lab_Result} from '../../utils/graphqlSdk'
 import {mapValuesAsync} from '../../utils/helpers'
 import {createPdf, getOfficeDocContent} from '../../utils/pdf/pdf'
 import NewApplicant from './NewApplicant'
+import WrongPassword from './WrongPassword'
 
 const useStyles = makeStyles({
   titleWrapper: {
@@ -165,7 +166,7 @@ const Dashboard = () => {
 
   if (applicationsError || gridsError || labResultsError) {
     console.error(applicationsError)
-    return <div>Chyba pri nacitavani udajov, pravdepodobne nespravne heslo kancelarie</div>
+    return <WrongPassword />
   }
 
   if (!applications || !grids || !labResults) {
