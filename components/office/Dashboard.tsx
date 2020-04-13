@@ -16,7 +16,7 @@ import {State} from '../../logic/state'
 import {formatDate} from '../../utils/formatter'
 import {Application, Grid, Lab_Result} from '../../utils/graphqlSdk'
 import {mapValuesAsync} from '../../utils/helpers'
-import {createPdf, getOfficeDocContent} from '../../utils/pdf/pdf'
+import {createPdf, getOfficeDocContent, getJournalContent} from '../../utils/pdf/pdf'
 import NewApplicant from './NewApplicant'
 import WrongPassword from './WrongPassword'
 
@@ -69,9 +69,9 @@ const createFetcher = (password) => (url) =>
       return ans
     })
 
-const handlePrint = (row) => {
+const handlePrintProtocol = (row) => {
   createPdf(
-    `${row.sample_code}.pdf`,
+    `protokol-${row.sample_code}.pdf`,
     getOfficeDocContent({
       content: {
         patientName: row.pacient_name,
@@ -85,6 +85,20 @@ const handlePrint = (row) => {
         testEndDate: row.test_finished_date || '',
       },
     }),
+  )
+}
+
+const handlePrintJournal = (row) => {
+  createPdf(
+    `zaznam-${row.sample_code}.pdf`,
+    getJournalContent([{
+      patientName: row.pacient_name,
+      personalNumber: row.personal_number,
+      sampleCode: row.sample_code,
+      sender: row.sender,
+      sampleCollectionDate: row.sample_collection_date,
+      sampleReceiveDate: row.sample_receive_date,
+    }]),
   )
 }
 
@@ -238,11 +252,10 @@ const Dashboard = () => {
                   <PostAdd />
                 </IconButton>
               ),
-              <IconButton
-                key={row.id}
-                onClick={() => handlePrint(row)}
-                disabled={!row.test_finished}
-              >
+              <IconButton key={row.id} onClick={() => handlePrintProtocol(row)}>
+                <PictureAsPdfIcon />
+              </IconButton>,
+              <IconButton key={row.id} onClick={() => handlePrintJournal(row)}>
                 <PictureAsPdfIcon />
               </IconButton>,
             ])}
@@ -257,7 +270,8 @@ const Dashboard = () => {
               'Ukončenie skúšky',
               'Výsledok',
               'Upraviť',
-              'Pdf',
+              'Protokol',
+              'Záznamy',
             ]}
             options={{
               filterType: 'dropdown',
