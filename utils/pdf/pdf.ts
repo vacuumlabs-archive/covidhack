@@ -1,5 +1,7 @@
 import _ from 'lodash'
 import pdfMake from 'pdfmake'
+import {formatDate} from '../formatter'
+import {isNormalInteger} from '../helpers'
 import vfsPTSerif from './vfs_ptserif'
 
 const NORMAL_ROW_HEIGHT = 20
@@ -487,4 +489,35 @@ export const createPdf = (fileName = 'sample.pdf', props: object = getLabDocCont
       vfsPTSerif,
     )
     .download(fileName)
+}
+
+export const printLabDoc = async (grid) => {
+  const labResults = await fetch(`/api/grid/${grid.id}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }).then((r) => r.json())
+
+  const samples = labResults.lab_result
+    .map(({sample_code: sampleCode, positive}) => {
+      const testResult = positive === true ? 'pozitívny' : 'negatívny'
+      return {sampleCode, testResult}
+    })
+    .filter(({sampleCode}) => isNormalInteger(sampleCode))
+
+  samples.sort(({sampleCode: a}, {sampleCode: b}) => parseInt(a) - parseInt(b))
+
+  createPdf(
+    `lab-${grid.id}.pdf`,
+    getLabDocContent({
+      content: {
+        sampleCollectionDate: formatDate(grid.sample_taken_date),
+        sampleReceiveDate: formatDate(grid.sample_arrival_date),
+        testStartDate: formatDate(grid.test_initiation_date),
+        testEndDate: formatDate(grid.test_finished_date),
+        samples,
+      },
+    }),
+  )
 }
