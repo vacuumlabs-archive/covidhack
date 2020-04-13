@@ -274,7 +274,19 @@ export const getLabDocContent = (props: LabDocProps = {}) => {
   }
 }
 
-export const getOfficeDocContent = (props: OfficeDocProps = {}): object => {
+export const getOfficeDocsContent = (arrayOfProps: Array<OfficeDocProps> = [{}]) => {
+  return {
+    content: _.flatten(
+      arrayOfProps.map((props, i) =>
+        i === 0
+          ? getOfficeDocContent(props).content
+          : [{text: '', pageBreak: 'before'}, ...getOfficeDocContent(props).content],
+      ),
+    ),
+  }
+}
+
+export const getOfficeDocContent = (props: OfficeDocProps = {}): any => {
   const {header, content, footer} = _.merge(
     {
       header: {

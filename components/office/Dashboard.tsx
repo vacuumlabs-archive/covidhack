@@ -16,7 +16,7 @@ import {State} from '../../logic/state'
 import {formatDate} from '../../utils/formatter'
 import {Application, Grid, Lab_Result} from '../../utils/graphqlSdk'
 import {mapValuesAsync} from '../../utils/helpers'
-import {createPdf, getOfficeDocContent, getJournalContent} from '../../utils/pdf/pdf'
+import {createPdf, getOfficeDocContent, getJournalContent, getOfficeDocsContent} from '../../utils/pdf/pdf'
 import NewApplicant from './NewApplicant'
 import WrongPassword from './WrongPassword'
 
@@ -69,37 +69,43 @@ const createFetcher = (password) => (url) =>
       return ans
     })
 
+const rowToProtocolContent = (row) => ({
+  content: {
+    patientName: row.pacient_name || '',
+    personalNumber: row.personal_number || '',
+    sampleCode: row.sample_code || '',
+    sender: row.sender || '',
+    sampleCollectionDate: row.sample_collection_date || '',
+    sampleReceiveDate: row.sample_receive_date || '',
+    testResult: row.test_result || '',
+    testStartDate: row.test_initiation_date || '',
+    testEndDate: row.test_finished_date || '',
+  },
+})
+
 const handlePrintProtocol = (row) => {
-  createPdf(
-    `protokol-${row.sample_code}.pdf`,
-    getOfficeDocContent({
-      content: {
-        patientName: row.pacient_name,
-        personalNumber: row.personal_number,
-        sampleCode: row.sample_code,
-        sender: row.sender,
-        sampleCollectionDate: row.sample_collection_date,
-        sampleReceiveDate: row.sample_receive_date,
-        testResult: row.test_result || '',
-        testStartDate: row.test_initiation_date || '',
-        testEndDate: row.test_finished_date || '',
-      },
-    }),
-  )
+  createPdf(`protokol-${row.sample_code}.pdf`, getOfficeDocContent(rowToProtocolContent(row)))
 }
 
+const handlePrintProtocols = (rows) => {
+  createPdf(`protokoly.pdf`, getOfficeDocsContent(rows.map(rowToProtocolContent)))
+}
+
+const rowToJournalContent = (row) => ({
+  patientName: row.pacient_name || '',
+  personalNumber: row.personal_number || '',
+  sampleCode: row.sample_code || '',
+  sender: row.sender || '',
+  sampleCollectionDate: row.sample_collection_date || '',
+  sampleReceiveDate: row.sample_receive_date || '',
+})
+
 const handlePrintJournal = (row) => {
-  createPdf(
-    `zaznam-${row.sample_code}.pdf`,
-    getJournalContent([{
-      patientName: row.pacient_name,
-      personalNumber: row.personal_number,
-      sampleCode: row.sample_code,
-      sender: row.sender,
-      sampleCollectionDate: row.sample_collection_date,
-      sampleReceiveDate: row.sample_receive_date,
-    }]),
-  )
+  createPdf(`zaznam-${row.sample_code}.pdf`, getJournalContent([rowToJournalContent(row)]))
+}
+
+const handlePrintJournals = (rows) => {
+  createPdf(`zaznamy.pdf`, getJournalContent(rows.map(rowToJournalContent)))
 }
 
 const getEntries = (mode, {applications, grids, labResults}) => {
@@ -206,7 +212,7 @@ const Dashboard = () => {
         <Tab label="Nespárovaný" />
         <Tab label="Neotestovaný" />
         <Tab label="Otestovaný" />
-        <Tab label="Spracovaný" />
+        <Tab label="Všetky" />
       </Tabs>
 
       <Paper style={{marginBottom: 16}}>
@@ -271,19 +277,45 @@ const Dashboard = () => {
               'Výsledok',
               'Upraviť',
               'Protokol',
-              'Záznamy',
+              'Záznam',
             ]}
             options={{
               filterType: 'dropdown',
               // TODO: might consider this later
               expandableRows: false,
-              responsive: 'scroll',
+              responsive: 'scrollFullHeight',
               // onRowsSelect: (row) => console.log('select', row),
               // onRowsExpand: (row) => console.log('expand', row),
               // onRowClick: (row) => console.log('click', row),
               // onCellClick: (row) => console.log('cell', row),
               print: false,
               download: false,
+              filter: false,
+              viewColumns: false,
+              customToolbarSelect: (selectedRows) => (
+                <div>
+                  <strong>Protokoly: </strong>
+                  <IconButton
+                    onClick={() =>
+                      handlePrintProtocols(
+                        selectedRows.data.map(({dataIndex}) => entries[dataIndex]),
+                      )
+                    }
+                  >
+                    <PictureAsPdfIcon />
+                  </IconButton>
+                  <strong style={{marginLeft: '16px'}}>Záznamy: </strong>
+                  <IconButton
+                    onClick={() =>
+                      handlePrintJournals(
+                        selectedRows.data.map(({dataIndex}) => entries[dataIndex]),
+                      )
+                    }
+                  >
+                    <PictureAsPdfIcon />
+                  </IconButton>
+                </div>
+              ),
             }}
           />
         </MuiThemeProvider>
