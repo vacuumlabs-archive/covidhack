@@ -41,16 +41,6 @@ const NewApplicant = ({open, code, close}: Props) => {
           onSubmit={async (values) => {
             close()
             // TODO: maybe wait for response first
-            console.log(
-              'bodycko',
-              JSON.stringify({
-                ...values,
-                ...(await mapValuesAsync(
-                  pick(values, ['pacient', 'personalNumber', 'sampleCode', 'sender']),
-                  (val) => encrypt(val as string, password),
-                )),
-              }),
-            )
             const response = await fetch('/api/create-applicant', {
               method: 'POST',
               headers: {

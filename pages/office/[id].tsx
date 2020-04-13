@@ -171,7 +171,6 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
                 name="sampleCollectionDate"
                 value={values.sampleCollectionDate}
                 onChange={(newDate) => {
-                  console.log(newDate)
                   setFieldValue('sampleCollectionDate', newDate)
                 }}
                 format="dd.MM.yyyy - HH:mm"
