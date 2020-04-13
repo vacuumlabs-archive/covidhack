@@ -68,6 +68,24 @@ const createFetcher = (password) => (url) =>
       return ans
     })
 
+const handlePrint = (row) => {
+  createPdf(
+    `${row.sample_code}.pdf`,
+    getOfficeDocContent({
+      content: {
+        patientName: row.pacient_name,
+        personalNumber: row.personal_number,
+        sampleCode: row.sample_code,
+        sender: row.sender,
+        sampleCollectionDate: row.sample_collection_date,
+        sampleReceiveDate: row.sample_receive_date,
+        testResult: row.test_result || '',
+        testStartDate: row.test_initiation_date || '',
+        testEndDate: row.test_finished_date || '',
+      },
+    }),
+  )
+}
 
 const getEntries = (mode, {applications, grids, labResults}) => {
   const labResultsCopy = clone(labResults)
@@ -81,6 +99,7 @@ const getEntries = (mode, {applications, grids, labResults}) => {
       ...row,
       sample_collection_date: formatDate(row.sample_collection_date),
       sample_receive_date: formatDate(row.sample_receive_date),
+      test_finished: grid?.finished,
       test_initiation_date: grid?.test_initiation_date && formatDate(grid?.test_initiation_date),
       test_finished_date: grid?.test_finished_date && formatDate(grid?.test_finished_date),
       test_result: grid?.finished ? (labResult.positive ? 'Pozitívny' : 'Negatívny') : null,
@@ -97,6 +116,7 @@ const getEntries = (mode, {applications, grids, labResults}) => {
       sample_collection_date: null,
       sample_receive_date: null,
       sender: null,
+      test_finished: grid?.finished,
       test_initiation_date: grid?.test_initiation_date && formatDate(grid?.test_initiation_date),
       test_finished_date: grid?.test_finished_date && formatDate(grid?.test_finished_date),
       test_result: grid?.finished ? (lr.positive ? 'Pozitívny' : 'Negatívny') : null,
@@ -216,27 +236,7 @@ const Dashboard = () => {
                   <PostAdd />
                 </IconButton>
               ),
-              <IconButton
-                key={row.id}
-                onClick={() =>
-                  createPdf(
-                    `${row.sample_code}.pdf`,
-                    getOfficeDocContent({
-                      content: {
-                        patientName: row.pacient_name,
-                        personalNumber: row.personal_number,
-                        sampleCode: row.sample_code,
-                        sender: row.sender,
-                        sampleCollectionDate: row.sample_collection_date,
-                        sampleReceiveDate: row.sample_receive_date,
-                        testResult: row.test_result || '',
-                        testStartDate: row.test_initiation_date || '',
-                        testEndDate: row.test_finished_date || '',
-                      },
-                    }),
-                  )
-                }
-              >
+              <IconButton key={row.id} onClick={() => handlePrint(row)} disabled={!row.test_finished}>
                 <PictureAsPdfIcon />
               </IconButton>,
             ])}
