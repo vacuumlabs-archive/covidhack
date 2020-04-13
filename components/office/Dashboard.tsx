@@ -103,7 +103,7 @@ const getEntries = (mode, {applications, grids, labResults}) => {
       test_finished: grid?.finished,
       test_initiation_date: grid?.test_initiation_date && formatDate(grid?.test_initiation_date),
       test_finished_date: grid?.test_finished_date && formatDate(grid?.test_finished_date),
-      test_result: grid?.finished ? (labResult.positive ? 'Pozitívny' : 'Negatívny') : null,
+      test_result: grid?.finished ? (labResult.positive ? 'pozitívny' : 'negatívny') : null,
     }
   })
 
@@ -120,7 +120,7 @@ const getEntries = (mode, {applications, grids, labResults}) => {
       test_finished: grid?.finished,
       test_initiation_date: grid?.test_initiation_date && formatDate(grid?.test_initiation_date),
       test_finished_date: grid?.test_finished_date && formatDate(grid?.test_finished_date),
-      test_result: grid?.finished ? (lr.positive ? 'Pozitívny' : 'Negatívny') : null,
+      test_result: grid?.finished ? (lr.positive ? 'pozitívny' : 'negatívny') : null,
     }
   })
 
