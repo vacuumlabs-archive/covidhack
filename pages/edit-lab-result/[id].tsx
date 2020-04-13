@@ -1,4 +1,6 @@
-import {CircularProgress, Typography} from '@material-ui/core'
+import {IconButton, Typography} from '@material-ui/core'
+import EditIcon from '@material-ui/icons/Edit'
+import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import {GetServerSideProps} from 'next'
 import {useRouter} from 'next/router'
 import React, {useCallback, useMemo, useState} from 'react'
@@ -8,6 +10,7 @@ import Layout from '../../components/Layout'
 import {allowAccessFor} from '../../utils/auth'
 import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
 import {addFrame, mapLabResultsToGrid} from '../../utils/helpers'
+import {printLabDoc} from '../../utils/pdf/pdf'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
@@ -70,12 +73,13 @@ const SuccessRegistration = () => {
 
   const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback(
     (props) => {
-      const loading =
-        loadingCell?.row === props.row && loadingCell?.col === props.col ? (
-          <CircularProgress size={18} />
-        ) : (
-          undefined
-        )
+      // if we needed loading we can use this
+      // const loading =
+      //   loadingCell?.row === props.row && loadingCell?.col === props.col ? (
+      //     <CircularProgress size={18} />
+      //   ) : (
+      //     undefined
+      //   )
       const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
       // if we want to reintroduce checkbox uncomment and change the condition below
       // (
@@ -85,12 +89,7 @@ const SuccessRegistration = () => {
       //     onChange={() => updateCell(props.row, props.col, !props.cell.positive)}
       //   />
       // )
-      return (
-        <div style={backgroundStyle}>
-          {props.cell.value}
-          {loading}
-        </div>
-      )
+      return <div style={backgroundStyle}>{props.cell.value}</div>
     },
     [loadingCell],
   )
@@ -103,7 +102,7 @@ const SuccessRegistration = () => {
       const cursorStyle = dontAddOnClick ? {} : {cursor: 'pointer'}
       return (
         <td
-          style={{...backgroundStyle, ...cursorStyle}}
+          style={{...backgroundStyle, ...cursorStyle, width: 200}}
           onMouseDown={
             dontAddOnClick
               ? props.onMouseDown
@@ -112,7 +111,7 @@ const SuccessRegistration = () => {
                 }
           }
           onMouseOver={props.onMouseOver}
-          className="cell"
+          className="cell read-only"
         >
           {props.children}
         </td>
@@ -121,7 +120,7 @@ const SuccessRegistration = () => {
     [typedData, updateCell],
   )
 
-  if (!data) return <div>loading</div>
+  if (!data) return <div>Načítavam...</div>
   return (
     <>
       <Layout isFormPage>
@@ -131,13 +130,21 @@ const SuccessRegistration = () => {
               <Typography variant="h2" style={{display: 'inline-block'}}>
                 {typedData.grid_by_pk.title}
               </Typography>
-              <button onClick={() => setIsEditingTitle(!isEditingTitle)}>Edit</button>
+              <IconButton onClick={() => setIsEditingTitle(!isEditingTitle)}>
+                <EditIcon />
+              </IconButton>
+              <IconButton
+                onClick={() => printLabDoc(typedData.grid_by_pk)}
+                disabled={!typedData.grid_by_pk.finished}
+              >
+                <PictureAsPdfIcon />
+              </IconButton>
             </div>
             {isEditingTitle && (
               <div>
                 <input type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
                 <button onClick={() => newTitle && mutate(updateGrid({id, title: newTitle}))}>
-                  Change Title
+                  Zmeniť názov
                 </button>
               </div>
             )}
@@ -150,7 +157,7 @@ const SuccessRegistration = () => {
             <button
               onClick={() => mutate(updateGrid({id, finished: !typedData.grid_by_pk.finished}))}
             >
-              {typedData.grid_by_pk.finished ? 'Reopen for editing' : 'Mark Results as Finished'}
+              {typedData.grid_by_pk.finished ? 'Znovu otvoriť' : 'Označiť za ukončené'}
             </button>
           </div>
         </div>

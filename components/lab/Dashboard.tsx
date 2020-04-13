@@ -8,45 +8,13 @@ import Router from 'next/router'
 import React from 'react'
 import {formatDate} from '../../utils/formatter'
 import {GridsQueryQuery} from '../../utils/graphqlSdk'
-import {isNormalInteger} from '../../utils/helpers'
-import {createPdf, getLabDocContent} from '../../utils/pdf/pdf'
+import {printLabDoc} from '../../utils/pdf/pdf'
 
 interface Props {
   grids: GridsQueryQuery
 }
 
 const LabDashboard = ({grids}: Props) => {
-  const printLabDoc = async (row) => {
-    const labResults = await fetch(`/api/grid/${row.id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((r) => r.json())
-
-    const samples = labResults.lab_result
-      .map(({sample_code: sampleCode, positive}) => {
-        const testResult = positive === true ? 'pozitívny' : 'negatívny'
-        return {sampleCode, testResult}
-      })
-      .filter(({sampleCode}) => isNormalInteger(sampleCode))
-
-    samples.sort(({sampleCode: a}, {sampleCode: b}) => parseInt(a) - parseInt(b))
-
-    createPdf(
-      `lab-${row.id}.pdf`,
-      getLabDocContent({
-        content: {
-          sampleCollectionDate: formatDate(row.sample_taken_date),
-          sampleReceiveDate: formatDate(row.sample_arrival_date),
-          testStartDate: formatDate(row.test_initiation_date),
-          testEndDate: formatDate(row.test_finished_date),
-          samples,
-        },
-      }),
-    )
-  }
-
   return (
     <>
       <div className="add-margin">
