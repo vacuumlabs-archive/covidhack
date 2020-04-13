@@ -19,7 +19,7 @@ const Lab = (props: Props) => {
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
-  if (!allowAccessFor(context.req.headers.authorization, ['kancelaria', 'laboratorium'])) {
+  if (!allowAccessFor(context.req.headers.authorization, ['kancelaria'])) {
     context.res.statusCode = 401
     context.res.setHeader('WWW-Authenticate', 'Basic')
     context.res.end('Unauthorized')

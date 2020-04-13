@@ -5,7 +5,7 @@ import {client} from '../../utils/gql'
 import {updateLabResultBodySchema} from '../../utils/validations'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (!allowAccessFor(req.headers.authorization, ['kancelaria', 'laboratorium'])) {
+  if (!allowAccessFor(req.headers.authorization, ['kancelaria'])) {
     res.statusCode = 401
     res.setHeader('WWW-Authenticate', 'Basic')
     res.end('Unauthorized')

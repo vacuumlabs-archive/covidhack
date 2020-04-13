@@ -269,7 +269,7 @@ const SuccessRegistration = () => {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  if (!allowAccessFor(context.req.headers.authorization, ['laboratorium'])) {
+  if (!allowAccessFor(context.req.headers.authorization, ['kancelaria'])) {
     context.res.statusCode = 401
     context.res.setHeader('WWW-Authenticate', 'Basic')
     context.res.end('Unauthorized')
