@@ -268,6 +268,8 @@ const Dashboard = () => {
               // onRowsExpand: (row) => console.log('expand', row),
               // onRowClick: (row) => console.log('click', row),
               // onCellClick: (row) => console.log('cell', row),
+              print: false,
+              download: false,
             }}
           />
         </MuiThemeProvider>

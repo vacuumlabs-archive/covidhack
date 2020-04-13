@@ -90,6 +90,8 @@ const LabDashboard = ({grids}: Props) => {
             options={{
               filterType: 'dropdown',
               responsive: 'scroll',
+              print: false,
+              download: false,
             }}
           />
         </Paper>
