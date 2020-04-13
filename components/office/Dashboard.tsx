@@ -104,7 +104,7 @@ const getEntries = (mode, {applications, grids, labResults}) => {
   })
 
   if (mode === 0) {
-    return [...allApplications, ...withNoApplication]
+    return withNoApplication
   } else if (mode === 1) {
     return [...allApplications, ...withNoApplication].filter(
       ({test_result}) => test_result === null,
@@ -143,12 +143,17 @@ const Dashboard = () => {
         .then((a) => keyBy(a, 'sample_code')),
   )
 
-  console.error(applicationsError)
-  if (applicationsError || gridsError || labResultsError)
+  if (applicationsError || gridsError || labResultsError) {
+    console.error(applicationsError)
     return <div>Chyba pri nacitavani udajov, pravdepodobne nespravne heslo kancelarie</div>
+  }
 
   if (!applications || !grids || !labResults) {
-    return <CircularProgress />
+    return (
+      <div style={{textAlign: 'center', marginTop: '20px'}}>
+        <CircularProgress />
+      </div>
+    )
   }
 
   const entries = getEntries(value, {applications, grids, labResults})

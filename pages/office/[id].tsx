@@ -45,7 +45,15 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
   }, [])
 
   if (error) return <div>Chyba pri nacitavani udajov, pravdepodobne nespravne heslo kancelarie</div>
-  if (!application) return <Layout><CircularProgress /></Layout>
+
+  if (!application) return (
+    <Layout>
+      <div style={{textAlign: 'center', marginTop: '20px'}}>
+        <CircularProgress />
+      </div>
+    </Layout>
+  )
+
   return (
     <Layout>
       <Typography variant="h3" gutterBottom style={{textAlign: 'center'}}>
