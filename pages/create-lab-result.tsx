@@ -1,12 +1,19 @@
-import {TextField} from '@material-ui/core'
+import {Button} from '@material-ui/core'
 import produce from 'immer'
 import {GetServerSideProps} from 'next'
 import {useRouter} from 'next/router'
-import React, {useCallback, useMemo, useState} from 'react'
+import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
 import Layout from '../components/Layout'
 import {allowAccessFor} from '../utils/auth'
-import {addFrame, autofillGrid, createEmptyGrid, removeFrame} from '../utils/helpers'
+import {
+  addFrame,
+  autofillGrid,
+  createEmptyGrid,
+  findPreviousOnFramedGrid,
+  isNormalInteger,
+  removeFrame,
+} from '../utils/helpers'
 import {createGridBodySchema} from '../utils/validations'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
@@ -24,6 +31,7 @@ const SuccessRegistration = () => {
   const [title, setTitle] = useState<string>('')
   const [error, setError] = useState('')
   const [brokenFieldsEditMode, setBrokenFieldsEditMode] = useState(false)
+  const inputRef = React.useRef<HTMLInputElement>()
   const submit = useCallback(async () => {
     setError('')
     const body = {
@@ -61,6 +69,40 @@ const SuccessRegistration = () => {
       }),
     [grid, selected],
   )
+
+  const toggleSelectionBroken = useCallback(() => {
+    setGrid(
+      produce(grid, (draft) => {
+        for (let i = selected.start.i; i <= selected.end.i; i++) {
+          for (let j = selected.start.j; j <= selected.end.j; j++) {
+            // ignoring frame
+            if (i === 0 || j === 0) continue
+            draft[i][j].broken = !draft[i][j].broken
+          }
+        }
+      }),
+    )
+  }, [grid, selected])
+
+  useEffect(() => {
+    const handler = (event) => {
+      const keyName = event.key
+      if (keyName === 'Control') {
+        if (!selected) return
+        const {i, j} = selected.start
+        // not doing anything on a frame or if value is already filled
+        if (i === 0 || j === 0 || grid[i][j].value) return
+        const loc = findPreviousOnFramedGrid(grid, selected.start)
+        // if no previous value exists or it's not a number it's not clear how to fill
+        if (!loc || !isNormalInteger(loc.value)) return
+        setGrid(autofillGrid(grid, loc, selected.start, Number.parseInt(loc.value)))
+      }
+    }
+    document.addEventListener('keydown', handler, false)
+    return () => {
+      document.removeEventListener('keydown', handler, false)
+    }
+  }, [grid, selected])
 
   // used for backgrounds only, because cellRenderer seems to break drag-to-select
   const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback((props) => {
@@ -102,34 +144,40 @@ const SuccessRegistration = () => {
     [grid],
   )
 
+  // autofocus title field
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      inputRef?.current?.focus()
+    }, 100)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [])
+
   return (
     <>
       <Layout isFormPage>
         <div className="container">
           <div className="wrapper">
-            <TextField
+            <input
+              autoFocus
               value={title}
-              label="Title"
+              ref={inputRef}
+              placeholder="Title"
+              style={{fontSize: 20}}
               onChange={(e) => {
                 setTitle(e.target.value)
               }}
             />
-            <button onClick={() => setBrokenFieldsEditMode(!brokenFieldsEditMode)}>
-              {brokenFieldsEditMode ? 'Nastavit Hodnoty' : 'Nastavit nefunkcne polia'}
-            </button>
-            <button onClick={() => setGrid(addFrame(autofillGrid(removeFrame(grid))))}>
-              Doplnit automaticky
-            </button>
+            <Button variant="contained" onClick={toggleSelectionBroken}>
+              Nastaviť vybrané polia ako nefunkčné
+            </Button>
             <div style={{color: 'green'}}>
-              Tlacitko doplnit automaticky vyplni cisla vzoriek zaradom, po stlpcoch. Ak narazi na
-              existujucu hodnotu, bude pokracovat v cislovani od nej. Automaticky preskoci nefunkcne
-              polia.
+              Použite CTRL na automatické vyplnenie prázdnych políčok podľa posledného vyplneného.
+              Posledné vyplnené musí byť číselné. Vybrané políčko musí byť prázdne. Políčka sa
+              vypĺňajú po stĺpcoch.
             </div>
-            {brokenFieldsEditMode && (
-              <div style={{color: 'red'}}>
-                Kliknutim nastavte ktore polia maju byt vynechane pri automatickom vyplnani
-              </div>
-            )}
             <MyReactDataSheet
               data={gridToDisplay}
               valueRenderer={(cell) => cell.value}
@@ -147,7 +195,9 @@ const SuccessRegistration = () => {
               cellRenderer={brokenFieldsEditMode ? cellRenderer : undefined}
               valueViewer={valueViewer}
             />
-            <button onClick={submit}>Submit</button>
+            <Button variant="contained" onClick={submit}>
+              Začať test
+            </Button>
             <div style={{color: 'red'}}>{error}</div>
           </div>
         </div>
@@ -262,6 +312,10 @@ const SuccessRegistration = () => {
         .data-grid-container .data-grid .cell .value-viewer,
         .data-grid-container .data-grid .cell .data-editor {
           display: block;
+          font-size: 16px;
+          border: 0;
+          padding: 0;
+          height: auto;
         }
       `}</style>
     </>

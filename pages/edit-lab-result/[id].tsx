@@ -71,38 +71,39 @@ const SuccessRegistration = () => {
     [id, mutate, updateLabResult],
   )
 
-  const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback(
-    (props) => {
-      // if we needed loading we can use this
-      // const loading =
-      //   loadingCell?.row === props.row && loadingCell?.col === props.col ? (
-      //     <CircularProgress size={18} />
-      //   ) : (
-      //     undefined
-      //   )
-      const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
-      // if we want to reintroduce checkbox uncomment and change the condition below
-      // (
-      //   <input
-      //     type="checkbox"
-      //     checked={props.cell.positive}
-      //     onChange={() => updateCell(props.row, props.col, !props.cell.positive)}
-      //   />
-      // )
-      return <div style={backgroundStyle}>{props.cell.value}</div>
-    },
-    [loadingCell],
-  )
+  const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback((props) => {
+    // if we needed loading we can use this
+    // const loading =
+    //   loadingCell?.row === props.row && loadingCell?.col === props.col ? (
+    //     <CircularProgress size={18} />
+    //   ) : (
+    //     undefined
+    //   )
+    const isFrame = props.row === 0 || props.col === 0
+    const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
+    const frameStyle = isFrame ? {background: 'whitesmoke', color: '#999'} : {}
+    // if we want to reintroduce checkbox uncomment and change the condition below
+    // (
+    //   <input
+    //     type="checkbox"
+    //     checked={props.cell.positive}
+    //     onChange={() => updateCell(props.row, props.col, !props.cell.positive)}
+    //   />
+    // )
+    return <div style={{...backgroundStyle, ...frameStyle}}>{props.cell.value}</div>
+  }, [])
 
   const cellRenderer: ReactDataSheet.CellRenderer<GridElement, string> = useCallback(
     (props) => {
       // dont edit finished and dont add on frame
-      const dontAddOnClick = typedData?.grid_by_pk.finished || props.row === 0 || props.col === 0
+      const isFrame = props.row === 0 || props.col === 0
+      const dontAddOnClick = typedData?.grid_by_pk.finished || isFrame
       const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
       const cursorStyle = dontAddOnClick ? {} : {cursor: 'pointer'}
+      const frameStyle = isFrame ? {background: 'whitesmoke', color: '#999'} : {}
       return (
         <td
-          style={{...backgroundStyle, ...cursorStyle, width: 200}}
+          style={{...backgroundStyle, ...cursorStyle, ...frameStyle, width: 200}}
           onMouseDown={
             dontAddOnClick
               ? props.onMouseDown
@@ -111,7 +112,7 @@ const SuccessRegistration = () => {
                 }
           }
           onMouseOver={props.onMouseOver}
-          className="cell read-only"
+          className={`cell ${props.isFrame ? 'frame' : ''}`}
         >
           {props.children}
         </td>
@@ -214,10 +215,6 @@ const SuccessRegistration = () => {
           border: 1px double rgb(33, 133, 208);
           transition: none;
           box-shadow: inset 0 -100px 0 rgba(33, 133, 208, 0.15);
-        }
-
-        .data-grid-container .data-grid .cell.read-only {
-          text-align: center;
         }
 
         .data-grid-container .data-grid .cell > .text {

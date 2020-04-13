@@ -42,23 +42,49 @@ type GridElement = {
   broken?: boolean
 }
 
-export const autofillGrid = (grid: GridElement[][]) => {
+type Location = {
+  i: number
+  j: number
+}
+
+export const autofillGrid = (
+  grid: GridElement[][],
+  start: Location,
+  end: Location,
+  initialValue: number,
+) => {
   return produce(grid, (draft) => {
-    let currentValue = 1
+    let currentValue = initialValue
     // go by columns
-    for (let i = 0; i < gridColumns; i++) {
-      for (let j = 0; j < gridRows; j++) {
-        if (draft[j][i].broken) continue
-        if (draft[j][i].value) {
-          if (isNormalInteger(draft[j][i].value)) {
-            currentValue = Number.parseInt(draft[j][i].value)
+    for (let j = start.j; j <= gridColumns; j++) {
+      // start from the initial cell in first iteration, then continue from top
+      const rowIterationStart = j === start.j ? start.i : 1
+      for (let i = rowIterationStart; i <= gridRows; i++) {
+        if (draft[i][j].broken) continue
+        // we should not overwrite any values while doing this, except the initial one  which is used as seed
+        if (draft[i][j].value) {
+          if (i !== start.i && j !== start.j) {
+            // oops, this should not happen, better abort and hope all is good #solid-code
+            console.log('Autofill trying to overwrite values out of place')
+            return
           }
-          continue
         }
-        draft[j][i].value = `${currentValue++}`
+        draft[i][j].value = `${currentValue++}`
+        if (i === end.i && j === end.j) return
       }
     }
   })
+}
+
+export const findPreviousOnFramedGrid = (grid: GridElement[][], loc: Location) => {
+  // go by columns
+  for (let j = loc.j; j >= 1; j--) {
+    for (let i = loc.i; i >= 1; i--) {
+      if (grid[i][j].value) {
+        return {i, j, value: grid[i][j].value}
+      }
+    }
+  }
 }
 
 const rowLabels = Array.from('ABCDEFGH').map((value) => ({
