@@ -129,7 +129,6 @@ const NewApplicant = ({open, code, close}: Props) => {
                 onChange={(newDate) => {
                   setFieldValue('sampleCollectionDate', newDate)
                 }}
-                disablePast
                 format="dd.MM.yyyy - HH:mm"
                 style={{width: '100%'}}
               />
@@ -145,7 +144,6 @@ const NewApplicant = ({open, code, close}: Props) => {
                 onChange={(newDate) => {
                   setFieldValue('sampleReceiveDate', newDate)
                 }}
-                disablePast
                 format="dd.MM.yyyy - HH:mm"
                 style={{width: '100%'}}
               />
