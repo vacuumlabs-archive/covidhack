@@ -6,7 +6,7 @@ import {
   TextField,
   Typography,
 } from '@material-ui/core'
-import {DateTimePicker} from '@material-ui/pickers'
+import {DatePicker} from '@material-ui/pickers'
 import {makeStyles} from '@material-ui/styles'
 import {Form, Formik} from 'formik'
 import {pick} from 'lodash'
@@ -162,33 +162,30 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
                 helperText={touched.personalNumber && errors.personalNumber}
               />
 
-              <DateTimePicker
+              <DatePicker
                 className={classes.formField}
                 variant="inline"
                 autoOk
-                ampm={false}
                 label="Dátum odberu vzorky"
                 name="sampleCollectionDate"
                 value={values.sampleCollectionDate}
                 onChange={(newDate) => {
                   setFieldValue('sampleCollectionDate', newDate)
                 }}
-                format="dd.MM.yyyy - HH:mm"
+                format="d.M.yyyy"
                 style={{width: '100%'}}
               />
-
-              <DateTimePicker
+              <DatePicker
                 className={classes.formField}
                 variant="inline"
                 autoOk
-                ampm={false}
                 label="Dátum prijatia vzorky"
                 name="sampleReceiveDate"
                 value={values.sampleReceiveDate}
                 onChange={(newDate) => {
                   setFieldValue('sampleReceiveDate', newDate)
                 }}
-                format="dd.MM.yyyy - HH:mm"
+                format="d.M.yyyy"
                 style={{width: '100%'}}
               />
 

@@ -1,5 +1,5 @@
 import {Button, Dialog, DialogActions, DialogTitle, TextField} from '@material-ui/core'
-import {DateTimePicker} from '@material-ui/pickers'
+import {DatePicker} from '@material-ui/pickers'
 import {makeStyles} from '@material-ui/styles'
 import {Form, Formik} from 'formik'
 import {pick} from 'lodash'
@@ -23,11 +23,7 @@ const NewApplicant = ({open, code, close}: Props) => {
 
   return (
     <>
-      <Dialog
-        open={open}
-        onClose={close}
-        classes={{paperScrollPaper: classes.dialog}}
-      >
+      <Dialog open={open} onClose={close} classes={{paperScrollPaper: classes.dialog}}>
         <DialogTitle style={{textAlign: 'center'}}>Údaje o novom žiadeťeľovi</DialogTitle>
         <Formik
           initialValues={{
@@ -108,33 +104,31 @@ const NewApplicant = ({open, code, close}: Props) => {
                 helperText={touched.personalNumber && errors.personalNumber}
               />
 
-              <DateTimePicker
+              <DatePicker
                 className={classes.formField}
                 variant="inline"
                 autoOk
-                ampm={false}
                 label="Dátum odberu vzorky"
                 name="sampleCollectionDate"
                 value={values.sampleCollectionDate}
                 onChange={(newDate) => {
                   setFieldValue('sampleCollectionDate', newDate)
                 }}
-                format="dd.MM.yyyy - HH:mm"
+                format="d.M.yyyy"
                 style={{width: '100%'}}
               />
 
-              <DateTimePicker
+              <DatePicker
                 className={classes.formField}
                 variant="inline"
                 autoOk
-                ampm={false}
                 label="Dátum prijatia vzorky"
                 name="sampleReceiveDate"
                 value={values.sampleReceiveDate}
                 onChange={(newDate) => {
                   setFieldValue('sampleReceiveDate', newDate)
                 }}
-                format="dd.MM.yyyy - HH:mm"
+                format="d.M.yyyy"
                 style={{width: '100%'}}
               />
 
