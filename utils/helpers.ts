@@ -70,8 +70,8 @@ const colLabels = ['', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((value) => ({
   readOnly: true,
 }))
 
-export const addFrame = (grid) =>
-  [colLabels].concat(grid.map((row, i) => [rowLabels[i]].concat(row)))
+export const addFrame = (grid: GridElement[][]) =>
+  [colLabels].concat(grid.map((row: any, i) => [rowLabels[i]].concat(row)))
 export const removeFrame = (grid) => grid.slice(1).map((row) => row.slice(1))
 
 // omits the always positive/negative sample, keeps only numebred ones
