@@ -1,21 +1,28 @@
-import {Button, DialogActions, Paper, TextField, Typography, CircularProgress} from '@material-ui/core'
+import {
+  Button,
+  CircularProgress,
+  DialogActions,
+  Paper,
+  TextField,
+  Typography,
+} from '@material-ui/core'
 import {DateTimePicker} from '@material-ui/pickers'
 import {makeStyles} from '@material-ui/styles'
 import {Form, Formik} from 'formik'
+import {pick} from 'lodash'
 import {GetServerSideProps} from 'next'
 import Router from 'next/router'
-import React, {useState, useEffect} from 'react'
-import * as Yup from 'yup'
-import {pick} from 'lodash'
+import React, {useEffect, useState} from 'react'
 import {useSelector} from 'react-redux'
-import {encrypt, decrypt} from '../../logic/crypto'
-import {State} from '../../logic/state'
+import * as Yup from 'yup'
 import Layout from '../../components/Layout'
+import WrongPassword from '../../components/office/WrongPassword'
+import {decrypt, encrypt} from '../../logic/crypto'
+import {State} from '../../logic/state'
 import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {Application} from '../../utils/graphqlSdk'
 import {mapValuesAsync} from '../../utils/helpers'
-import WrongPassword from '../../components/office/WrongPassword'
 
 const useStyles = makeStyles({
   dialog: {maxWidth: '450px !important', padding: 24},
@@ -40,20 +47,23 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
     mapValuesAsync(
       pick(encryptedApplication, ['pacient_name', 'personal_number', 'sample_code', 'sender']),
       (val) => decrypt(val as string, 'a'),
-    ).then((decryptedValues) => {
-      setApplication({...encryptedApplication, ...decryptedValues})
-    }).catch((err) => setError(err))
+    )
+      .then((decryptedValues) => {
+        setApplication({...encryptedApplication, ...decryptedValues})
+      })
+      .catch((err) => setError(err))
   }, [])
 
   if (error) return <WrongPassword />
 
-  if (!application) return (
-    <Layout>
-      <div style={{textAlign: 'center', marginTop: '20px'}}>
-        <CircularProgress />
-      </div>
-    </Layout>
-  )
+  if (!application)
+    return (
+      <Layout>
+        <div style={{textAlign: 'center', marginTop: '20px'}}>
+          <CircularProgress />
+        </div>
+      </Layout>
+    )
 
   return (
     <Layout>

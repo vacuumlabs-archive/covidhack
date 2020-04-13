@@ -54,14 +54,17 @@ export function str2ab(str) {
 export const encrypt = async (data: string, pass: string): Promise<string> => {
   const {iv, key} = await getDerivedKey(await getDerivation(pass))
 
-  return ab2str(
-    await crypto.subtle.encrypt(
-      {
-        name: 'AES-CBC',
-        iv: iv,
-      },
-      key,
-      encode(data),
+  // convert to base64, because there is some encoding problem when sending data to db
+  return btoa(
+    ab2str(
+      await crypto.subtle.encrypt(
+        {
+          name: 'AES-CBC',
+          iv: iv,
+        },
+        key,
+        encode(data),
+      ),
     ),
   )
 }
@@ -76,7 +79,8 @@ export const decrypt = async (data: string, pass: string): Promise<string> => {
         iv: iv,
       },
       key,
-      str2ab(data),
+      // convert from base64, because there is some encoding problem when sending data to db
+      str2ab(atob(data)),
     ),
   )
 }
