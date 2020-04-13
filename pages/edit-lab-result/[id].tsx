@@ -7,11 +7,11 @@ import useSWR from 'swr'
 import Layout from '../../components/Layout'
 import {allowAccessFor} from '../../utils/auth'
 import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
-import {mapLabResultsToGrid} from '../../utils/helpers'
+import {addFrame, mapLabResultsToGrid} from '../../utils/helpers'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
-  positive: boolean
+  positive?: boolean
   readOnly: boolean
 }
 
@@ -29,7 +29,7 @@ const SuccessRegistration = () => {
   const [newTitle, setNewTitle] = useState(typedData ? typedData.grid_by_pk.title : '')
   const mappedLabResultData = useMemo(() => {
     if (!data) return null
-    return mapLabResultsToGrid(typedData.lab_result)
+    return addFrame(mapLabResultsToGrid(typedData.lab_result))
   }, [data, typedData])
   const updateLabResult = useCallback(
     (updateProps) =>
@@ -59,8 +59,8 @@ const SuccessRegistration = () => {
       mutate(
         updateLabResult({
           gridId: id,
-          column: col,
-          row: row,
+          column: col - 1, // because of frame
+          row: row - 1, // because of frame
           positive: value,
         }),
       ).finally(() => setLoadingCell(null))
@@ -97,13 +97,15 @@ const SuccessRegistration = () => {
 
   const cellRenderer: ReactDataSheet.CellRenderer<GridElement, string> = useCallback(
     (props) => {
+      // dont edit finished and dont add on frame
+      const dontAddOnClick = typedData?.grid_by_pk.finished || props.row === 0 || props.col === 0
       const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
-      const cursorStyle = typedData?.grid_by_pk.finished ? {} : {cursor: 'pointer'}
+      const cursorStyle = dontAddOnClick ? {} : {cursor: 'pointer'}
       return (
         <td
           style={{...backgroundStyle, ...cursorStyle}}
           onMouseDown={
-            typedData?.grid_by_pk.finished
+            dontAddOnClick
               ? props.onMouseDown
               : () => {
                   updateCell(props.row, props.col, !props.cell.positive)

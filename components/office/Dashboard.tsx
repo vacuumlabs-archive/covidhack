@@ -1,11 +1,11 @@
-import {Button, IconButton, Paper, Tab, Tabs, Typography, CircularProgress} from '@material-ui/core'
+import {Button, CircularProgress, IconButton, Paper, Tab, Tabs, Typography} from '@material-ui/core'
 import {createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles'
-import EditIcon from '@material-ui/icons/Edit'
-import PostAdd from '@material-ui/icons/PostAdd'
-import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import Cancel from '@material-ui/icons/Cancel'
+import EditIcon from '@material-ui/icons/Edit'
+import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
+import PostAdd from '@material-ui/icons/PostAdd'
 import {makeStyles} from '@material-ui/styles'
-import {pick, keyBy, Dictionary, clone} from 'lodash'
+import {clone, Dictionary, keyBy, pick} from 'lodash'
 import MUIDataTable from 'mui-datatables'
 import Router from 'next/router'
 import React, {useState} from 'react'
@@ -127,13 +127,9 @@ const getEntries = (mode, {applications, grids, labResults}) => {
   if (mode === 0) {
     return withNoApplication
   } else if (mode === 1) {
-    return [...allApplications, ...withNoApplication].filter(
-      ({test_result}) => test_result === null,
-    )
+    return [...allApplications, ...withNoApplication].filter(({test_finished}) => !test_finished)
   } else if (mode === 2) {
-    return [...allApplications, ...withNoApplication].filter(
-      ({test_result}) => test_result !== null,
-    )
+    return [...allApplications, ...withNoApplication].filter(({test_finished}) => test_finished)
   } else if (mode === 3) {
     // todo what is processed?
     return [...allApplications, ...withNoApplication]
@@ -145,10 +141,10 @@ const Dashboard = () => {
   const [dialog, setDialog] = useState({open: false, code: null})
   const classes = useStyles()
   const password = useSelector((state: State) => state.officePassword)
-  const {data: applications, error: applicationsError} = useSWR<Array<Application> | undefined, any>(
-    `/api/applications`,
-    createFetcher(password),
-  )
+  const {data: applications, error: applicationsError} = useSWR<
+    Array<Application> | undefined,
+    any
+  >(`/api/applications`, createFetcher(password))
   const {data: grids, error: gridsError} = useSWR<Dictionary<Grid> | undefined, any>(
     `/api/grids`,
     (url) =>
@@ -156,12 +152,14 @@ const Dashboard = () => {
         .then((r) => r.json())
         .then((a) => keyBy(a, 'id')),
   )
-  const {data: labResults, error: labResultsError} = useSWR<Dictionary<Lab_Result> | undefined, any>(
-    `/api/lab-results`, (url) =>
-      fetch(url)
-        .then((r) => r.json())
-        // todo if there are more la
-        .then((a) => keyBy(a, 'sample_code')),
+  const {data: labResults, error: labResultsError} = useSWR<
+    Dictionary<Lab_Result> | undefined,
+    any
+  >(`/api/lab-results`, (url) =>
+    fetch(url)
+      .then((r) => r.json())
+      // todo if there are more la
+      .then((a) => keyBy(a, 'sample_code')),
   )
 
   if (applicationsError || gridsError || labResultsError) {
@@ -233,11 +231,18 @@ const Dashboard = () => {
                   <EditIcon />
                 </IconButton>
               ) : (
-                <IconButton key={row.id} onClick={() => setDialog({open: true, code: row.sample_code})}>
+                <IconButton
+                  key={row.id}
+                  onClick={() => setDialog({open: true, code: row.sample_code})}
+                >
                   <PostAdd />
                 </IconButton>
               ),
-              <IconButton key={row.id} onClick={() => handlePrint(row)} disabled={!row.test_finished}>
+              <IconButton
+                key={row.id}
+                onClick={() => handlePrint(row)}
+                disabled={!row.test_finished}
+              >
                 <PictureAsPdfIcon />
               </IconButton>,
             ])}
