@@ -6,7 +6,7 @@ import {allowAccessFor} from '../utils/auth'
 const Home = () => {
   return (
     <>
-      <Layout isLandingPage>Hello!</Layout>
+      <Layout isLandingPage>Prosím prejdite do sekcie "Kancelária" alebo "Laboratórium".</Layout>
       {/* temporary */}
       {/*
       <div className="cookie-wrapper">

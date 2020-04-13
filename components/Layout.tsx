@@ -26,12 +26,10 @@ const Layout = (props: LayoutProps) => (
         property="og:description"
         content={props.pageDescription || pageMetaDefaults.description}
       />
-      <meta property="og:image" content="/images/og-image.png" />
-      <meta property="og:url" content="https://tramatm.com/" />
 
       <link rel="apple-touch-icon" sizes="180x180" href="/icons/sapple-touch-icon.png" />
-      <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
-      <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+      <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon.svg" />
+      <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon.svg" />
       <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#db716b" />
       <link rel="manifest" href="/site.webmanifest" />
       <meta name="msapplication-TileColor" content="#000000" />
