@@ -26,7 +26,7 @@ const LabDashboard = ({grids}: Props) => {
 
     const samples = labResults.lab_result
       .map(({sample_code: sampleCode, positive}) => {
-        const testResult = positive === true ? 'Pozitívny' : 'Negatívny'
+        const testResult = positive === true ? 'pozitívny' : 'negatívny'
         return {sampleCode, testResult}
       })
       .filter(({sampleCode}) => isNormalInteger(sampleCode))

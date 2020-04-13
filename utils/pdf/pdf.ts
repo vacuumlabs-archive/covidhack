@@ -75,8 +75,8 @@ interface LabDocProps {
 }
 
 const getHeader = ({phoneNumber, title, protocolNumber}: DocHeaderProps) => [
-  {text: 'Úrad Verejného Zdravotníctva', bold: true},
-  {text: 'Slovenskej Republiky\n\n', bold: true},
+  {text: 'ÚRAD VEREJNÉHO ZDRAVOTNÍCTVA', bold: true},
+  {text: 'SLOVENSKEJ REPUBLIKY\n\n', bold: true},
   {text: 'Trnavská cesta 52', bold: true},
   {text: 'P.O.BOX 45', bold: true},
   {text: '826 45 Bratislava\n\n'},
@@ -155,7 +155,7 @@ export const getLabDocContent = (props: LabDocProps = {}) => {
       header: {
         phoneNumber: '+421 2 49284 419, 407',
         title: 'Laboratórium molekulárnej diagnostiky',
-        protocolNumber: 'č. 152/2020/NRC pre CH (N)',
+        protocolNumber: 'č.           /2020/NRC pre CH (N)',
       },
       content: {
         sender: 'NRC pre chrípku',
@@ -243,7 +243,7 @@ export const getLabDocContent = (props: LabDocProps = {}) => {
           widths: ['*', '*', '*', '*'],
           body: [
             [
-              [{text: 'Kód vzorky', bold: true}, ' (rok/CP/LC):'],
+              [{text: 'Kód vzorky', bold: true}, ' (rok/LČ/NRC):'],
               {text: 'Parameter', bold: true},
               {text: 'Výsledok', bold: true},
               {text: 'Metóda, kód ŠPP', bold: true},
@@ -344,8 +344,8 @@ export const getOfficeDocContent = (props: OfficeDocProps = {}): object => {
               {
                 text: [
                   {text: 'Kód vzorky\n', bold: true},
-                  ' (rok/CP/LC)',
-                  {text: ':', bold: true},
+                  ' (rok/CP/LČ)',
+                  {text: ': ', bold: true},
                   content.sampleCode,
                 ],
               },
@@ -371,7 +371,7 @@ export const getOfficeDocContent = (props: OfficeDocProps = {}): object => {
       {
         style: 'table',
         table: {
-          widths: ['*', '*', '*', '*'],
+          widths: ['*', '*', '*', LARGE_ROW_HEIGHT],
           heights: [NORMAL_ROW_HEIGHT, LARGE_ROW_HEIGHT],
           body: [
             [
@@ -382,7 +382,9 @@ export const getOfficeDocContent = (props: OfficeDocProps = {}): object => {
             ],
             [
               content.testParameter,
-              `${content.testResultFor}\n${content.testResult}`,
+              {
+                text: [`${content.testResultFor}\n`, {text: content.testResult, bold: true}],
+              },
               content.testMethod,
               content.accredited,
             ],
@@ -399,7 +401,7 @@ export const getOfficeDocContent = (props: OfficeDocProps = {}): object => {
           {text: 'NRC', bold: true},
           ' – Národné referenčné centrum, ',
           {text: 'CH', bold: true},
-          'chrípka, ',
+          ' – chrípka, ',
           {text: 'LM', bold: true},
           ' – Lekárska mikrobiológia, ',
           {text: 'OLM', bold: true},
@@ -429,7 +431,7 @@ export const getOfficeDocContent = (props: OfficeDocProps = {}): object => {
           {text: 'Dg', bold: true},
           ' – diagnóza, ',
           {text: 'CP', bold: true},
-          ' – centrálny príjem,',
+          ' – centrálny príjem, ',
           {text: 'LČ', bold: true},
           ' – laboratórne číslo, ',
           {text: 'JIS', bold: true},

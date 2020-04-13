@@ -46,7 +46,7 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
   useEffect(() => {
     mapValuesAsync(
       pick(encryptedApplication, ['pacient_name', 'personal_number', 'sample_code', 'sender']),
-      (val) => decrypt(val as string, 'a'),
+      (val) => decrypt(val as string, password),
     )
       .then((decryptedValues) => {
         setApplication({...encryptedApplication, ...decryptedValues})
@@ -171,10 +171,8 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
                 name="sampleCollectionDate"
                 value={values.sampleCollectionDate}
                 onChange={(newDate) => {
-                  console.log(newDate)
                   setFieldValue('sampleCollectionDate', newDate)
                 }}
-                disablePast
                 format="dd.MM.yyyy - HH:mm"
                 style={{width: '100%'}}
               />
@@ -190,7 +188,6 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
                 onChange={(newDate) => {
                   setFieldValue('sampleReceiveDate', newDate)
                 }}
-                disablePast
                 format="dd.MM.yyyy - HH:mm"
                 style={{width: '100%'}}
               />
