@@ -1,11 +1,11 @@
-import {Button, Paper, IconButton} from '@material-ui/core'
+import {Button, IconButton, Paper} from '@material-ui/core'
+import Done from '@material-ui/icons/Done'
 import EditIcon from '@material-ui/icons/Edit'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
-import Done from '@material-ui/icons/Done'
 import MUIDataTable from 'mui-datatables'
 import Link from 'next/link'
-import React from 'react'
 import Router from 'next/router'
+import React from 'react'
 import {formatDate} from '../../utils/formatter'
 import {GridsQueryQuery} from '../../utils/graphqlSdk'
 import {isNormalInteger} from '../../utils/helpers'
@@ -65,7 +65,7 @@ const LabDashboard = ({grids}: Props) => {
               formatDate(row.sample_taken_date),
               formatDate(row.sample_arrival_date),
               formatDate(row.test_initiation_date),
-              formatDate(row.test_finished_date),
+              row.test_finished_date ? formatDate(row.test_finished_date) : '',
               row.finished ? <Done style={{color: '#61d800'}} /> : <></>,
               <IconButton
                 key={row.id}
@@ -73,7 +73,7 @@ const LabDashboard = ({grids}: Props) => {
               >
                 <EditIcon />
               </IconButton>,
-              <IconButton key={row.id} onClick={() => printLabDoc(row)} disabled={!row.finished} >
+              <IconButton key={row.id} onClick={() => printLabDoc(row)} disabled={!row.finished}>
                 <PictureAsPdfIcon />
               </IconButton>,
             ])}
