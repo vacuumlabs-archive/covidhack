@@ -46,7 +46,7 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
   useEffect(() => {
     mapValuesAsync(
       pick(encryptedApplication, ['pacient_name', 'personal_number', 'sample_code', 'sender']),
-      (val) => decrypt(val as string, 'a'),
+      (val) => decrypt(val as string, password),
     )
       .then((decryptedValues) => {
         setApplication({...encryptedApplication, ...decryptedValues})
