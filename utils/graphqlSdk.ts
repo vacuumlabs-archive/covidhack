@@ -1244,7 +1244,7 @@ export const GridWithLabResultsQueryDocument = gql`
     `;
 export const GridsQueryDocument = gql`
     query GridsQuery {
-  grid {
+  grid(order_by: {test_initiation_date: desc}) {
     id
     title
     sample_arrival_date

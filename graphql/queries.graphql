@@ -60,7 +60,7 @@ query GridWithLabResultsQuery($id: uuid!) {
 }
 
 query GridsQuery {
-  grid {
+  grid(order_by: {test_initiation_date: desc}) {
     id
     title
     sample_arrival_date
