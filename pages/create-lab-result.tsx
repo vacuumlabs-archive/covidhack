@@ -168,13 +168,17 @@ const SuccessRegistration = () => {
             onChange={(e) => {
               setTitle(e.target.value)
             }}
-            style={{marginBottom: 8}}
           />
 
-          <Alert severity="info">
+          <Alert severity="info" style={{marginTop: 8}}>
             Použite CTRL na automatické vyplnenie prázdnych políčok podľa posledného vyplneného.
             Posledné vyplnené musí byť číselné. Vybrané políčko musí byť prázdne. Políčka sa
             vypĺňajú po stĺpcoch.
+          </Alert>
+
+          <Alert severity="info" style={{marginTop: 8, marginBottom: 8}}>
+            Na navigovanie po mriežke môžete použiť šípky na klávesnici. Políčka vyplnené žltým
+            pozadím predstavujú nefunkčné vzorky.
           </Alert>
 
           <div className="wrapper">
@@ -225,7 +229,6 @@ const SuccessRegistration = () => {
       </Layout>
       <style jsx>{`
         .wrapper {
-          margin-top: 8px;
           display: flex;
           align-items: center;
           flex-direction: column;
