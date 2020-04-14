@@ -206,8 +206,8 @@ const Dashboard = () => {
   return (
     <div style={{margin: 16}}>
       <Alert severity="warning" style={{marginTop: 8, marginBottom: 8}}>
-        Dáta v tabuľke sa po zmenách neaktualizujú automaticky! Pre aktualizovanie dát v tabuľke
-        znovu načítajte stránku.
+        Dáta v tabuľke sa po zmenách neaktualizujú automaticky! Pre ich aktualizovanie znovu
+        načítajte stránku.
       </Alert>
 
       <Tabs
