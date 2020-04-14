@@ -1,5 +1,7 @@
-import {Button} from '@material-ui/core'
+import {Button, Paper, TextField} from '@material-ui/core'
+import Alert from '@material-ui/lab/Alert'
 import produce from 'immer'
+import {isEmpty} from 'lodash'
 import {GetServerSideProps} from 'next'
 import {useRouter} from 'next/router'
 import React, {useCallback, useEffect, useMemo, useState} from 'react'
@@ -62,7 +64,7 @@ const SuccessRegistration = () => {
   const gridToDisplay = useMemo(
     () =>
       produce(grid, (draft) => {
-        if (!selected) return draft
+        if (!selected || isEmpty(selected.end) || isEmpty(selected.start)) return draft
         draft[selected.start.i][0].className = 'selected'
         draft[0][selected.start.j].className = 'selected'
         return draft
@@ -144,31 +146,40 @@ const SuccessRegistration = () => {
     [grid],
   )
 
-  // console.log('rerender')
-
   return (
     <>
       <Layout isFormPage>
-        <div className="container">
+        <Paper
+          style={{
+            minHeight: 'calc(100vh - 75px - 120px)',
+            display: 'flex',
+            flexDirection: 'column',
+            margin: '16px auto',
+            padding: 16,
+            maxWidth: 900,
+          }}
+        >
+          {/* TODO: use error state for ui before submiting */}
+          <TextField
+            autoFocus
+            value={title}
+            ref={inputRef}
+            placeholder="Title"
+            variant="outlined"
+            onChange={(e) => {
+              setTitle(e.target.value)
+            }}
+            style={{marginBottom: 8}}
+          />
+
+          <Alert severity="info">
+            Použite CTRL na automatické vyplnenie prázdnych políčok podľa posledného vyplneného.
+            Posledné vyplnené musí byť číselné. Vybrané políčko musí byť prázdne. Políčka sa
+            vypĺňajú po stĺpcoch.
+          </Alert>
+
           <div className="wrapper">
-            <input
-              autoFocus
-              value={title}
-              ref={inputRef}
-              placeholder="Title"
-              style={{fontSize: 20}}
-              onChange={(e) => {
-                setTitle(e.target.value)
-              }}
-            />
-            <Button variant="contained" onClick={toggleSelectionBroken}>
-              Nastaviť vybrané polia ako nefunkčné
-            </Button>
-            <div style={{color: 'green'}}>
-              Použite CTRL na automatické vyplnenie prázdnych políčok podľa posledného vyplneného.
-              Posledné vyplnené musí byť číselné. Vybrané políčko musí byť prázdne. Políčka sa
-              vypĺňajú po stĺpcoch.
-            </div>
+            {/* https://github.com/nadbm/react-datasheet/issues/205 */}
             <MyReactDataSheet
               data={gridToDisplay}
               valueRenderer={(cell) => cell.value}
@@ -181,31 +192,51 @@ const SuccessRegistration = () => {
                   }),
                 )
               }}
-              onSelect={onSelect}
+              onSelect={(newSelected) => {
+                onSelect(
+                  produce(selected, (s) => {
+                    if (!s) return newSelected
+                    if (!isEmpty(newSelected.start)) s.start = newSelected.start
+                    if (!isEmpty(newSelected.end)) s.end = newSelected.end
+                    return s
+                  }),
+                )
+              }}
               selected={selected}
               onContextMenu={(e) => e.preventDefault()}
               cellRenderer={brokenFieldsEditMode ? cellRenderer : undefined}
               valueViewer={valueViewer}
             />
-            <Button variant="contained" onClick={submit}>
-              Začať test
-            </Button>
+            <div className="button-panel">
+              <Button
+                variant="contained"
+                onClick={toggleSelectionBroken}
+                style={{marginRight: 8}}
+                disabled={!selected}
+              >
+                Nastaviť vybrané polia ako nefunkčné
+              </Button>
+              <Button variant="contained" onClick={submit}>
+                Začať test
+              </Button>
+            </div>
             <div style={{color: 'red'}}>{error}</div>
           </div>
-        </div>
+        </Paper>
       </Layout>
       <style jsx>{`
-        .container {
-          min-height: calc(100vh - 75px - 120px);
-          display: flex;
-          justify-content: center;
-        }
         .wrapper {
+          margin-top: 8px;
           display: flex;
           align-items: center;
           flex-direction: column;
           justify-content: center;
         }
+
+        .button-panel {
+          margin: 8px;
+        }
+
         .img {
           width: 100%;
           max-width: 200px;
@@ -281,6 +312,8 @@ const SuccessRegistration = () => {
         .data-grid-container .data-grid.nowrap .cell.wrap,
         .data-grid-container .data-grid.clip .cell.wrap {
           white-space: normal;
+          padding: 4px;
+          text-align: center;
         }
 
         .data-grid-container .data-grid.nowrap .cell,
