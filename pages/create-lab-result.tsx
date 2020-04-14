@@ -1,5 +1,7 @@
-import {Button} from '@material-ui/core'
+import {Button, Paper, TextField} from '@material-ui/core'
+import Alert from '@material-ui/lab/Alert'
 import produce from 'immer'
+import {isEmpty} from 'lodash'
 import {GetServerSideProps} from 'next'
 import {useRouter} from 'next/router'
 import React, {useCallback, useEffect, useMemo, useState} from 'react'
@@ -31,7 +33,6 @@ const SuccessRegistration = () => {
   const [title, setTitle] = useState<string>('')
   const [error, setError] = useState('')
   const [brokenFieldsEditMode, setBrokenFieldsEditMode] = useState(false)
-  const inputRef = React.useRef<HTMLInputElement>()
   const submit = useCallback(async () => {
     setError('')
     const body = {
@@ -62,9 +63,16 @@ const SuccessRegistration = () => {
   const gridToDisplay = useMemo(
     () =>
       produce(grid, (draft) => {
-        if (!selected) return draft
-        draft[selected.start.i][0].className = 'selected'
-        draft[0][selected.start.j].className = 'selected'
+        // if you select a cell and then shift click one of (start, end) is {}
+        if (!selected || isEmpty(selected.end) || isEmpty(selected.start)) return draft
+        for (let r = selected.start.i; r <= selected.end.i; r++) {
+          for (let c = selected.start.j; c <= selected.end.j; c++) {
+            // if you tab from last cell, you will end up in non-existent row
+            // or if you shift+tab from first cell
+            if (r >= 0 && r < draft.length) draft[r][0].className = 'selected'
+            if (c >= 0 && c < draft[0].length) draft[0][c].className = 'selected'
+          }
+        }
         return draft
       }),
     [grid, selected],
@@ -73,6 +81,7 @@ const SuccessRegistration = () => {
   const toggleSelectionBroken = useCallback(() => {
     setGrid(
       produce(grid, (draft) => {
+        if (!selected) return draft
         for (let i = selected.start.i; i <= selected.end.i; i++) {
           for (let j = selected.start.j; j <= selected.end.j; j++) {
             // ignoring frame
@@ -144,40 +153,42 @@ const SuccessRegistration = () => {
     [grid],
   )
 
-  // autofocus title field
-  React.useEffect(() => {
-    const timeout = setTimeout(() => {
-      inputRef?.current?.focus()
-    }, 100)
-
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [])
-
   return (
     <>
       <Layout isFormPage>
-        <div className="container">
+        <Paper
+          style={{
+            minHeight: 'calc(100vh - 75px - 120px)',
+            display: 'flex',
+            flexDirection: 'column',
+            margin: 16,
+            padding: 16,
+          }}
+        >
+          {/* TODO: use error state for ui before submiting */}
+          <TextField
+            autoFocus
+            value={title}
+            placeholder="Title"
+            variant="outlined"
+            onChange={(e) => {
+              setTitle(e.target.value)
+            }}
+          />
+
+          <Alert severity="info" style={{marginTop: 8}}>
+            Použite CTRL na automatické vyplnenie prázdnych políčok podľa posledného vyplneného.
+            Posledné vyplnené musí byť číselné. Vybrané políčko musí byť prázdne. Políčka sa
+            vypĺňajú po stĺpcoch.
+          </Alert>
+
+          <Alert severity="info" style={{marginTop: 8, marginBottom: 8}}>
+            Na navigovanie po mriežke môžete použiť šípky na klávesnici. Políčka vyplnené žltým
+            pozadím predstavujú nefunkčné vzorky.
+          </Alert>
+
           <div className="wrapper">
-            <input
-              autoFocus
-              value={title}
-              ref={inputRef}
-              placeholder="Title"
-              style={{fontSize: 20}}
-              onChange={(e) => {
-                setTitle(e.target.value)
-              }}
-            />
-            <Button variant="contained" onClick={toggleSelectionBroken}>
-              Nastaviť vybrané polia ako nefunkčné
-            </Button>
-            <div style={{color: 'green'}}>
-              Použite CTRL na automatické vyplnenie prázdnych políčok podľa posledného vyplneného.
-              Posledné vyplnené musí byť číselné. Vybrané políčko musí byť prázdne. Políčka sa
-              vypĺňajú po stĺpcoch.
-            </div>
+            {/* https://github.com/nadbm/react-datasheet/issues/205 */}
             <MyReactDataSheet
               data={gridToDisplay}
               valueRenderer={(cell) => cell.value}
@@ -190,30 +201,53 @@ const SuccessRegistration = () => {
                   }),
                 )
               }}
-              onSelect={onSelect}
+              onSelect={(newSelected) => {
+                onSelect(
+                  produce(selected, (s) => {
+                    if (!s) return newSelected
+                    if (!isEmpty(newSelected.start)) s.start = newSelected.start
+                    if (!isEmpty(newSelected.end)) s.end = newSelected.end
+                    return s
+                  }),
+                )
+              }}
               selected={selected}
+              onContextMenu={(e) => e.preventDefault()}
               cellRenderer={brokenFieldsEditMode ? cellRenderer : undefined}
               valueViewer={valueViewer}
             />
-            <Button variant="contained" onClick={submit}>
-              Začať test
-            </Button>
+            <div className="button-panel">
+              <Button
+                variant="contained"
+                onClick={toggleSelectionBroken}
+                style={{marginRight: 8}}
+                // TODO: this doesn't make sanse if we can press this on table frame, but it's a bit
+                // more work to do
+                // disabled={!selected}
+              >
+                Nastaviť vybrané polia ako nefunkčné
+              </Button>
+              <Button variant="contained" onClick={submit} color="primary">
+                Začať test
+              </Button>
+            </div>
             <div style={{color: 'red'}}>{error}</div>
           </div>
-        </div>
+        </Paper>
       </Layout>
       <style jsx>{`
-        .container {
-          min-height: calc(100vh - 75px - 120px);
-          display: flex;
-          justify-content: center;
-        }
         .wrapper {
           display: flex;
           align-items: center;
           flex-direction: column;
           justify-content: center;
         }
+
+        .button-panel {
+          margin: 8px 0;
+          align-self: flex-end;
+        }
+
         .img {
           width: 100%;
           max-width: 200px;
@@ -289,6 +323,8 @@ const SuccessRegistration = () => {
         .data-grid-container .data-grid.nowrap .cell.wrap,
         .data-grid-container .data-grid.clip .cell.wrap {
           white-space: normal;
+          padding: 4px;
+          text-align: center;
         }
 
         .data-grid-container .data-grid.nowrap .cell,

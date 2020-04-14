@@ -4,6 +4,7 @@ import Cancel from '@material-ui/icons/Cancel'
 import EditIcon from '@material-ui/icons/Edit'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import PostAdd from '@material-ui/icons/PostAdd'
+import Alert from '@material-ui/lab/Alert'
 import {makeStyles} from '@material-ui/styles'
 import {clone, Dictionary, keyBy, pick} from 'lodash'
 import MUIDataTable from 'mui-datatables'
@@ -16,7 +17,12 @@ import {State} from '../../logic/state'
 import {formatDate} from '../../utils/formatter'
 import {Application, Grid, Lab_Result} from '../../utils/graphqlSdk'
 import {mapValuesAsync} from '../../utils/helpers'
-import {createPdf, getOfficeDocContent, getJournalContent, getOfficeDocsContent} from '../../utils/pdf/pdf'
+import {
+  createPdf,
+  getJournalContent,
+  getOfficeDocContent,
+  getOfficeDocsContent,
+} from '../../utils/pdf/pdf'
 import NewApplicant from './NewApplicant'
 import WrongPassword from './WrongPassword'
 
@@ -199,6 +205,11 @@ const Dashboard = () => {
 
   return (
     <div style={{margin: 16}}>
+      <Alert severity="warning" style={{marginTop: 8, marginBottom: 8}}>
+        Dáta v tabuľke sa po zmenách neaktualizujú automaticky! Pre ich aktualizovanie znovu
+        načítajte stránku.
+      </Alert>
+
       <Tabs
         value={value}
         onChange={(event: React.ChangeEvent<{}>, newValue: number) => {
@@ -209,10 +220,10 @@ const Dashboard = () => {
         textColor="primary"
         aria-label="scrollable force tabs example"
       >
-        <Tab label="Nespárovaný" />
-        <Tab label="Neotestovaný" />
-        <Tab label="Otestovaný" />
-        <Tab label="Všetky" />
+        <Tab label="Nespárovaní" />
+        <Tab label="Neotestovaní" />
+        <Tab label="Otestovaní" />
+        {/* <Tab label="Všetky" /> TODO: enable when we are able to mark entry as processed */}
       </Tabs>
 
       <Paper style={{marginBottom: 16}}>
