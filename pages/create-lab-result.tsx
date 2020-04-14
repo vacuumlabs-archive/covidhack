@@ -63,9 +63,15 @@ const SuccessRegistration = () => {
   const gridToDisplay = useMemo(
     () =>
       produce(grid, (draft) => {
+        // if you select a cell and then shift click one of (start, end) is {}
         if (!selected || isEmpty(selected.end) || isEmpty(selected.start)) return draft
-        draft[selected.start.i][0].className = 'selected'
-        draft[0][selected.start.j].className = 'selected'
+        for (let r = selected.start.i; r <= selected.end.i; r++) {
+          for (let c = selected.start.j; c <= selected.end.j; c++) {
+            // if you tab from last cell, you will end up in non-existent row
+            if (r < draft.length) draft[r][0].className = 'selected'
+            if (c < draft[0].length) draft[0][c].className = 'selected'
+          }
+        }
         return draft
       }),
     [grid, selected],
