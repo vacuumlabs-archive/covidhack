@@ -16,7 +16,12 @@ import {State} from '../../logic/state'
 import {formatDate} from '../../utils/formatter'
 import {Application, Grid, Lab_Result} from '../../utils/graphqlSdk'
 import {mapValuesAsync} from '../../utils/helpers'
-import {createPdf, getOfficeDocContent, getJournalContent, getOfficeDocsContent} from '../../utils/pdf/pdf'
+import {
+  createPdf,
+  getJournalContent,
+  getOfficeDocContent,
+  getOfficeDocsContent,
+} from '../../utils/pdf/pdf'
 import NewApplicant from './NewApplicant'
 import WrongPassword from './WrongPassword'
 
@@ -212,7 +217,7 @@ const Dashboard = () => {
         <Tab label="Nespárovaný" />
         <Tab label="Neotestovaný" />
         <Tab label="Otestovaný" />
-        <Tab label="Všetky" />
+        {/* <Tab label="Všetky" /> TODO: enable when we are able to mark entry as processed */}
       </Tabs>
 
       <Paper style={{marginBottom: 16}}>

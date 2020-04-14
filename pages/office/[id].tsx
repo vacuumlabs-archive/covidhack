@@ -28,8 +28,9 @@ const useStyles = makeStyles({
   dialog: {maxWidth: '450px !important', padding: 24},
   formField: {marginBottom: '8px !important'},
   paper: {
-    margin: 16,
+    margin: '16px auto',
     padding: 16,
+    maxWidth: 450,
   },
 })
 
@@ -121,6 +122,7 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
               <TextField
                 className={classes.formField}
                 name="sender"
+                autoFocus
                 value={values.sender}
                 onChange={handleChange}
                 label="Odosielateľ (meno, adresa, tel. číslo)"
@@ -193,7 +195,7 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
                 <Button type="submit" color="primary" variant="contained">
                   Uložiť
                 </Button>
-                <Button onClick={() => Router.push('/office')} autoFocus variant="contained">
+                <Button onClick={() => Router.push('/office')} variant="contained">
                   Zrušiť
                 </Button>
               </DialogActions>

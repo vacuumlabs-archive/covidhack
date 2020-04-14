@@ -144,16 +144,7 @@ const SuccessRegistration = () => {
     [grid],
   )
 
-  // autofocus title field
-  React.useEffect(() => {
-    const timeout = setTimeout(() => {
-      inputRef?.current?.focus()
-    }, 100)
-
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [])
+  // console.log('rerender')
 
   return (
     <>
@@ -192,6 +183,7 @@ const SuccessRegistration = () => {
               }}
               onSelect={onSelect}
               selected={selected}
+              onContextMenu={(e) => e.preventDefault()}
               cellRenderer={brokenFieldsEditMode ? cellRenderer : undefined}
               valueViewer={valueViewer}
             />

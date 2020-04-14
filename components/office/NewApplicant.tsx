@@ -61,6 +61,7 @@ const NewApplicant = ({open, code, close}: Props) => {
           {({values, handleChange, errors, touched, setFieldValue, setFieldError}) => (
             <Form>
               <TextField
+                autoFocus
                 className={classes.formField}
                 name="sender"
                 value={values.sender}
@@ -136,7 +137,7 @@ const NewApplicant = ({open, code, close}: Props) => {
                 <Button type="submit" color="primary" variant="contained">
                   Vytvoriť žiadateľa
                 </Button>
-                <Button onClick={() => close(false)} autoFocus variant="contained">
+                <Button onClick={() => close(false)} variant="contained">
                   Zrušiť
                 </Button>
               </DialogActions>
