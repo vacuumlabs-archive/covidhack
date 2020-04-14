@@ -214,9 +214,9 @@ const Dashboard = () => {
         textColor="primary"
         aria-label="scrollable force tabs example"
       >
-        <Tab label="Nespárovaný" />
-        <Tab label="Neotestovaný" />
-        <Tab label="Otestovaný" />
+        <Tab label="Nespárovaní" />
+        <Tab label="Neotestovaní" />
+        <Tab label="Otestovaní" />
         {/* <Tab label="Všetky" /> TODO: enable when we are able to mark entry as processed */}
       </Tabs>
 

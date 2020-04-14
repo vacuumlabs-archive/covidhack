@@ -1,16 +1,18 @@
-import {Button, Paper, TextField} from '@material-ui/core'
+import { Button, Paper, TextField } from '@material-ui/core'
+import LoadingIcon from '@material-ui/core/CircularProgress'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
+import Alert from '@material-ui/lab/Alert'
 import produce from 'immer'
-import {GetServerSideProps} from 'next'
+import { GetServerSideProps } from 'next'
 import Router from 'next/router'
-import React, {useCallback, useState} from 'react'
+import React, { useCallback, useState } from 'react'
 import ReactDataSheet from 'react-datasheet'
 import Layout from '../../components/Layout'
-import {allowAccessFor} from '../../utils/auth'
-import {client} from '../../utils/gql'
-import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
-import {addFrame, mapLabResultsToGrid, removeFrame} from '../../utils/helpers'
-import {printLabDoc} from '../../utils/pdf/pdf'
+import { allowAccessFor } from '../../utils/auth'
+import { client } from '../../utils/gql'
+import { GridWithLabResultsQueryQuery } from '../../utils/graphqlSdk'
+import { addFrame, mapLabResultsToGrid, removeFrame } from '../../utils/helpers'
+import { printLabDoc } from '../../utils/pdf/pdf'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
@@ -25,6 +27,8 @@ type Props = {
 }
 
 const EditLabResult = ({grid}: Props) => {
+  const [isSavingCells, setIsSavingCells] = useState(false)
+  const [isSavingTestFinish, setIsSavingTestFinish] = useState(false)
   const [localTitle, setLocalTitle] = useState(grid.grid_by_pk.title)
   const [labResultDataTable, setLabResultDataTable] = useState(
     addFrame(mapLabResultsToGrid(grid.lab_result)),
@@ -119,6 +123,23 @@ const EditLabResult = ({grid}: Props) => {
             padding: 16,
           }}
         >
+          {containsChanges && (
+            <Alert severity="warning" style={{marginBottom: 8}}>
+              Pozor, máte neuložené zmeny!
+            </Alert>
+          )}
+          {grid.grid_by_pk.finished && (
+            <Alert severity="info" style={{marginBottom: 8}}>
+              Test je uzamknutý! Ak chcete zmeniť výsledky jednotlivých vzoriek, musite test najprv
+              odomknúť.
+            </Alert>
+          )}
+          {!grid.grid_by_pk.finished && (
+            <Alert severity="info" style={{marginBottom: 8}}>
+              Pozitívne vzorky označte kliknutím na políčka v tabuľke. V tabuľke sa takéto vzorky
+              vyznačia červeným pozadím. 
+            </Alert>
+          )}
           <TextField
             autoFocus
             value={localTitle}
@@ -128,6 +149,7 @@ const EditLabResult = ({grid}: Props) => {
               setLocalTitle(e.target.value)
             }}
             style={{marginBottom: 8}}
+            disabled={grid.grid_by_pk.finished}
           />
           <MyReactDataSheet
             data={labResultDataTable}
@@ -138,6 +160,7 @@ const EditLabResult = ({grid}: Props) => {
           <div className="button-panel">
             <Button
               variant="contained"
+              color="primary"
               onClick={() => printLabDoc(grid.grid_by_pk)}
               disabled={!grid.grid_by_pk.finished}
               startIcon={<PictureAsPdfIcon />}
@@ -147,40 +170,48 @@ const EditLabResult = ({grid}: Props) => {
             <Button
               style={{marginLeft: 8}}
               variant="contained"
-              color="primary"
-              onClick={() => {
-                updateGrid({id: grid.grid_by_pk.id, title: localTitle})
-
-                const initial = mapLabResultsToGrid(grid.lab_result)
-                removeFrame(labResultDataTable).forEach((row, r) =>
-                  row.forEach((cell: any, c) => {
-                    if (cell.positive !== initial[r][c].positive) {
-                      updateLabResult({
-                        gridId: grid.grid_by_pk.id,
-                        column: c,
-                        row: r,
-                        positive: cell.positive,
-                      })
-                    }
-                  }),
-                )
-
+              color="secondary"
+              onClick={async () => {
+                setIsSavingTestFinish(true)
+                await updateGrid({id: grid.grid_by_pk.id, finished: !grid.grid_by_pk.finished})
                 Router.push('/lab')
               }}
-              disabled={!containsChanges}
+              startIcon={isSavingTestFinish && <LoadingIcon style={{color: 'white'}} size={20} />}
+              disabled={containsChanges || isSavingTestFinish}
             >
-              Uložiť zmeny
+              {grid.grid_by_pk.finished ? 'Odomknúť' : 'Označiť za ukončené'}
             </Button>
             <Button
               style={{marginLeft: 8}}
               variant="contained"
-              color="secondary"
-              onClick={() => {
-                updateGrid({id: grid.grid_by_pk.id, finished: !grid.grid_by_pk.finished})
+              color="primary"
+              onClick={async () => {
+                setIsSavingCells(true)
+                await updateGrid({id: grid.grid_by_pk.id, title: localTitle})
+
+                const initial = mapLabResultsToGrid(grid.lab_result)
+                const promises = []
+                removeFrame(labResultDataTable).forEach((row, r) =>
+                  row.forEach((cell: any, c) => {
+                    if (cell.positive !== initial[r][c].positive) {
+                      promises.push(
+                        updateLabResult({
+                          gridId: grid.grid_by_pk.id,
+                          column: c,
+                          row: r,
+                          positive: cell.positive,
+                        }),
+                      )
+                    }
+                  }),
+                )
+                await Promise.all(promises)
                 Router.push('/lab')
               }}
+              disabled={!containsChanges || isSavingCells}
+              startIcon={isSavingCells && <LoadingIcon style={{color: 'white'}} size={20} />}
             >
-              {grid.grid_by_pk.finished ? 'Znovu otvoriť' : 'Označiť za ukončené'}
+              Uložiť zmeny
             </Button>
           </div>
         </Paper>
@@ -266,6 +297,8 @@ const EditLabResult = ({grid}: Props) => {
         .data-grid-container .data-grid.nowrap .cell.wrap,
         .data-grid-container .data-grid.clip .cell.wrap {
           white-space: normal;
+          padding: 4px;
+          text-align: center;
         }
 
         .data-grid-container .data-grid.nowrap .cell,
