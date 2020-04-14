@@ -68,8 +68,9 @@ const SuccessRegistration = () => {
         for (let r = selected.start.i; r <= selected.end.i; r++) {
           for (let c = selected.start.j; c <= selected.end.j; c++) {
             // if you tab from last cell, you will end up in non-existent row
-            if (r < draft.length) draft[r][0].className = 'selected'
-            if (c < draft[0].length) draft[0][c].className = 'selected'
+            // or if you shift+tab from first cell
+            if (r >= 0 && r < draft.length) draft[r][0].className = 'selected'
+            if (c >= 0 && c < draft[0].length) draft[0][c].className = 'selected'
           }
         }
         return draft
@@ -80,6 +81,7 @@ const SuccessRegistration = () => {
   const toggleSelectionBroken = useCallback(() => {
     setGrid(
       produce(grid, (draft) => {
+        if (!selected) return draft
         for (let i = selected.start.i; i <= selected.end.i; i++) {
           for (let j = selected.start.j; j <= selected.end.j; j++) {
             // ignoring frame
@@ -219,7 +221,9 @@ const SuccessRegistration = () => {
                 variant="contained"
                 onClick={toggleSelectionBroken}
                 style={{marginRight: 8}}
-                disabled={!selected}
+                // TODO: this doesn't make sanse if we can press this on table frame, but it's a bit
+                // more work to do
+                // disabled={!selected}
               >
                 Nastaviť vybrané polia ako nefunkčné
               </Button>

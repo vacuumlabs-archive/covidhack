@@ -340,7 +340,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     id: context.params.id,
   })
 
-  console.log(context.params.id)
 
   return {
     props: {

@@ -4,6 +4,7 @@ import Cancel from '@material-ui/icons/Cancel'
 import EditIcon from '@material-ui/icons/Edit'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import PostAdd from '@material-ui/icons/PostAdd'
+import Alert from '@material-ui/lab/Alert'
 import {makeStyles} from '@material-ui/styles'
 import {clone, Dictionary, keyBy, pick} from 'lodash'
 import MUIDataTable from 'mui-datatables'
@@ -204,6 +205,11 @@ const Dashboard = () => {
 
   return (
     <div style={{margin: 16}}>
+      <Alert severity="warning" style={{marginTop: 8, marginBottom: 8}}>
+        Dáta v tabuľke sa po zmenách neaktualizujú automaticky! Pre aktualizovanie dát v tabuľke
+        znovu načítajte stránku.
+      </Alert>
+
       <Tabs
         value={value}
         onChange={(event: React.ChangeEvent<{}>, newValue: number) => {
