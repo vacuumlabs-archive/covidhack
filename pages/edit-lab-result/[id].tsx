@@ -121,7 +121,7 @@ const SuccessRegistration = () => {
     [typedData, updateCell],
   )
 
-  if (!data) return <div>Načítavam...</div>
+  if (!data) return <div />
   return (
     <>
       <Layout isFormPage>

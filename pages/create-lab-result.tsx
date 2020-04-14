@@ -154,9 +154,8 @@ const SuccessRegistration = () => {
             minHeight: 'calc(100vh - 75px - 120px)',
             display: 'flex',
             flexDirection: 'column',
-            margin: '16px auto',
+            margin: 16,
             padding: 16,
-            maxWidth: 900,
           }}
         >
           {/* TODO: use error state for ui before submiting */}
