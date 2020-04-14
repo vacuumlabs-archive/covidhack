@@ -33,7 +33,6 @@ const SuccessRegistration = () => {
   const [title, setTitle] = useState<string>('')
   const [error, setError] = useState('')
   const [brokenFieldsEditMode, setBrokenFieldsEditMode] = useState(false)
-  const inputRef = React.useRef<HTMLInputElement>()
   const submit = useCallback(async () => {
     setError('')
     const body = {
@@ -162,7 +161,6 @@ const SuccessRegistration = () => {
           <TextField
             autoFocus
             value={title}
-            ref={inputRef}
             placeholder="Title"
             variant="outlined"
             onChange={(e) => {
@@ -219,7 +217,7 @@ const SuccessRegistration = () => {
               >
                 Nastaviť vybrané polia ako nefunkčné
               </Button>
-              <Button variant="contained" onClick={submit}>
+              <Button variant="contained" onClick={submit} color="primary">
                 Začať test
               </Button>
             </div>
@@ -236,7 +234,8 @@ const SuccessRegistration = () => {
         }
 
         .button-panel {
-          margin: 8px;
+          margin: 8px 0;
+          align-self: flex-end;
         }
 
         .img {

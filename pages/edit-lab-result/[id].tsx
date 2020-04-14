@@ -1,15 +1,15 @@
-import {IconButton, Typography} from '@material-ui/core'
-import EditIcon from '@material-ui/icons/Edit'
+import {Button, Paper, TextField} from '@material-ui/core'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
+import produce from 'immer'
 import {GetServerSideProps} from 'next'
-import {useRouter} from 'next/router'
-import React, {useCallback, useMemo, useState} from 'react'
+import Router from 'next/router'
+import React, {useCallback, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
-import useSWR from 'swr'
 import Layout from '../../components/Layout'
 import {allowAccessFor} from '../../utils/auth'
+import {client} from '../../utils/gql'
 import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
-import {addFrame, mapLabResultsToGrid} from '../../utils/helpers'
+import {addFrame, mapLabResultsToGrid, removeFrame} from '../../utils/helpers'
 import {printLabDoc} from '../../utils/pdf/pdf'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
@@ -20,20 +20,16 @@ export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
 
 class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
 
-const fetcher = (url) => fetch(url).then((r) => r.json())
+type Props = {
+  grid: GridWithLabResultsQueryQuery
+}
 
-const SuccessRegistration = () => {
-  const router = useRouter()
-  const {id} = router.query
-  const {data, mutate} = useSWR(`/api/grid/${id}`, fetcher)
-  const typedData = data as GridWithLabResultsQueryQuery
-  const [isEditingTitle, setIsEditingTitle] = useState(false)
-  const [loadingCell, setLoadingCell] = useState(null)
-  const [newTitle, setNewTitle] = useState(typedData ? typedData.grid_by_pk.title : '')
-  const mappedLabResultData = useMemo(() => {
-    if (!data) return null
-    return addFrame(mapLabResultsToGrid(typedData.lab_result))
-  }, [data, typedData])
+const EditLabResult = ({grid}: Props) => {
+  const [localTitle, setLocalTitle] = useState(grid.grid_by_pk.title)
+  const [labResultDataTable, setLabResultDataTable] = useState(
+    addFrame(mapLabResultsToGrid(grid.lab_result)),
+  )
+
   const updateLabResult = useCallback(
     (updateProps) =>
       fetch('/api/update-lab-result', {
@@ -45,6 +41,7 @@ const SuccessRegistration = () => {
       }).then((r) => r.json()),
     [],
   )
+
   const updateGrid = useCallback(
     (updateProps) =>
       fetch('/api/update-grid', {
@@ -56,40 +53,11 @@ const SuccessRegistration = () => {
       }).then((r) => r.json()),
     [],
   )
-  const updateCell = useCallback(
-    (row, col, value) => {
-      setLoadingCell({row, col})
-      mutate(
-        updateLabResult({
-          gridId: id,
-          column: col - 1, // because of frame
-          row: row - 1, // because of frame
-          positive: value,
-        }),
-      ).finally(() => setLoadingCell(null))
-    },
-    [id, mutate, updateLabResult],
-  )
 
   const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback((props) => {
-    // if we needed loading we can use this
-    // const loading =
-    //   loadingCell?.row === props.row && loadingCell?.col === props.col ? (
-    //     <CircularProgress size={18} />
-    //   ) : (
-    //     undefined
-    //   )
     const isFrame = props.row === 0 || props.col === 0
     const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
     const frameStyle = isFrame ? {background: 'whitesmoke', color: '#999'} : {}
-    // if we want to reintroduce checkbox uncomment and change the condition below
-    // (
-    //   <input
-    //     type="checkbox"
-    //     checked={props.cell.positive}
-    //     onChange={() => updateCell(props.row, props.col, !props.cell.positive)}
-    //   />
-    // )
     return <div style={{...backgroundStyle, ...frameStyle}}>{props.cell.value}</div>
   }, [])
 
@@ -97,7 +65,7 @@ const SuccessRegistration = () => {
     (props) => {
       // dont edit finished and dont add on frame
       const isFrame = props.row === 0 || props.col === 0
-      const dontAddOnClick = typedData?.grid_by_pk.finished || isFrame
+      const dontAddOnClick = grid.grid_by_pk.finished || isFrame
       const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
       const cursorStyle = dontAddOnClick ? {} : {cursor: 'pointer'}
       const frameStyle = isFrame ? {background: 'whitesmoke', color: '#999'} : {}
@@ -107,9 +75,12 @@ const SuccessRegistration = () => {
           onMouseDown={
             dontAddOnClick
               ? props.onMouseDown
-              : () => {
-                  updateCell(props.row, props.col, !props.cell.positive)
-                }
+              : () =>
+                  setLabResultDataTable(
+                    produce(labResultDataTable, (data: any) => {
+                      data[props.row][props.col].positive = !props.cell.positive
+                    }),
+                  )
           }
           onMouseOver={props.onMouseOver}
           className={`cell ${props.isFrame ? 'frame' : ''}`}
@@ -118,57 +89,108 @@ const SuccessRegistration = () => {
         </td>
       )
     },
-    [typedData, updateCell],
+    [grid, labResultDataTable],
   )
 
-  if (!data) return <div />
+  const anyCellChange = () => {
+    const initial = mapLabResultsToGrid(grid.lab_result)
+    let changed = false
+    removeFrame(labResultDataTable).forEach((row, r) =>
+      row.forEach((cell: any, c) => {
+        if (cell.positive !== initial[r][c].positive) {
+          changed = true
+        }
+      }),
+    )
+    return changed
+  }
+  const containsChanges = localTitle !== grid.grid_by_pk.title || anyCellChange()
+
+  if (!grid) return <div />
   return (
     <>
       <Layout isFormPage>
-        <div className="container">
-          <div className="wrapper">
-            <div>
-              <Typography variant="h2" style={{display: 'inline-block'}}>
-                {typedData.grid_by_pk.title}
-              </Typography>
-              <IconButton onClick={() => setIsEditingTitle(!isEditingTitle)}>
-                <EditIcon />
-              </IconButton>
-              <IconButton
-                onClick={() => printLabDoc(typedData.grid_by_pk)}
-                disabled={!typedData.grid_by_pk.finished}
-              >
-                <PictureAsPdfIcon />
-              </IconButton>
-            </div>
-            {isEditingTitle && (
-              <div>
-                <input type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
-                <button onClick={() => newTitle && mutate(updateGrid({id, title: newTitle}))}>
-                  Zmeniť názov
-                </button>
-              </div>
-            )}
-            <MyReactDataSheet
-              data={mappedLabResultData}
-              valueRenderer={(cell) => cell.value}
-              valueViewer={valueViewer}
-              cellRenderer={!typedData.grid_by_pk.finished ? cellRenderer : undefined}
-            />
-            <button
-              onClick={() => mutate(updateGrid({id, finished: !typedData.grid_by_pk.finished}))}
+        <Paper
+          style={{
+            minHeight: 'calc(100vh - 75px - 120px)',
+            display: 'flex',
+            flexDirection: 'column',
+            margin: 16,
+            padding: 16,
+          }}
+        >
+          <TextField
+            autoFocus
+            value={localTitle}
+            placeholder="Title"
+            variant="outlined"
+            onChange={(e) => {
+              setLocalTitle(e.target.value)
+            }}
+            style={{marginBottom: 8}}
+          />
+          <MyReactDataSheet
+            data={labResultDataTable}
+            valueRenderer={(cell) => cell.value}
+            valueViewer={valueViewer}
+            cellRenderer={!grid.grid_by_pk.finished ? cellRenderer : undefined}
+          />
+          <div className="button-panel">
+            <Button
+              variant="contained"
+              onClick={() => printLabDoc(grid.grid_by_pk)}
+              disabled={!grid.grid_by_pk.finished}
+              startIcon={<PictureAsPdfIcon />}
             >
-              {typedData.grid_by_pk.finished ? 'Znovu otvoriť' : 'Označiť za ukončené'}
-            </button>
+              Stiahnuť protokol
+            </Button>
+            <Button
+              style={{marginLeft: 8}}
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                updateGrid({id: grid.grid_by_pk.id, title: localTitle})
+
+                const initial = mapLabResultsToGrid(grid.lab_result)
+                removeFrame(labResultDataTable).forEach((row, r) =>
+                  row.forEach((cell: any, c) => {
+                    if (cell.positive !== initial[r][c].positive) {
+                      updateLabResult({
+                        gridId: grid.grid_by_pk.id,
+                        column: c,
+                        row: r,
+                        positive: cell.positive,
+                      })
+                    }
+                  }),
+                )
+
+                Router.push('/lab')
+              }}
+              disabled={!containsChanges}
+            >
+              Uložiť zmeny
+            </Button>
+            <Button
+              style={{marginLeft: 8}}
+              variant="contained"
+              color="secondary"
+              onClick={() => {
+                updateGrid({id: grid.grid_by_pk.id, finished: !grid.grid_by_pk.finished})
+                Router.push('/lab')
+              }}
+            >
+              {grid.grid_by_pk.finished ? 'Znovu otvoriť' : 'Označiť za ukončené'}
+            </Button>
           </div>
-        </div>
+        </Paper>
       </Layout>
       <style jsx>{`
-        .container {
-          min-height: calc(100vh - 75px - 120px);
-          display: flex;
-          justify-content: center;
+        .button-panel {
+          margin: 8px 0;
+          align-self: flex-end;
         }
+
         .wrapper {
           display: flex;
           align-items: center;
@@ -281,15 +303,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return
   }
 
-  // const grid = await client.GridQuery({
-  //   id: context.params.id,
-  // })
+  const grid = await client.GridWithLabResultsQuery({
+    id: context.params.id,
+  })
+
+  console.log(context.params.id)
 
   return {
     props: {
-      // grid,
+      grid,
     },
   }
 }
 
-export default SuccessRegistration
+export default EditLabResult

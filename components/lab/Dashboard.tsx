@@ -1,13 +1,13 @@
-import { Button, IconButton, Paper, Typography } from '@material-ui/core'
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
+import {Button, IconButton, Paper, Typography} from '@material-ui/core'
+import {createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles'
 import EditIcon from '@material-ui/icons/Edit'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import MUIDataTable from 'mui-datatables'
 import Router from 'next/router'
 import React from 'react'
-import { formatDate } from '../../utils/formatter'
-import { GridsQueryQuery } from '../../utils/graphqlSdk'
-import { printLabDoc } from '../../utils/pdf/pdf'
+import {formatDate} from '../../utils/formatter'
+import {GridsQueryQuery} from '../../utils/graphqlSdk'
+import {printLabDoc} from '../../utils/pdf/pdf'
 
 interface Props {
   grids: GridsQueryQuery
