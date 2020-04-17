@@ -23,7 +23,7 @@ export const mapLabResultsToGrid = (labResults: Lab_Result[]) => {
       ...grid[result.row][result.column],
       value: result.sample_code,
       positive: result.positive,
-      readOnly: true,
+      readOnly: false,
     }
   })
   return grid

@@ -1,18 +1,28 @@
-import { Button, Paper, TextField } from '@material-ui/core'
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Paper,
+  TextField,
+} from '@material-ui/core'
 import LoadingIcon from '@material-ui/core/CircularProgress'
+import DeleteIcon from '@material-ui/icons/Delete'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import Alert from '@material-ui/lab/Alert'
 import produce from 'immer'
-import { GetServerSideProps } from 'next'
+import {GetServerSideProps} from 'next'
 import Router from 'next/router'
-import React, { useCallback, useState } from 'react'
+import React, {useCallback, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
 import Layout from '../../components/Layout'
-import { allowAccessFor } from '../../utils/auth'
-import { client } from '../../utils/gql'
-import { GridWithLabResultsQueryQuery } from '../../utils/graphqlSdk'
-import { addFrame, mapLabResultsToGrid, removeFrame } from '../../utils/helpers'
-import { printLabDoc } from '../../utils/pdf/pdf'
+import {allowAccessFor} from '../../utils/auth'
+import {client} from '../../utils/gql'
+import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
+import {addFrame, mapLabResultsToGrid, removeFrame} from '../../utils/helpers'
+import {printLabDoc} from '../../utils/pdf/pdf'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
@@ -28,8 +38,8 @@ type Props = {
 
 const EditLabResult = ({grid}: Props) => {
   const [isSavingCells, setIsSavingCells] = useState(false)
-  const [isSavingTestFinish, setIsSavingTestFinish] = useState(false)
   const [localTitle, setLocalTitle] = useState(grid.grid_by_pk.title)
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false)
   const [labResultDataTable, setLabResultDataTable] = useState(
     addFrame(mapLabResultsToGrid(grid.lab_result)),
   )
@@ -62,29 +72,32 @@ const EditLabResult = ({grid}: Props) => {
     const isFrame = props.row === 0 || props.col === 0
     const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
     const frameStyle = isFrame ? {background: 'whitesmoke', color: '#999'} : {}
-    return <div style={{...backgroundStyle, ...frameStyle}}>{props.cell.value}</div>
+    return (
+      <div style={{...backgroundStyle, ...frameStyle}}>
+        {props.cell.value}
+        {/* a super hacky fix - the div (with color) did not render when value was empty,  add text with opacity 0 to force it */}
+        {/* TODO correct way to do this is with cellRenderer, but having that always breaks drag-selection */}
+        <span style={{opacity: 0}}>.</span>
+      </div>
+    )
   }, [])
 
   const cellRenderer: ReactDataSheet.CellRenderer<GridElement, string> = useCallback(
     (props) => {
       // dont edit finished and dont add on frame
       const isFrame = props.row === 0 || props.col === 0
-      const dontAddOnClick = grid.grid_by_pk.finished || isFrame
       const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
-      const cursorStyle = dontAddOnClick ? {} : {cursor: 'pointer'}
+      const cursorStyle = {cursor: 'pointer'}
       const frameStyle = isFrame ? {background: 'whitesmoke', color: '#999'} : {}
       return (
         <td
           style={{...backgroundStyle, ...cursorStyle, ...frameStyle, width: 200}}
-          onMouseDown={
-            dontAddOnClick
-              ? props.onMouseDown
-              : () =>
-                  setLabResultDataTable(
-                    produce(labResultDataTable, (data: any) => {
-                      data[props.row][props.col].positive = !props.cell.positive
-                    }),
-                  )
+          onMouseDown={() =>
+            setLabResultDataTable(
+              produce(labResultDataTable, (data: any) => {
+                data[props.row][props.col].positive = !props.cell.positive
+              }),
+            )
           }
           onMouseOver={props.onMouseOver}
           className={`cell ${props.isFrame ? 'frame' : ''}`}
@@ -93,7 +106,7 @@ const EditLabResult = ({grid}: Props) => {
         </td>
       )
     },
-    [grid, labResultDataTable],
+    [labResultDataTable],
   )
 
   const anyCellChange = () => {
@@ -114,6 +127,42 @@ const EditLabResult = ({grid}: Props) => {
   return (
     <>
       <Layout isFormPage>
+        <Dialog open={showRemoveDialog} onClose={() => setShowRemoveDialog(false)}>
+          <DialogTitle>Vymazať test</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Naozaj si prajete test vymazať spolu so všetkými jeho vzorkami?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={async () => {
+                const response = await fetch('/api/remove-grid', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({id: grid.grid_by_pk.id}),
+                })
+                setShowRemoveDialog(false)
+                Router.push('/lab')
+              }}
+              color="secondary"
+              variant="contained"
+            >
+              Áno
+            </Button>
+            <Button
+              onClick={() => setShowRemoveDialog(false)}
+              color="primary"
+              variant="contained"
+              autoFocus
+            >
+              Nie
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         <Paper
           style={{
             minHeight: 'calc(100vh - 75px - 120px)',
@@ -123,23 +172,10 @@ const EditLabResult = ({grid}: Props) => {
             padding: 16,
           }}
         >
-          {containsChanges && (
-            <Alert severity="warning" style={{marginBottom: 8}}>
-              Pozor, máte neuložené zmeny!
-            </Alert>
-          )}
-          {grid.grid_by_pk.finished && (
-            <Alert severity="info" style={{marginBottom: 8}}>
-              Test je uzamknutý! Ak chcete zmeniť výsledky jednotlivých vzoriek, musite test najprv
-              odomknúť.
-            </Alert>
-          )}
-          {!grid.grid_by_pk.finished && (
-            <Alert severity="info" style={{marginBottom: 8}}>
-              Pozitívne vzorky označte kliknutím na políčka v tabuľke. V tabuľke sa takéto vzorky
-              vyznačia červeným pozadím. 
-            </Alert>
-          )}
+          <Alert severity="info" style={{marginBottom: 8}}>
+            Pozitívne vzorky označte kliknutím na políčka v tabuľke. V tabuľke sa takéto vzorky
+            vyznačia červeným pozadím.
+          </Alert>
           <TextField
             autoFocus
             value={localTitle}
@@ -149,13 +185,13 @@ const EditLabResult = ({grid}: Props) => {
               setLocalTitle(e.target.value)
             }}
             style={{marginBottom: 8}}
-            disabled={grid.grid_by_pk.finished}
           />
+
           <MyReactDataSheet
             data={labResultDataTable}
             valueRenderer={(cell) => cell.value}
             valueViewer={valueViewer}
-            cellRenderer={!grid.grid_by_pk.finished ? cellRenderer : undefined}
+            cellRenderer={cellRenderer}
           />
           <div className="button-panel">
             <Button
@@ -171,15 +207,12 @@ const EditLabResult = ({grid}: Props) => {
               style={{marginLeft: 8}}
               variant="contained"
               color="secondary"
-              onClick={async () => {
-                setIsSavingTestFinish(true)
-                await updateGrid({id: grid.grid_by_pk.id, finished: !grid.grid_by_pk.finished})
-                Router.push('/lab')
+              onClick={() => {
+                setShowRemoveDialog(true)
               }}
-              startIcon={isSavingTestFinish && <LoadingIcon style={{color: 'white'}} size={20} />}
-              disabled={containsChanges || isSavingTestFinish}
+              startIcon={<DeleteIcon style={{color: 'white'}} />}
             >
-              {grid.grid_by_pk.finished ? 'Odomknúť' : 'Označiť za ukončené'}
+              Vymazať test
             </Button>
             <Button
               style={{marginLeft: 8}}
@@ -187,7 +220,7 @@ const EditLabResult = ({grid}: Props) => {
               color="primary"
               onClick={async () => {
                 setIsSavingCells(true)
-                await updateGrid({id: grid.grid_by_pk.id, title: localTitle})
+                await updateGrid({id: grid.grid_by_pk.id, title: localTitle, finished: true})
 
                 const initial = mapLabResultsToGrid(grid.lab_result)
                 const promises = []
@@ -270,6 +303,12 @@ const EditLabResult = ({grid}: Props) => {
           box-shadow: inset 0 -100px 0 rgba(33, 133, 208, 0.15);
         }
 
+        .data-grid-container .data-grid .cell.read-only {
+          background: whitesmoke;
+          color: #999;
+          text-align: center;
+        }
+
         .data-grid-container .data-grid .cell > .text {
           padding: 2px 5px;
           text-overflow: ellipsis;
@@ -322,6 +361,10 @@ const EditLabResult = ({grid}: Props) => {
         .data-grid-container .data-grid .cell .value-viewer,
         .data-grid-container .data-grid .cell .data-editor {
           display: block;
+          font-size: 16px;
+          border: 0;
+          padding: 0;
+          height: auto;
         }
       `}</style>
     </>
@@ -339,7 +382,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const grid = await client.GridWithLabResultsQuery({
     id: context.params.id,
   })
-
 
   return {
     props: {

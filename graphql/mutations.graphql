@@ -71,3 +71,9 @@ mutation UpdateGridMutation($id: uuid!, $changes: grid_set_input!) {
     }
   }
 }
+
+mutation DeleteGridMutation($id: uuid!) {
+  delete_grid(where: {id: {_eq: $id}}) {
+    affected_rows
+  }
+}
