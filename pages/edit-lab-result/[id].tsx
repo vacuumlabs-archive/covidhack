@@ -248,7 +248,7 @@ const EditLabResult = ({grid}: Props) => {
                 await Promise.all(promises)
                 Router.push('/lab')
               }}
-              disabled={!containsChanges || isSavingCells}
+              disabled={isSavingCells}
               startIcon={isSavingCells && <LoadingIcon style={{color: 'white'}} size={20} />}
             >
               Vyhodnotiť test
