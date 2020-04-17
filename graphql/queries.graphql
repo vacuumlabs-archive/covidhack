@@ -71,6 +71,28 @@ query GridsQuery {
   }
 }
 
+query FinishedGridsQuery {
+  grid(order_by: {test_initiation_date: desc}, where: {finished: {_eq: true}}) {
+    id
+    title
+    sample_arrival_date
+    sample_taken_date
+    test_finished_date
+    test_initiation_date
+    finished
+  }
+}
+
+query FinishedLabResultQuery($gridIds: [uuid!]!) {
+  lab_result(order_by: {updated_at: asc}, where: {referenced_in_grid_id: {_in: $gridIds}}) {
+    id
+    referenced_in_grid_id
+    sample_code
+    updated_at
+    positive
+  }
+}
+
 query LabResultQuery {
   lab_result(order_by: {updated_at: asc}) {
     id
