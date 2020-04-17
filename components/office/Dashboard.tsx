@@ -155,15 +155,33 @@ const getEntries = (mode, {applications, grids, labResults}) => {
   } else if (mode === 1) {
     return [...allApplications, ...withNoApplication].filter(({test_finished}) => !test_finished)
   } else if (mode === 2) {
-    return [...allApplications, ...withNoApplication].filter(({test_finished}) => test_finished)
+    // do not show entries with no application
+    return [...allApplications].filter(({test_finished}) => test_finished)
   } else if (mode === 3) {
     // todo what is processed?
     return [...allApplications, ...withNoApplication]
   }
 }
 
+const sortEntries = (entries) => {
+  const copy = [...entries]
+  console.log('before', copy)
+  copy.sort((a1, a2) => {
+    try {
+      const numA1 = parseInt(a1.sample_code)
+      const numA2 = parseInt(a2.sample_code)
+      return numA1 < numA2 ? 1 : -1
+    } catch (e) {
+      // fallback if the sample code is not a number
+      return a1.sample_code < a2.sample_code ? 1 : -1
+    }
+  })
+  console.log('after', copy)
+  return copy
+}
+
 const Dashboard = () => {
-  const [value, setValue] = React.useState(0)
+  const [tabValue, setTabValue] = React.useState(0)
   const [dialog, setDialog] = useState({open: false, code: null})
   const classes = useStyles()
   const password = useSelector((state: State) => state.officePassword)
@@ -205,14 +223,14 @@ const Dashboard = () => {
     )
   }
 
-  const entries = getEntries(value, {applications, grids, labResults})
+  const entries = sortEntries(getEntries(tabValue, {applications, grids, labResults}))
 
   return (
     <div style={{margin: 16}}>
       <Tabs
-        value={value}
+        value={tabValue}
         onChange={(event: React.ChangeEvent<{}>, newValue: number) => {
-          setValue(newValue)
+          setTabValue(newValue)
         }}
         variant="fullWidth"
         indicatorColor="primary"
@@ -268,26 +286,30 @@ const Dashboard = () => {
                   <PostAdd />
                 </IconButton>
               ),
-              <IconButton key={row.id} onClick={() => handlePrintProtocol(row)}>
-                <PictureAsPdfIcon />
-              </IconButton>,
-              <IconButton key={row.id} onClick={() => handlePrintJournal(row)}>
-                <PictureAsPdfIcon />
-              </IconButton>,
+              row.pacient_name && (
+                <IconButton key={row.id} onClick={() => handlePrintProtocol(row)}>
+                  <PictureAsPdfIcon />
+                </IconButton>
+              ),
+              row.pacient_name && (
+                <IconButton key={row.id} onClick={() => handlePrintJournal(row)}>
+                  <PictureAsPdfIcon />
+                </IconButton>
+              ),
             ])}
             columns={[
               'Číslo vzorky',
-              'Priezvisko a meno',
-              'Rodné číslo',
-              'Dátum odberu',
-              'Dátum príjmu',
-              'Odosielateľ',
+              tabValue !== 0 && 'Priezvisko a meno',
+              tabValue !== 0 && 'Rodné číslo',
+              tabValue !== 0 && 'Dátum odberu',
+              tabValue !== 0 && 'Dátum príjmu',
+              tabValue !== 0 && 'Odosielateľ',
               'Začiatok skúšky',
               'Ukončenie skúšky',
               'Výsledok',
               'Upraviť',
-              'Protokol',
-              'Záznam',
+              tabValue !== 0 && 'Protokol',
+              tabValue !== 0 && 'Záznam',
             ]}
             options={{
               filterType: 'dropdown',
