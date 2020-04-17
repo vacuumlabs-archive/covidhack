@@ -35,6 +35,10 @@ const SuccessRegistration = () => {
   const [brokenFieldsEditMode, setBrokenFieldsEditMode] = useState(false)
   const submit = useCallback(async () => {
     setError('')
+    if (!title.match(/^.*\/.*\/.*$/)) {
+      setError('Názov testu musí mať formát: laboratórium/kód-testovaceho-stroja/meno-laboranta')
+      return
+    }
     const body = {
       grid: removeFrame(grid),
       title: title,
@@ -169,7 +173,7 @@ const SuccessRegistration = () => {
           <TextField
             autoFocus
             value={title}
-            placeholder="Title"
+            label="Laboratórium/Kód testovaceho stroja/Meno laboranta"
             variant="outlined"
             onChange={(e) => {
               setTitle(e.target.value)
