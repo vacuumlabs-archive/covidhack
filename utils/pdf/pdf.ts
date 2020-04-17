@@ -631,11 +631,12 @@ export const printLabDoc = async (grid) => {
   }).then((r) => r.json())
 
   const samples = labResults.lab_result
-    .map(({sample_code: sampleCode, positive}) => {
+    .filter(({sample_code}) => isNormalInteger(sample_code))
+    .map(({sample_code, positive, created_at}) => {
+      const sampleCode = `${created_at.substr(0, 4)}/${sample_code}/NRC`
       const testResult = positive === true ? 'pozitívny' : 'negatívny'
       return {sampleCode, testResult}
     })
-    .filter(({sampleCode}) => isNormalInteger(sampleCode))
 
   samples.sort(({sampleCode: a}, {sampleCode: b}) => parseInt(a) - parseInt(b))
 
