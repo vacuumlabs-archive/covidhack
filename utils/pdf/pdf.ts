@@ -230,15 +230,15 @@ export const getLabDocContent = (props: LabDocProps = {}) => {
             ],
             [
               {
-                text: [{text: 'Dátum odberu vzorky:\n', bold: true}, content.sampleCollectionDate],
+                text: [{text: 'Dátum odberu vzorky:\n', bold: true}],
               },
               {
-                text: [{text: 'Dátum príjmu vzorky:\n', bold: true}, content.sampleReceiveDate],
+                text: [{text: 'Dátum príjmu vzorky:\n', bold: true}],
               },
             ],
             [
               {
-                text: [{text: 'Dátum začiatku skúšky:\n', bold: true}, content.testStartDate],
+                text: [{text: 'Dátum začiatku skúšky:\n', bold: true}],
               },
               {
                 text: [{text: 'Dátum ukončenia skúšky:\n', bold: true}, content.testEndDate],
@@ -385,9 +385,9 @@ export const getOfficeDocContent = (props: OfficeDocProps = {}): any => {
               {text: [{text: 'Typ primárnej vzorky:\n', bold: true}, content.primarySampleType]},
             ],
             [
-              {text: [{text: 'Dátum odberu vzorky:\n', bold: true}, content.sampleCollectionDate]},
-              {text: [{text: 'Dátum príjmu vzorky:\n', bold: true}, content.sampleReceiveDate]},
-              {text: [{text: 'Dátum začiatku skúšky: ', bold: true}, content.testStartDate]},
+              {text: [{text: 'Dátum odberu vzorky:\n', bold: true}]},
+              {text: [{text: 'Dátum príjmu vzorky:\n', bold: true}]},
+              {text: [{text: 'Dátum začiatku skúšky: ', bold: true}]},
               {text: [{text: 'Dátum ukončenia skúšky: ', bold: true}, content.testEndDate]},
             ],
           ],
@@ -631,11 +631,12 @@ export const printLabDoc = async (grid) => {
   }).then((r) => r.json())
 
   const samples = labResults.lab_result
-    .map(({sample_code: sampleCode, positive}) => {
+    .filter(({sample_code}) => isNormalInteger(sample_code))
+    .map(({sample_code, positive, created_at}) => {
+      const sampleCode = `${created_at.substr(0, 4)}/${sample_code}/NRC`
       const testResult = positive === true ? 'pozitívny' : 'negatívny'
       return {sampleCode, testResult}
     })
-    .filter(({sampleCode}) => isNormalInteger(sampleCode))
 
   samples.sort(({sampleCode: a}, {sampleCode: b}) => parseInt(a) - parseInt(b))
 
