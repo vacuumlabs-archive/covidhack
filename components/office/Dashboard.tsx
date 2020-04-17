@@ -113,11 +113,14 @@ const handlePrintJournals = (rows) => {
   createPdf(`zaznamy.pdf`, getJournalContent(rows.map(rowToJournalContent)))
 }
 
-const getEntries = (mode, {applications, grids, labResults}) => {
-  const labResultsCopy = clone(labResults)
+const getEntries = (mode, {applications, grids, labResults, finishedLabResults}) => {
+  // for the list of tested, we work with just finished, TODO: refactor this
+  const usedLabResults = mode === 2 ? finishedLabResults : labResults
+
+  const labResultsCopy = clone(usedLabResults)
 
   const allApplications = applications.map((row) => {
-    const labResult = labResults[row.sample_code]
+    const labResult = usedLabResults[row.sample_code]
     delete labResultsCopy[row.sample_code]
     const grid = grids[labResult?.referenced_in_grid_id]
 
@@ -204,6 +207,20 @@ const Dashboard = () => {
     fetch(url)
       .then((r) => r.json())
       // todo if there are more la
+      // TODO: this is a hacky way, we are getting query by ASC so keyBy picks the last possible
+      // (latest) entry
+      .then((a) => keyBy(a, 'sample_code')),
+  )
+
+  const {data: finishedLabResults, error: finishedLabResultsError} = useSWR<
+    Dictionary<Lab_Result> | undefined,
+    any
+  >(`/api/finished-lab-results`, (url) =>
+    fetch(url)
+      .then((r) => r.json())
+      // todo if there are more la
+      // TODO: this is a hacky way, we are getting query by ASC so keyBy picks the last possible
+      // (latest) entry
       .then((a) => keyBy(a, 'sample_code')),
   )
 
@@ -212,7 +229,7 @@ const Dashboard = () => {
     return <WrongPassword />
   }
 
-  if (!applications || !grids || !labResults) {
+  if (!applications || !grids || !labResults || !finishedLabResults) {
     return (
       <div style={{textAlign: 'center', marginTop: '20px'}}>
         <CircularProgress />
@@ -220,7 +237,9 @@ const Dashboard = () => {
     )
   }
 
-  const entries = sortEntries(getEntries(tabValue, {applications, grids, labResults}))
+  const entries = sortEntries(
+    getEntries(tabValue, {applications, grids, labResults, finishedLabResults}),
+  )
 
   return (
     <div style={{margin: 16}}>
