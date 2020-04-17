@@ -1,6 +1,5 @@
 import {Button, CircularProgress, IconButton, Paper, Tab, Tabs, Typography} from '@material-ui/core'
 import {createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles'
-import Cancel from '@material-ui/icons/Cancel'
 import EditIcon from '@material-ui/icons/Edit'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import PostAdd from '@material-ui/icons/PostAdd'
@@ -165,7 +164,6 @@ const getEntries = (mode, {applications, grids, labResults}) => {
 
 const sortEntries = (entries) => {
   const copy = [...entries]
-  console.log('before', copy)
   copy.sort((a1, a2) => {
     try {
       const numA1 = parseInt(a1.sample_code)
@@ -176,7 +174,6 @@ const sortEntries = (entries) => {
       return a1.sample_code < a2.sample_code ? 1 : -1
     }
   })
-  console.log('after', copy)
   return copy
 }
 
@@ -263,14 +260,14 @@ const Dashboard = () => {
             }
             data={entries.map((row) => [
               row.sample_code,
-              row.pacient_name,
-              row.personal_number,
-              row.sample_collection_date,
-              row.sample_receive_date,
-              row.sender,
-              row.test_initiation_date || <Cancel color="disabled" />,
-              row.test_finished_date || <Cancel color="disabled" />,
-              row.test_result || <Cancel color="disabled" />,
+              tabValue !== 0 && row.pacient_name,
+              tabValue !== 0 && row.personal_number,
+              tabValue !== 0 && row.sample_collection_date,
+              tabValue !== 0 && row.sample_receive_date,
+              tabValue !== 0 && row.sender,
+              tabValue !== 1 && row.test_initiation_date,
+              tabValue !== 1 && row.test_finished_date,
+              tabValue !== 1 && row.test_result,
               row.pacient_name ? (
                 <IconButton
                   key={row.id}
@@ -286,12 +283,12 @@ const Dashboard = () => {
                   <PostAdd />
                 </IconButton>
               ),
-              row.pacient_name && (
+              tabValue === 2 && (
                 <IconButton key={row.id} onClick={() => handlePrintProtocol(row)}>
                   <PictureAsPdfIcon />
                 </IconButton>
               ),
-              row.pacient_name && (
+              tabValue === 2 && (
                 <IconButton key={row.id} onClick={() => handlePrintJournal(row)}>
                   <PictureAsPdfIcon />
                 </IconButton>
@@ -304,12 +301,12 @@ const Dashboard = () => {
               tabValue !== 0 && 'Dátum odberu',
               tabValue !== 0 && 'Dátum príjmu',
               tabValue !== 0 && 'Odosielateľ',
-              'Začiatok skúšky',
-              'Ukončenie skúšky',
-              'Výsledok',
+              tabValue !== 1 && 'Začiatok skúšky',
+              tabValue !== 1 && 'Ukončenie skúšky',
+              tabValue !== 1 && 'Výsledok',
               'Upraviť',
-              tabValue !== 0 && 'Protokol',
-              tabValue !== 0 && 'Záznam',
+              tabValue === 2 && 'Protokol',
+              tabValue === 2 && 'Záznam',
             ]}
             options={{
               filterType: 'dropdown',
