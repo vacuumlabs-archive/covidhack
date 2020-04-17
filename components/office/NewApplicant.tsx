@@ -72,6 +72,7 @@ const NewApplicant = ({open, code, close}: Props) => {
                 fullWidth
                 error={touched.sampleCode && !!errors.sampleCode}
                 helperText={touched.sampleCode && errors.sampleCode}
+                disabled={!!code}
               />
 
               <TextField

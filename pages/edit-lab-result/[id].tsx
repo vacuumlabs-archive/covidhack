@@ -251,7 +251,7 @@ const EditLabResult = ({grid}: Props) => {
               disabled={!containsChanges || isSavingCells}
               startIcon={isSavingCells && <LoadingIcon style={{color: 'white'}} size={20} />}
             >
-              Uložiť zmeny
+              Vyhodnotiť test
             </Button>
           </div>
         </Paper>
