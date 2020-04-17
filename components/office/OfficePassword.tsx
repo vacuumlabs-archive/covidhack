@@ -4,6 +4,7 @@ import {makeStyles} from '@material-ui/core/styles'
 import {Form, Formik} from 'formik'
 import React from 'react'
 import {useDispatch} from 'react-redux'
+import useSWR from 'swr'
 import {changePassword} from '../../logic/actions'
 
 const useStyles = makeStyles({
@@ -24,10 +25,18 @@ const useStyles = makeStyles({
   },
 })
 
+const createFetcher = (url) => fetch(url).then((r) => r.json())
+
 const OfficePassword = () => {
   const classes = useStyles()
   const dispatch = useDispatch()
 
+  // TODO: error handling
+  const {data, error} = useSWR(`/api/get-password-test`, createFetcher)
+
+  console.log('data', data)
+
+  if (!data) return null
   return (
     <div className={classes.root}>
       <Typography variant="h3" gutterBottom style={{textAlign: 'center'}}>
@@ -40,7 +49,9 @@ const OfficePassword = () => {
         </Typography>
         <Formik
           initialValues={{password: ''}}
-          onSubmit={(values) => dispatch(changePassword(values.password))}
+          onSubmit={(values) => {
+            dispatch(changePassword(values.password))
+          }}
           validate={(values) => {
             const errors = {} as any
             if (!values.password) {

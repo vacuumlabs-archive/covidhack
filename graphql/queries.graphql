@@ -80,3 +80,9 @@ query LabResultQuery {
     positive
   }
 }
+
+query PasswordPhraseQuery {
+  password_test {
+    test_phrase
+  }
+}
