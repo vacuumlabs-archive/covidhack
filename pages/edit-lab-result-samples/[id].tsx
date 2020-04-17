@@ -113,7 +113,6 @@ const EditLabResultSamples = ({grid}: Props) => {
                     if (cell.value !== initial[r][c].value) {
                       // update lab result won't accept empty sample code
                       if (cell.value) {
-                        console.log('not called')
                         promises.push(
                           updateLabResult({
                             gridId: grid.grid_by_pk.id,
