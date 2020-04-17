@@ -230,15 +230,15 @@ export const getLabDocContent = (props: LabDocProps = {}) => {
             ],
             [
               {
-                text: [{text: 'Dátum odberu vzorky:\n', bold: true}, content.sampleCollectionDate],
+                text: [{text: 'Dátum odberu vzorky:\n', bold: true}],
               },
               {
-                text: [{text: 'Dátum príjmu vzorky:\n', bold: true}, content.sampleReceiveDate],
+                text: [{text: 'Dátum príjmu vzorky:\n', bold: true}],
               },
             ],
             [
               {
-                text: [{text: 'Dátum začiatku skúšky:\n', bold: true}, content.testStartDate],
+                text: [{text: 'Dátum začiatku skúšky:\n', bold: true}],
               },
               {
                 text: [{text: 'Dátum ukončenia skúšky:\n', bold: true}, content.testEndDate],
@@ -385,9 +385,9 @@ export const getOfficeDocContent = (props: OfficeDocProps = {}): any => {
               {text: [{text: 'Typ primárnej vzorky:\n', bold: true}, content.primarySampleType]},
             ],
             [
-              {text: [{text: 'Dátum odberu vzorky:\n', bold: true}, content.sampleCollectionDate]},
-              {text: [{text: 'Dátum príjmu vzorky:\n', bold: true}, content.sampleReceiveDate]},
-              {text: [{text: 'Dátum začiatku skúšky: ', bold: true}, content.testStartDate]},
+              {text: [{text: 'Dátum odberu vzorky:\n', bold: true}]},
+              {text: [{text: 'Dátum príjmu vzorky:\n', bold: true}]},
+              {text: [{text: 'Dátum začiatku skúšky: ', bold: true}]},
               {text: [{text: 'Dátum ukončenia skúšky: ', bold: true}, content.testEndDate]},
             ],
           ],
