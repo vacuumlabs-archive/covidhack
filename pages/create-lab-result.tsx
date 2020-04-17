@@ -1,4 +1,5 @@
 import {Button, Paper, TextField} from '@material-ui/core'
+import LoadingIcon from '@material-ui/core/CircularProgress'
 import Alert from '@material-ui/lab/Alert'
 import produce from 'immer'
 import {isEmpty} from 'lodash'
@@ -32,9 +33,11 @@ const SuccessRegistration = () => {
   const router = useRouter()
   const [title, setTitle] = useState<string>('')
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
   const [brokenFieldsEditMode, setBrokenFieldsEditMode] = useState(false)
   const submit = useCallback(async () => {
     setError('')
+    setSubmitting(true)
     if (!title.match(/^.*\/.*\/.*$/)) {
       setError('Názov testu musí mať formát: laboratórium/kód-testovaceho-stroja/meno-laboranta')
       return
@@ -54,6 +57,7 @@ const SuccessRegistration = () => {
       })
       if (response.ok) router.push('/lab')
     } catch (e) {
+      setSubmitting(false)
       if (e && e.message) {
         setError(e.message)
       } else {
@@ -232,7 +236,13 @@ const SuccessRegistration = () => {
               >
                 Nastaviť vybrané polia ako nefunkčné
               </Button>
-              <Button variant="contained" onClick={submit} color="primary">
+              <Button
+                variant="contained"
+                onClick={submit}
+                color="primary"
+                disabled={submitting}
+                startIcon={submitting && <LoadingIcon style={{color: 'white'}} size={20} />}
+              >
                 Začať test
               </Button>
             </div>
