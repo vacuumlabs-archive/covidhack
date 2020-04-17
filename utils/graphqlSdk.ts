@@ -1045,6 +1045,19 @@ export type DeleteGridMutationMutation = (
   )> }
 );
 
+export type DeleteLabResultMutationMutationVariables = {
+  id: Scalars['uuid'];
+};
+
+
+export type DeleteLabResultMutationMutation = (
+  { __typename?: 'mutation_root' }
+  & { delete_lab_result: Maybe<(
+    { __typename?: 'lab_result_mutation_response' }
+    & Pick<Lab_Result_Mutation_Response, 'affected_rows'>
+  )> }
+);
+
 export type GridQueryQueryVariables = {
   id: Scalars['uuid'];
 };
@@ -1196,6 +1209,13 @@ export const DeleteGridMutationDocument = gql`
   }
 }
     `;
+export const DeleteLabResultMutationDocument = gql`
+    mutation DeleteLabResultMutation($id: uuid!) {
+  delete_lab_result(where: {id: {_eq: $id}}) {
+    affected_rows
+  }
+}
+    `;
 export const GridQueryDocument = gql`
     query GridQuery($id: uuid!) {
   grid_by_pk(id: $id) {
@@ -1308,6 +1328,9 @@ export function getSdk(client: GraphQLClient) {
     },
     DeleteGridMutation(variables: DeleteGridMutationMutationVariables): Promise<DeleteGridMutationMutation> {
       return client.request<DeleteGridMutationMutation>(print(DeleteGridMutationDocument), variables);
+    },
+    DeleteLabResultMutation(variables: DeleteLabResultMutationMutationVariables): Promise<DeleteLabResultMutationMutation> {
+      return client.request<DeleteLabResultMutationMutation>(print(DeleteLabResultMutationDocument), variables);
     },
     GridQuery(variables: GridQueryQueryVariables): Promise<GridQueryQuery> {
       return client.request<GridQueryQuery>(print(GridQueryDocument), variables);
