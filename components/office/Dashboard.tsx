@@ -104,6 +104,7 @@ const rowToJournalContent = (row) => ({
   sender: row.sender || '',
   sampleCollectionDate: row.sample_collection_date || '',
   sampleReceiveDate: row.sample_receive_date || '',
+  testEndDate: row.test_finished_date,
 })
 
 const handlePrintJournal = (row) => {
