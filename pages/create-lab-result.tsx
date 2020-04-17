@@ -177,14 +177,15 @@ const SuccessRegistration = () => {
           />
 
           <Alert severity="info" style={{marginTop: 8}}>
-            Použite CTRL na automatické vyplnenie prázdnych políčok podľa posledného vyplneného.
-            Posledné vyplnené musí byť číselné. Vybrané políčko musí byť prázdne. Políčka sa
-            vypĺňajú po stĺpcoch.
+            Na navigovanie po mriežke môžete použiť šípky na klávesnici. Políčka vyplnené žltým
+            pozadím predstavujú nefunkčné políčka.
           </Alert>
 
           <Alert severity="info" style={{marginTop: 8, marginBottom: 8}}>
-            Na navigovanie po mriežke môžete použiť šípky na klávesnici. Políčka vyplnené žltým
-            pozadím predstavujú nefunkčné vzorky.
+            Pre automatické vyplnenie prázdnych políčok podľa posledného vyplneného stlačte CTRL na
+            zvolenom prázdnom políčku. Ak je v nejakom z predchádzajúcich políčok tabuľky vyplnené
+            číslo vzorky, tak sa prázdne políčka (vrátane zvoleného) vyplnia automaticky. Nefunkčné
+            políčka sa preskakujú.
           </Alert>
 
           <div className="wrapper">
