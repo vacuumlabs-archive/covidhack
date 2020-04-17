@@ -35,7 +35,6 @@ const NewApplicant = ({open, code, close}: Props) => {
             sender: '',
           }}
           onSubmit={async (values) => {
-            close()
             // TODO: maybe wait for response first
             const response = await fetch('/api/create-applicant', {
               method: 'POST',
@@ -50,6 +49,8 @@ const NewApplicant = ({open, code, close}: Props) => {
                 )),
               }),
             })
+            console.log('created')
+            close()
           }}
           validationSchema={Yup.object({
             pacient: Yup.string().required('Toto pole nesmie byť prázdne'),
