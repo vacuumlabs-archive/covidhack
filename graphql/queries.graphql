@@ -81,8 +81,8 @@ query LabResultQuery {
   }
 }
 
-query PasswordPhraseQuery {
+query EncryptedTestPhrasePhraseQuery {
   password_test {
-    test_phrase
+    encrypted_test_phrase
   }
 }

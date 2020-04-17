@@ -208,7 +208,7 @@ const Dashboard = () => {
   )
 
   if (applicationsError || gridsError || labResultsError) {
-    console.error(applicationsError)
+    // TODO: wrong password is handled by password check, error here means fetching problem.
     return <WrongPassword />
   }
 

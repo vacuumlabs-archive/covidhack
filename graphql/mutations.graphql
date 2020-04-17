@@ -83,3 +83,9 @@ mutation DeleteLabResultMutation($id: uuid!) {
     affected_rows
   }
 }
+
+mutation InsertEncryptedTestPhrase($test_phrase: String!) {
+  insert_password_test(objects: {encrypted_test_phrase: $test_phrase}) {
+    affected_rows
+  }
+}
