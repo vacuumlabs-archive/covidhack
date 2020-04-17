@@ -1032,6 +1032,19 @@ export type UpdateGridMutationMutation = (
   )> }
 );
 
+export type DeleteGridMutationMutationVariables = {
+  id: Scalars['uuid'];
+};
+
+
+export type DeleteGridMutationMutation = (
+  { __typename?: 'mutation_root' }
+  & { delete_grid: Maybe<(
+    { __typename?: 'grid_mutation_response' }
+    & Pick<Grid_Mutation_Response, 'affected_rows'>
+  )> }
+);
+
 export type GridQueryQueryVariables = {
   id: Scalars['uuid'];
 };
@@ -1176,6 +1189,13 @@ export const UpdateGridMutationDocument = gql`
   }
 }
     `;
+export const DeleteGridMutationDocument = gql`
+    mutation DeleteGridMutation($id: uuid!) {
+  delete_grid(where: {id: {_eq: $id}}) {
+    affected_rows
+  }
+}
+    `;
 export const GridQueryDocument = gql`
     query GridQuery($id: uuid!) {
   grid_by_pk(id: $id) {
@@ -1285,6 +1305,9 @@ export function getSdk(client: GraphQLClient) {
     },
     UpdateGridMutation(variables: UpdateGridMutationMutationVariables): Promise<UpdateGridMutationMutation> {
       return client.request<UpdateGridMutationMutation>(print(UpdateGridMutationDocument), variables);
+    },
+    DeleteGridMutation(variables: DeleteGridMutationMutationVariables): Promise<DeleteGridMutationMutation> {
+      return client.request<DeleteGridMutationMutation>(print(DeleteGridMutationDocument), variables);
     },
     GridQuery(variables: GridQueryQueryVariables): Promise<GridQueryQuery> {
       return client.request<GridQueryQuery>(print(GridQueryDocument), variables);

@@ -83,6 +83,7 @@ interface OfficeJournalProps {
   sender?: string
   sampleCollectionDate?: string
   sampleReceiveDate?: string
+  testEndDate?: string
 }
 
 const getHeader = ({phoneNumber, title, protocolNumber}: DocHeaderProps) => [
@@ -476,6 +477,7 @@ export const getJournalContent = (entries: Array<OfficeJournalProps> = [{}, {}, 
     sender = '',
     sampleCollectionDate = '',
     sampleReceiveDate = '',
+    testEndDate = '',
   }) => {
     return [
       [
@@ -545,8 +547,14 @@ export const getJournalContent = (entries: Array<OfficeJournalProps> = [{}, {}, 
                   text: ['PCR:       ', {text: 'COVID-19', bold: true, margin: [20, 0, 0, 0]}],
                 },
               ],
-              [{colSpan: 4, text: 'Izolácia RNA:', margin: [45, 0, 0, 0]}],
-              [{colSpan: 4, text: 'Real-Time RT-PCR SARS CoV-2:', margin: [45, 0, 0, 0]}],
+              [{colSpan: 4, text: 'Izolácia RNA: ' + sampleCollectionDate, margin: [45, 0, 0, 0]}],
+              [
+                {
+                  colSpan: 4,
+                  text: 'Real-Time RT-PCR SARS CoV-2: ' + testEndDate,
+                  margin: [45, 0, 0, 0],
+                },
+              ],
             ],
           },
         },

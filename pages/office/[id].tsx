@@ -79,7 +79,6 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
             personalNumber: application.personal_number,
             sampleCollectionDate: application.sample_collection_date,
             sampleReceiveDate: application.sample_receive_date,
-            sampleCode: application.sample_code,
             sender: application.sender,
           }}
           onSubmit={async (values) => {
@@ -91,7 +90,7 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
               body: JSON.stringify({
                 ...values,
                 ...(await mapValuesAsync(
-                  pick(values, ['pacient', 'personalNumber', 'sampleCode', 'sender']),
+                  pick(values, ['pacient', 'personalNumber', 'sender']),
                   (val) => encrypt(val as string, password),
                 )),
               }),
@@ -101,7 +100,6 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
           validationSchema={Yup.object({
             pacient: Yup.string().required('Toto pole nesmie byť prázdne'),
             personalNumber: Yup.string().required('Toto pole nesmie byť prázdne'),
-            sampleCode: Yup.string().required('Toto pole nesmie byť prázdne'),
             sender: Yup.string().required('Toto pole nesmie byť prázdne'),
           })}
         >
@@ -129,17 +127,6 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
                 fullWidth
                 error={touched.sender && !!errors.sender}
                 helperText={touched.sender && errors.sender}
-              />
-
-              <TextField
-                className={classes.formField}
-                name="sampleCode"
-                value={values.sampleCode}
-                onChange={handleChange}
-                label="Číslo vzorky"
-                fullWidth
-                error={touched.sampleCode && !!errors.sampleCode}
-                helperText={touched.sampleCode && errors.sampleCode}
               />
 
               <TextField

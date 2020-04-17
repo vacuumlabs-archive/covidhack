@@ -1,10 +1,8 @@
 import {Button, CircularProgress, IconButton, Paper, Tab, Tabs, Typography} from '@material-ui/core'
 import {createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles'
-import Cancel from '@material-ui/icons/Cancel'
 import EditIcon from '@material-ui/icons/Edit'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import PostAdd from '@material-ui/icons/PostAdd'
-import Alert from '@material-ui/lab/Alert'
 import {makeStyles} from '@material-ui/styles'
 import {clone, Dictionary, keyBy, pick} from 'lodash'
 import MUIDataTable from 'mui-datatables'
@@ -104,6 +102,7 @@ const rowToJournalContent = (row) => ({
   sender: row.sender || '',
   sampleCollectionDate: row.sample_collection_date || '',
   sampleReceiveDate: row.sample_receive_date || '',
+  testEndDate: row.test_finished_date,
 })
 
 const handlePrintJournal = (row) => {
@@ -155,22 +154,42 @@ const getEntries = (mode, {applications, grids, labResults}) => {
   } else if (mode === 1) {
     return [...allApplications, ...withNoApplication].filter(({test_finished}) => !test_finished)
   } else if (mode === 2) {
-    return [...allApplications, ...withNoApplication].filter(({test_finished}) => test_finished)
+    // do not show entries with no application
+    return [...allApplications].filter(({test_finished}) => test_finished)
   } else if (mode === 3) {
     // todo what is processed?
     return [...allApplications, ...withNoApplication]
   }
 }
 
+const sortEntries = (entries) => {
+  const copy = [...entries]
+  copy.sort((a1, a2) => {
+    try {
+      const numA1 = parseInt(a1.sample_code)
+      const numA2 = parseInt(a2.sample_code)
+      return numA1 < numA2 ? 1 : -1
+    } catch (e) {
+      // fallback if the sample code is not a number
+      return a1.sample_code < a2.sample_code ? 1 : -1
+    }
+  })
+  return copy
+}
+
 const Dashboard = () => {
-  const [value, setValue] = React.useState(0)
+  const [tabValue, setTabValue] = React.useState(0)
   const [dialog, setDialog] = useState({open: false, code: null})
   const classes = useStyles()
   const password = useSelector((state: State) => state.officePassword)
+
+  // for some reason this doesn't refetch the data after the edit/create dialog is closed (and this
+  // component rerenders). Using conditional fetching seems to work.
   const {data: applications, error: applicationsError} = useSWR<
     Array<Application> | undefined,
     any
-  >(`/api/applications`, createFetcher(password))
+  >(!dialog.open ? `/api/applications` : null, createFetcher(password))
+
   const {data: grids, error: gridsError} = useSWR<Dictionary<Grid> | undefined, any>(
     `/api/grids`,
     (url) =>
@@ -201,19 +220,14 @@ const Dashboard = () => {
     )
   }
 
-  const entries = getEntries(value, {applications, grids, labResults})
+  const entries = sortEntries(getEntries(tabValue, {applications, grids, labResults}))
 
   return (
     <div style={{margin: 16}}>
-      <Alert severity="warning" style={{marginTop: 8, marginBottom: 8}}>
-        Dáta v tabuľke sa po zmenách neaktualizujú automaticky! Pre ich aktualizovanie znovu
-        načítajte stránku.
-      </Alert>
-
       <Tabs
-        value={value}
+        value={tabValue}
         onChange={(event: React.ChangeEvent<{}>, newValue: number) => {
-          setValue(newValue)
+          setTabValue(newValue)
         }}
         variant="fullWidth"
         indicatorColor="primary"
@@ -246,14 +260,14 @@ const Dashboard = () => {
             }
             data={entries.map((row) => [
               row.sample_code,
-              row.pacient_name,
-              row.personal_number,
-              row.sample_collection_date,
-              row.sample_receive_date,
-              row.sender,
-              row.test_initiation_date || <Cancel color="disabled" />,
-              row.test_finished_date || <Cancel color="disabled" />,
-              row.test_result || <Cancel color="disabled" />,
+              tabValue !== 0 && row.pacient_name,
+              tabValue !== 0 && row.personal_number,
+              tabValue !== 0 && row.sample_collection_date,
+              tabValue !== 0 && row.sample_receive_date,
+              tabValue !== 0 && row.sender,
+              tabValue !== 1 && row.test_initiation_date,
+              tabValue !== 1 && row.test_finished_date,
+              tabValue !== 1 && row.test_result,
               row.pacient_name ? (
                 <IconButton
                   key={row.id}
@@ -269,26 +283,30 @@ const Dashboard = () => {
                   <PostAdd />
                 </IconButton>
               ),
-              <IconButton key={row.id} onClick={() => handlePrintProtocol(row)}>
-                <PictureAsPdfIcon />
-              </IconButton>,
-              <IconButton key={row.id} onClick={() => handlePrintJournal(row)}>
-                <PictureAsPdfIcon />
-              </IconButton>,
+              tabValue === 2 && (
+                <IconButton key={row.id} onClick={() => handlePrintProtocol(row)}>
+                  <PictureAsPdfIcon />
+                </IconButton>
+              ),
+              tabValue === 2 && (
+                <IconButton key={row.id} onClick={() => handlePrintJournal(row)}>
+                  <PictureAsPdfIcon />
+                </IconButton>
+              ),
             ])}
             columns={[
               'Číslo vzorky',
-              'Priezvisko a meno',
-              'Rodné číslo',
-              'Dátum odberu',
-              'Dátum príjmu',
-              'Odosielateľ',
-              'Začiatok skúšky',
-              'Ukončenie skúšky',
-              'Výsledok',
+              tabValue !== 0 && 'Priezvisko a meno',
+              tabValue !== 0 && 'Rodné číslo',
+              tabValue !== 0 && 'Dátum odberu',
+              tabValue !== 0 && 'Dátum príjmu',
+              tabValue !== 0 && 'Odosielateľ',
+              tabValue !== 1 && 'Začiatok skúšky',
+              tabValue !== 1 && 'Ukončenie skúšky',
+              tabValue !== 1 && 'Výsledok',
               'Upraviť',
-              'Protokol',
-              'Záznam',
+              tabValue === 2 && 'Protokol',
+              tabValue === 2 && 'Záznam',
             ]}
             options={{
               filterType: 'dropdown',

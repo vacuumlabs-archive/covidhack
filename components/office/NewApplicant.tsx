@@ -15,6 +15,15 @@ const useStyles = makeStyles({
   formField: {marginBottom: '8px !important'},
 })
 
+const getInitialFormValues = (code?: string) => ({
+  pacient: '',
+  personalNumber: '',
+  sampleCollectionDate: new Date(),
+  sampleReceiveDate: new Date(),
+  sampleCode: code || '',
+  sender: '',
+})
+
 type Props = any
 
 const NewApplicant = ({open, code, close}: Props) => {
@@ -24,18 +33,10 @@ const NewApplicant = ({open, code, close}: Props) => {
   return (
     <>
       <Dialog open={open} onClose={close} classes={{paperScrollPaper: classes.dialog}}>
-        <DialogTitle style={{textAlign: 'center'}}>Údaje o novom žiadeťeľovi</DialogTitle>
+        <DialogTitle style={{textAlign: 'center'}}>Nová žiadosť</DialogTitle>
         <Formik
-          initialValues={{
-            pacient: '',
-            personalNumber: '',
-            sampleCollectionDate: new Date(),
-            sampleReceiveDate: new Date(),
-            sampleCode: code || '',
-            sender: '',
-          }}
-          onSubmit={async (values) => {
-            close()
+          initialValues={getInitialFormValues(code)}
+          onSubmit={async (values, {resetForm}) => {
             // TODO: maybe wait for response first
             const response = await fetch('/api/create-applicant', {
               method: 'POST',
@@ -50,6 +51,7 @@ const NewApplicant = ({open, code, close}: Props) => {
                 )),
               }),
             })
+            resetForm()
           }}
           validationSchema={Yup.object({
             pacient: Yup.string().required('Toto pole nesmie byť prázdne'),
@@ -58,21 +60,10 @@ const NewApplicant = ({open, code, close}: Props) => {
             sender: Yup.string().required('Toto pole nesmie byť prázdne'),
           })}
         >
-          {({values, handleChange, errors, touched, setFieldValue, setFieldError}) => (
+          {({values, handleChange, errors, touched, setFieldValue, handleSubmit}) => (
             <Form>
               <TextField
                 autoFocus
-                className={classes.formField}
-                name="sender"
-                value={values.sender}
-                onChange={handleChange}
-                label="Odosielateľ (meno, adresa, tel. číslo)"
-                fullWidth
-                error={touched.sender && !!errors.sender}
-                helperText={touched.sender && errors.sender}
-              />
-
-              <TextField
                 className={classes.formField}
                 name="sampleCode"
                 value={values.sampleCode}
@@ -81,6 +72,17 @@ const NewApplicant = ({open, code, close}: Props) => {
                 fullWidth
                 error={touched.sampleCode && !!errors.sampleCode}
                 helperText={touched.sampleCode && errors.sampleCode}
+              />
+
+              <TextField
+                className={classes.formField}
+                name="sender"
+                value={values.sender}
+                onChange={handleChange}
+                label="Odosielateľ (meno, adresa, tel. číslo)"
+                fullWidth
+                error={touched.sender && !!errors.sender}
+                helperText={touched.sender && errors.sender}
               />
 
               <TextField
@@ -135,9 +137,19 @@ const NewApplicant = ({open, code, close}: Props) => {
 
               <DialogActions style={{padding: '8px 0'}}>
                 <Button type="submit" color="primary" variant="contained">
-                  Vytvoriť žiadateľa
+                  Vytvoriť ďalšiu
                 </Button>
-                <Button onClick={() => close(false)} variant="contained">
+                <Button
+                  onClick={async (e) => {
+                    await handleSubmit(e as any)
+                    close()
+                  }}
+                  color="primary"
+                  variant="contained"
+                >
+                  Vytvoriť
+                </Button>
+                <Button onClick={close} variant="contained">
                   Zrušiť
                 </Button>
               </DialogActions>
