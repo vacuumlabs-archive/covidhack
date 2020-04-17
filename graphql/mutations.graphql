@@ -77,3 +77,9 @@ mutation DeleteGridMutation($id: uuid!) {
     affected_rows
   }
 }
+
+mutation DeleteLabResultMutation($id: uuid!) {
+  delete_lab_result(where: {id: {_eq: $id}}) {
+    affected_rows
+  }
+}

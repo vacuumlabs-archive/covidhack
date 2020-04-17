@@ -6,11 +6,8 @@ import {
   DialogContentText,
   DialogTitle,
   Paper,
-  TextField,
 } from '@material-ui/core'
 import LoadingIcon from '@material-ui/core/CircularProgress'
-import DeleteIcon from '@material-ui/icons/Delete'
-import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import Alert from '@material-ui/lab/Alert'
 import produce from 'immer'
 import {GetServerSideProps} from 'next'
@@ -22,7 +19,6 @@ import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
 import {addFrame, mapLabResultsToGrid, removeFrame} from '../../utils/helpers'
-import {printLabDoc} from '../../utils/pdf/pdf'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
@@ -36,10 +32,9 @@ type Props = {
   grid: GridWithLabResultsQueryQuery
 }
 
-const EditLabResult = ({grid}: Props) => {
+const EditLabResultSamples = ({grid}: Props) => {
   const [isSavingCells, setIsSavingCells] = useState(false)
-  const [localTitle, setLocalTitle] = useState(grid.grid_by_pk.title)
-  const [showRemoveDialog, setShowRemoveDialog] = useState(false)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [labResultDataTable, setLabResultDataTable] = useState(
     addFrame(mapLabResultsToGrid(grid.lab_result)),
   )
@@ -56,14 +51,14 @@ const EditLabResult = ({grid}: Props) => {
     [],
   )
 
-  const updateGrid = useCallback(
-    (updateProps) =>
-      fetch('/api/update-grid', {
+  const removeLabResult = useCallback(
+    (props) =>
+      fetch('/api/remove-lab-result', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updateProps),
+        body: JSON.stringify(props),
       }).then((r) => r.json()),
     [],
   )
@@ -82,70 +77,63 @@ const EditLabResult = ({grid}: Props) => {
     )
   }, [])
 
-  const cellRenderer: ReactDataSheet.CellRenderer<GridElement, string> = useCallback(
-    (props) => {
-      // dont edit finished and dont add on frame
-      const isFrame = props.row === 0 || props.col === 0
-      const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
-      const cursorStyle = {cursor: 'pointer'}
-      const frameStyle = isFrame ? {background: 'whitesmoke', color: '#999'} : {}
-      return (
-        <td
-          style={{...backgroundStyle, ...cursorStyle, ...frameStyle, width: 200}}
-          onMouseDown={() =>
-            setLabResultDataTable(
-              produce(labResultDataTable, (data: any) => {
-                data[props.row][props.col].positive = !props.cell.positive
-              }),
-            )
-          }
-          onMouseOver={props.onMouseOver}
-          className={`cell ${props.isFrame ? 'frame' : ''}`}
-        >
-          {props.children}
-        </td>
-      )
-    },
-    [labResultDataTable],
-  )
-
   const anyCellChange = () => {
     const initial = mapLabResultsToGrid(grid.lab_result)
     let changed = false
     removeFrame(labResultDataTable).forEach((row, r) =>
       row.forEach((cell: any, c) => {
-        if (cell.positive !== initial[r][c].positive) {
+        if (cell.value !== initial[r][c].value) {
           changed = true
         }
       }),
     )
     return changed
   }
-  const containsChanges = localTitle !== grid.grid_by_pk.title || anyCellChange()
+  const containsChanges = anyCellChange()
 
   if (!grid) return <div />
   return (
     <>
       <Layout isFormPage>
-        <Dialog open={showRemoveDialog} onClose={() => setShowRemoveDialog(false)}>
-          <DialogTitle>Vymazať test</DialogTitle>
+        <Dialog open={showConfirmDialog} onClose={() => setShowConfirmDialog(false)}>
+          <DialogTitle>Upraviť čísla vzoriek</DialogTitle>
           <DialogContent>
-            <DialogContentText>
-              Naozaj si prajete test vymazať spolu so všetkými jeho vzorkami?
-            </DialogContentText>
+            <DialogContentText>Naozaj si prajete uložiť zmeny?</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button
               onClick={async () => {
-                const response = await fetch('/api/remove-grid', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({id: grid.grid_by_pk.id}),
-                })
-                setShowRemoveDialog(false)
-                Router.push('/lab')
+                setShowConfirmDialog(false)
+                setIsSavingCells(true)
+
+                const initial = mapLabResultsToGrid(grid.lab_result)
+                const promises = []
+                removeFrame(labResultDataTable).forEach((row, r) =>
+                  row.forEach((cell: any, c) => {
+                    if (cell.value !== initial[r][c].value) {
+                      // update lab result won't accept empty sample code
+                      if (cell.value) {
+                        console.log('not called')
+                        promises.push(
+                          updateLabResult({
+                            gridId: grid.grid_by_pk.id,
+                            column: c,
+                            row: r,
+                            sampleCode: cell.value,
+                          }),
+                        )
+                      } else {
+                        promises.push(
+                          removeLabResult({
+                            id: cell.labResultId,
+                          }),
+                        )
+                      }
+                    }
+                  }),
+                )
+                await Promise.all(promises)
+                Router.push(`/edit-lab-result/${grid.grid_by_pk.id}`)
               }}
               color="secondary"
               variant="contained"
@@ -153,7 +141,9 @@ const EditLabResult = ({grid}: Props) => {
               Áno
             </Button>
             <Button
-              onClick={() => setShowRemoveDialog(false)}
+              onClick={() => {
+                setShowConfirmDialog(false)
+              }}
               color="primary"
               variant="contained"
               autoFocus
@@ -172,81 +162,39 @@ const EditLabResult = ({grid}: Props) => {
             padding: 16,
           }}
         >
-          <Alert severity="info" style={{marginBottom: 8}}>
-            Pozitívne vzorky označte kliknutím na políčka v tabuľke. V tabuľke sa takéto vzorky
-            vyznačia červeným pozadím.
+          <Alert severity="warning" style={{marginBottom: 8}}>
+            Ak ste sa pomýlili v číslach vzoriek, tu ich môžete opraviť. Stačí, ak čísla vzoriek v
+            tabuľke prepíšete a zmeny uložíte.
           </Alert>
-          <TextField
-            autoFocus
-            value={localTitle}
-            placeholder="Title"
-            variant="outlined"
-            onChange={(e) => {
-              setLocalTitle(e.target.value)
-            }}
-            style={{marginBottom: 8}}
-          />
 
           <MyReactDataSheet
             data={labResultDataTable}
             valueRenderer={(cell) => cell.value}
             valueViewer={valueViewer}
-            cellRenderer={cellRenderer}
+            onCellsChanged={(changes) => {
+              setLabResultDataTable(
+                produce(labResultDataTable, (draft) => {
+                  changes.forEach(({row, col, value}) => {
+                    draft[row][col] = {...draft[row][col], value}
+                  })
+                }),
+              )
+            }}
           />
           <div className="button-panel">
             <Button
               variant="contained"
-              onClick={() => Router.push(`/edit-lab-result-samples/${grid.grid_by_pk.id}`)}
+              onClick={() => Router.push(`/edit-lab-result/${grid.grid_by_pk.id}`)}
             >
-              Opraviť čísla vzoriek
+              Zrušiť
             </Button>
 
-            <Button
-              style={{marginLeft: 8}}
-              variant="contained"
-              onClick={() => printLabDoc(grid.grid_by_pk)}
-              disabled={!grid.grid_by_pk.finished}
-              startIcon={<PictureAsPdfIcon />}
-            >
-              Stiahnuť protokol
-            </Button>
-            <Button
-              style={{marginLeft: 8}}
-              variant="contained"
-              color="secondary"
-              onClick={() => {
-                setShowRemoveDialog(true)
-              }}
-              startIcon={<DeleteIcon style={{color: 'white'}} />}
-            >
-              Vymazať test
-            </Button>
             <Button
               style={{marginLeft: 8}}
               variant="contained"
               color="primary"
               onClick={async () => {
-                setIsSavingCells(true)
-                await updateGrid({id: grid.grid_by_pk.id, title: localTitle, finished: true})
-
-                const initial = mapLabResultsToGrid(grid.lab_result)
-                const promises = []
-                removeFrame(labResultDataTable).forEach((row, r) =>
-                  row.forEach((cell: any, c) => {
-                    if (cell.positive !== initial[r][c].positive) {
-                      promises.push(
-                        updateLabResult({
-                          gridId: grid.grid_by_pk.id,
-                          column: c,
-                          row: r,
-                          positive: cell.positive,
-                        }),
-                      )
-                    }
-                  }),
-                )
-                await Promise.all(promises)
-                Router.push('/lab')
+                setShowConfirmDialog(true)
               }}
               disabled={!containsChanges || isSavingCells}
               startIcon={isSavingCells && <LoadingIcon style={{color: 'white'}} size={20} />}
@@ -397,4 +345,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 }
 
-export default EditLabResult
+export default EditLabResultSamples

@@ -13,6 +13,7 @@ export const createEmptyGrid = () =>
       height: 100,
       value: '',
       readOnly: false,
+      labResultId: null,
     })),
   )
 
@@ -24,6 +25,7 @@ export const mapLabResultsToGrid = (labResults: Lab_Result[]) => {
       value: result.sample_code,
       positive: result.positive,
       readOnly: false,
+      labResultId: result.id,
     }
   })
   return grid
