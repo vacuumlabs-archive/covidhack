@@ -56,7 +56,11 @@ const SuccessRegistration = () => {
         },
         body: JSON.stringify(body),
       })
-      if (response.ok) router.push('/lab')
+      if (response.ok) {
+        router.push('/lab')
+      } else {
+        throw response
+      }
     } catch (e) {
       setSubmitting(false)
       if (e && e.message) {
