@@ -38,15 +38,16 @@ const SuccessRegistration = () => {
   const submit = useCallback(async () => {
     setError('')
     setSubmitting(true)
-    if (!title.match(/^.*\/.*\/.*$/)) {
-      setError('Názov testu musí mať formát: laboratórium/kód-testovaceho-stroja/meno-laboranta')
-      return
-    }
     const body = {
       grid: removeFrame(grid),
       title: title,
     }
     try {
+      if (!title.match(/^.*\/.*\/.*$/)) {
+        throw new Error(
+          'Názov testu musí mať formát: laboratórium/kód-testovaceho-stroja/meno-laboranta',
+        )
+      }
       createGridBodySchema.validateSync(body)
       const response = await fetch('/api/create-grid', {
         method: 'POST',
