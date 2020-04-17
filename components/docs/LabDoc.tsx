@@ -1,6 +1,6 @@
 import React from 'react'
-import DocHeader, {DocHeaderProps} from './DocHeader'
 import DocFooter, {DocFooterProps} from './DocFooter'
+import DocHeader, {DocHeaderProps} from './DocHeader'
 
 interface TestSample {
   sampleCode: string
@@ -55,15 +55,15 @@ const LabDoc = ({header = {}, content = {samples: []}, footer = {}}: LabDocProps
           </tr>
           <tr>
             <td className="large-line">
-              <strong>Dátum odberu vzorky:</strong> {content.sampleCollectionDate}
+              <strong>Dátum odberu vzorky:</strong>
             </td>
             <td>
-              <strong>Dátum príjmu vzorky:</strong> {content.sampleReceiveDate}
+              <strong>Dátum príjmu vzorky:</strong>
             </td>
           </tr>
           <tr>
             <td className="large-line">
-              <strong>Dátum začiatku skúšky:</strong> {content.testStartDate}
+              <strong>Dátum začiatku skúšky:</strong>
             </td>
             <td>
               <strong>Dátum ukončenia skúšky:</strong> {content.testEndDate}
