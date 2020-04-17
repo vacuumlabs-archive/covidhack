@@ -662,12 +662,15 @@ export type Mutation_Root = {
   delete_application?: Maybe<Application_Mutation_Response>;
   delete_grid?: Maybe<Grid_Mutation_Response>;
   delete_lab_result?: Maybe<Lab_Result_Mutation_Response>;
+  delete_password_test?: Maybe<Password_Test_Mutation_Response>;
   insert_application?: Maybe<Application_Mutation_Response>;
   insert_grid?: Maybe<Grid_Mutation_Response>;
   insert_lab_result?: Maybe<Lab_Result_Mutation_Response>;
+  insert_password_test?: Maybe<Password_Test_Mutation_Response>;
   update_application?: Maybe<Application_Mutation_Response>;
   update_grid?: Maybe<Grid_Mutation_Response>;
   update_lab_result?: Maybe<Lab_Result_Mutation_Response>;
+  update_password_test?: Maybe<Password_Test_Mutation_Response>;
 };
 
 
@@ -683,6 +686,11 @@ export type Mutation_RootDelete_GridArgs = {
 
 export type Mutation_RootDelete_Lab_ResultArgs = {
   where: Lab_Result_Bool_Exp;
+};
+
+
+export type Mutation_RootDelete_Password_TestArgs = {
+  where: Password_Test_Bool_Exp;
 };
 
 
@@ -704,6 +712,12 @@ export type Mutation_RootInsert_Lab_ResultArgs = {
 };
 
 
+export type Mutation_RootInsert_Password_TestArgs = {
+  objects: Array<Password_Test_Insert_Input>;
+  on_conflict?: Maybe<Password_Test_On_Conflict>;
+};
+
+
 export type Mutation_RootUpdate_ApplicationArgs = {
   _set?: Maybe<Application_Set_Input>;
   where: Application_Bool_Exp;
@@ -722,6 +736,12 @@ export type Mutation_RootUpdate_Lab_ResultArgs = {
   where: Lab_Result_Bool_Exp;
 };
 
+
+export type Mutation_RootUpdate_Password_TestArgs = {
+  _set?: Maybe<Password_Test_Set_Input>;
+  where: Password_Test_Bool_Exp;
+};
+
 export enum Order_By {
   Asc = 'asc',
   AscNullsFirst = 'asc_nulls_first',
@@ -729,6 +749,107 @@ export enum Order_By {
   Desc = 'desc',
   DescNullsFirst = 'desc_nulls_first',
   DescNullsLast = 'desc_nulls_last'
+}
+
+export type Password_Test = {
+   __typename?: 'password_test';
+  test_phrase: Scalars['String'];
+};
+
+export type Password_Test_Aggregate = {
+   __typename?: 'password_test_aggregate';
+  aggregate?: Maybe<Password_Test_Aggregate_Fields>;
+  nodes: Array<Password_Test>;
+};
+
+export type Password_Test_Aggregate_Fields = {
+   __typename?: 'password_test_aggregate_fields';
+  count?: Maybe<Scalars['Int']>;
+  max?: Maybe<Password_Test_Max_Fields>;
+  min?: Maybe<Password_Test_Min_Fields>;
+};
+
+
+export type Password_Test_Aggregate_FieldsCountArgs = {
+  columns?: Maybe<Array<Password_Test_Select_Column>>;
+  distinct?: Maybe<Scalars['Boolean']>;
+};
+
+export type Password_Test_Aggregate_Order_By = {
+  count?: Maybe<Order_By>;
+  max?: Maybe<Password_Test_Max_Order_By>;
+  min?: Maybe<Password_Test_Min_Order_By>;
+};
+
+export type Password_Test_Arr_Rel_Insert_Input = {
+  data: Array<Password_Test_Insert_Input>;
+  on_conflict?: Maybe<Password_Test_On_Conflict>;
+};
+
+export type Password_Test_Bool_Exp = {
+  _and?: Maybe<Array<Maybe<Password_Test_Bool_Exp>>>;
+  _not?: Maybe<Password_Test_Bool_Exp>;
+  _or?: Maybe<Array<Maybe<Password_Test_Bool_Exp>>>;
+  test_phrase?: Maybe<String_Comparison_Exp>;
+};
+
+export enum Password_Test_Constraint {
+  PasswordTestPkey = 'password_test_pkey'
+}
+
+export type Password_Test_Insert_Input = {
+  test_phrase?: Maybe<Scalars['String']>;
+};
+
+export type Password_Test_Max_Fields = {
+   __typename?: 'password_test_max_fields';
+  test_phrase?: Maybe<Scalars['String']>;
+};
+
+export type Password_Test_Max_Order_By = {
+  test_phrase?: Maybe<Order_By>;
+};
+
+export type Password_Test_Min_Fields = {
+   __typename?: 'password_test_min_fields';
+  test_phrase?: Maybe<Scalars['String']>;
+};
+
+export type Password_Test_Min_Order_By = {
+  test_phrase?: Maybe<Order_By>;
+};
+
+export type Password_Test_Mutation_Response = {
+   __typename?: 'password_test_mutation_response';
+  affected_rows: Scalars['Int'];
+  returning: Array<Password_Test>;
+};
+
+export type Password_Test_Obj_Rel_Insert_Input = {
+  data: Password_Test_Insert_Input;
+  on_conflict?: Maybe<Password_Test_On_Conflict>;
+};
+
+export type Password_Test_On_Conflict = {
+  constraint: Password_Test_Constraint;
+  update_columns: Array<Password_Test_Update_Column>;
+  where?: Maybe<Password_Test_Bool_Exp>;
+};
+
+export type Password_Test_Order_By = {
+  test_phrase?: Maybe<Order_By>;
+};
+
+export enum Password_Test_Select_Column {
+  TestPhrase = 'test_phrase'
+}
+
+export type Password_Test_Set_Input = {
+  test_phrase?: Maybe<Scalars['String']>;
+};
+
+export enum Password_Test_Update_Column {
+  TestPhrase = 'test_phrase'
 }
 
 export type Query_Root = {
@@ -742,6 +863,9 @@ export type Query_Root = {
   lab_result: Array<Lab_Result>;
   lab_result_aggregate: Lab_Result_Aggregate;
   lab_result_by_pk?: Maybe<Lab_Result>;
+  password_test: Array<Password_Test>;
+  password_test_aggregate: Password_Test_Aggregate;
+  password_test_by_pk?: Maybe<Password_Test>;
 };
 
 
@@ -813,6 +937,29 @@ export type Query_RootLab_Result_By_PkArgs = {
   id: Scalars['uuid'];
 };
 
+
+export type Query_RootPassword_TestArgs = {
+  distinct_on?: Maybe<Array<Password_Test_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Password_Test_Order_By>>;
+  where?: Maybe<Password_Test_Bool_Exp>;
+};
+
+
+export type Query_RootPassword_Test_AggregateArgs = {
+  distinct_on?: Maybe<Array<Password_Test_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Password_Test_Order_By>>;
+  where?: Maybe<Password_Test_Bool_Exp>;
+};
+
+
+export type Query_RootPassword_Test_By_PkArgs = {
+  test_phrase: Scalars['String'];
+};
+
 export type String_Comparison_Exp = {
   _eq?: Maybe<Scalars['String']>;
   _gt?: Maybe<Scalars['String']>;
@@ -842,6 +989,9 @@ export type Subscription_Root = {
   lab_result: Array<Lab_Result>;
   lab_result_aggregate: Lab_Result_Aggregate;
   lab_result_by_pk?: Maybe<Lab_Result>;
+  password_test: Array<Password_Test>;
+  password_test_aggregate: Password_Test_Aggregate;
+  password_test_by_pk?: Maybe<Password_Test>;
 };
 
 
@@ -911,6 +1061,29 @@ export type Subscription_RootLab_Result_AggregateArgs = {
 
 export type Subscription_RootLab_Result_By_PkArgs = {
   id: Scalars['uuid'];
+};
+
+
+export type Subscription_RootPassword_TestArgs = {
+  distinct_on?: Maybe<Array<Password_Test_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Password_Test_Order_By>>;
+  where?: Maybe<Password_Test_Bool_Exp>;
+};
+
+
+export type Subscription_RootPassword_Test_AggregateArgs = {
+  distinct_on?: Maybe<Array<Password_Test_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Password_Test_Order_By>>;
+  where?: Maybe<Password_Test_Bool_Exp>;
+};
+
+
+export type Subscription_RootPassword_Test_By_PkArgs = {
+  test_phrase: Scalars['String'];
 };
 
 
@@ -1122,6 +1295,30 @@ export type GridsQueryQuery = (
   )> }
 );
 
+export type FinishedGridsQueryQueryVariables = {};
+
+
+export type FinishedGridsQueryQuery = (
+  { __typename?: 'query_root' }
+  & { grid: Array<(
+    { __typename?: 'grid' }
+    & Pick<Grid, 'id' | 'title' | 'sample_arrival_date' | 'sample_taken_date' | 'test_finished_date' | 'test_initiation_date' | 'finished'>
+  )> }
+);
+
+export type FinishedLabResultQueryQueryVariables = {
+  gridIds: Array<Scalars['uuid']>;
+};
+
+
+export type FinishedLabResultQueryQuery = (
+  { __typename?: 'query_root' }
+  & { lab_result: Array<(
+    { __typename?: 'lab_result' }
+    & Pick<Lab_Result, 'id' | 'referenced_in_grid_id' | 'sample_code' | 'updated_at' | 'positive'>
+  )> }
+);
+
 export type LabResultQueryQueryVariables = {};
 
 
@@ -1275,6 +1472,30 @@ export const GridsQueryDocument = gql`
   }
 }
     `;
+export const FinishedGridsQueryDocument = gql`
+    query FinishedGridsQuery {
+  grid(order_by: {test_initiation_date: desc}, where: {finished: {_eq: true}}) {
+    id
+    title
+    sample_arrival_date
+    sample_taken_date
+    test_finished_date
+    test_initiation_date
+    finished
+  }
+}
+    `;
+export const FinishedLabResultQueryDocument = gql`
+    query FinishedLabResultQuery($gridIds: [uuid!]!) {
+  lab_result(order_by: {updated_at: asc}, where: {referenced_in_grid_id: {_in: $gridIds}}) {
+    id
+    referenced_in_grid_id
+    sample_code
+    updated_at
+    positive
+  }
+}
+    `;
 export const LabResultQueryDocument = gql`
     query LabResultQuery {
   lab_result(order_by: {updated_at: asc}) {
@@ -1326,6 +1547,12 @@ export function getSdk(client: GraphQLClient) {
     },
     GridsQuery(variables?: GridsQueryQueryVariables): Promise<GridsQueryQuery> {
       return client.request<GridsQueryQuery>(print(GridsQueryDocument), variables);
+    },
+    FinishedGridsQuery(variables?: FinishedGridsQueryQueryVariables): Promise<FinishedGridsQueryQuery> {
+      return client.request<FinishedGridsQueryQuery>(print(FinishedGridsQueryDocument), variables);
+    },
+    FinishedLabResultQuery(variables: FinishedLabResultQueryQueryVariables): Promise<FinishedLabResultQueryQuery> {
+      return client.request<FinishedLabResultQueryQuery>(print(FinishedLabResultQueryDocument), variables);
     },
     LabResultQuery(variables?: LabResultQueryQueryVariables): Promise<LabResultQueryQuery> {
       return client.request<LabResultQueryQuery>(print(LabResultQueryDocument), variables);
