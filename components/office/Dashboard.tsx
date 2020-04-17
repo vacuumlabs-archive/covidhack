@@ -114,7 +114,7 @@ const handlePrintJournals = (rows) => {
 }
 
 const getEntries = (mode, {applications, grids, labResults, finishedLabResults}) => {
-  // for the list of tested ,we work with jsut finished, TODO refactor this
+  // for the list of tested, we work with just finished, TODO: refactor this
   const usedLabResults = mode === 2 ? finishedLabResults : labResults
 
   const labResultsCopy = clone(usedLabResults)
@@ -207,6 +207,8 @@ const Dashboard = () => {
     fetch(url)
       .then((r) => r.json())
       // todo if there are more la
+      // TODO: this is a hacky way, we are getting query by ASC so keyBy picks the last possible
+      // (latest) entry
       .then((a) => keyBy(a, 'sample_code')),
   )
 
@@ -217,6 +219,8 @@ const Dashboard = () => {
     fetch(url)
       .then((r) => r.json())
       // todo if there are more la
+      // TODO: this is a hacky way, we are getting query by ASC so keyBy picks the last possible
+      // (latest) entry
       .then((a) => keyBy(a, 'sample_code')),
   )
 
