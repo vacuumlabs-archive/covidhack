@@ -1,41 +1,38 @@
 import {GetServerSideProps} from 'next'
 import React from 'react'
+import LabDashboard from '../components/lab/Dashboard'
 import Layout from '../components/Layout'
 import {allowAccessFor} from '../utils/auth'
+import {client} from '../utils/gql'
+import {GridsQueryQuery} from '../utils/graphqlSdk'
 
-const Home = () => {
+interface Props {
+  grids: GridsQueryQuery
+}
+
+const Lab = (props: Props) => {
   return (
-    <>
-      <Layout isLandingPage>Prosím prejdite do sekcie "Kancelária" alebo "Laboratórium".</Layout>
-      {/* temporary */}
-      {/*
-      <div className="cookie-wrapper">
-        <CookieBanner />
-      </div>
-      <style jsx>{`
-        .cookie-wrapper {
-          position: absolute;
-          bottom: 64px;
-          left: 64px;
-        }
-      `}</style> */}
-      <style jsx global>{`
-        body {
-          background-color: #fdfcfc;
-        }
-      `}</style>
-    </>
+    <Layout>
+      <LabDashboard {...props} />
+    </Layout>
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
   if (!allowAccessFor(context.req.headers.authorization, ['kancelaria'])) {
     context.res.statusCode = 401
     context.res.setHeader('WWW-Authenticate', 'Basic')
     context.res.end('Unauthorized')
-    return {props: {}}
+    return {props: {grids: {grid: []}}}
   }
-  return {props: {}}
+
+  const grids = await client.GridsQuery()
+
+  return {
+    props: {
+      grids,
+    },
+  }
 }
 
-export default Home
+export default Lab
