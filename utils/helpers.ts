@@ -123,3 +123,9 @@ export const mapValuesAsync = async (
 
   return ans
 }
+
+export const removeInvalidSampleCode = (cell: GridElement) => {
+  // only normal cells are allowed to have sample code
+  if (cell.cellStatus !== 'normal' || cell.value === '') return {...cell, value: null}
+  else return cell
+}

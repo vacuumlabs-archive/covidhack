@@ -17,6 +17,7 @@ import {
   findPreviousOnFramedGrid,
   isNormalInteger,
   removeFrame,
+  removeInvalidSampleCode,
 } from '../utils/helpers'
 import {createGridBodySchema} from '../utils/validations'
 
@@ -32,10 +33,8 @@ class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
 const removeInvalidSampleCodeCells = (grid: GridElement[][]) => {
   for (let r = 0; r < grid.length; r++) {
     for (let c = 0; c < grid[0].length; c++) {
-      // only normal cells are allowed to have sample code, TODO: inline validation for this
-      console.log(grid[r][c])
-      if (grid[r][c].cellStatus !== 'normal' || grid[r][c].value === '')
-        grid[r][c] = {...grid[r][c], value: null}
+      // TODO: inline validation for this
+      grid[r][c] = removeInvalidSampleCode(grid[r][c])
     }
   }
 

@@ -51,18 +51,6 @@ const EditLabResultSamples = ({grid}: Props) => {
     [],
   )
 
-  const removeLabResult = useCallback(
-    (props) =>
-      fetch('/api/remove-lab-result', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(props),
-      }).then((r) => r.json()),
-    [],
-  )
-
   const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback((props) => {
     const isFrame = props.row === 0 || props.col === 0
     const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
@@ -111,7 +99,6 @@ const EditLabResultSamples = ({grid}: Props) => {
                 removeFrame(labResultDataTable).forEach((row, r) =>
                   row.forEach((cell: any, c) => {
                     if (cell.value !== initial[r][c].value) {
-                      // update lab result won't accept empty sample code
                       if (cell.value) {
                         promises.push(
                           updateLabResult({
@@ -119,12 +106,8 @@ const EditLabResultSamples = ({grid}: Props) => {
                             column: c,
                             row: r,
                             sampleCode: cell.value,
-                          }),
-                        )
-                      } else {
-                        promises.push(
-                          removeLabResult({
-                            id: cell.labResultId,
+                            cellStatus:
+                              cell.value !== null && cell.value !== '' ? 'normal' : cell.cellStatus,
                           }),
                         )
                       }

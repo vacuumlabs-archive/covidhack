@@ -127,6 +127,8 @@ const EditLabResult = ({grid}: Props) => {
   }
   const containsChanges = localTitle !== grid.grid_by_pk.title || anyCellChange()
 
+  console.log('xxx', labResultDataTable)
+
   if (!grid) return <div />
   return (
     <>
@@ -197,6 +199,7 @@ const EditLabResult = ({grid}: Props) => {
             valueViewer={valueViewer}
             cellRenderer={cellRenderer}
           />
+          {/* TODO: ablity to edit cell status */}
           <CellLegend onSetSelectedCellsStatus={() => console.log('aa')} />
           <div className="button-panel">
             <Button

@@ -11,7 +11,8 @@ export const updateLabResultBodySchema = yup
     column: yup.number().required(),
     row: yup.number().required(),
     positive: yup.boolean(),
-    sampleCode: yup.string(),
+    sampleCode: yup.string().nullable(),
+    cellStatus: yup.string().nullable(),
   })
   .noUnknown()
 

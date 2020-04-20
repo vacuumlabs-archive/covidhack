@@ -1174,7 +1174,8 @@ export type UpdateLabResultSampleCodeMutationMutationVariables = {
   gridId: Scalars['uuid'];
   column: Scalars['Int'];
   row: Scalars['Int'];
-  sampleCode: Scalars['String'];
+  sampleCode?: Maybe<Scalars['String']>;
+  cellStatus?: Maybe<Scalars['String']>;
 };
 
 
@@ -1227,19 +1228,6 @@ export type DeleteGridMutationMutation = (
   & { delete_grid: Maybe<(
     { __typename?: 'grid_mutation_response' }
     & Pick<Grid_Mutation_Response, 'affected_rows'>
-  )> }
-);
-
-export type DeleteLabResultMutationMutationVariables = {
-  id: Scalars['uuid'];
-};
-
-
-export type DeleteLabResultMutationMutation = (
-  { __typename?: 'mutation_root' }
-  & { delete_lab_result: Maybe<(
-    { __typename?: 'lab_result_mutation_response' }
-    & Pick<Lab_Result_Mutation_Response, 'affected_rows'>
   )> }
 );
 
@@ -1381,8 +1369,8 @@ export const UpdateLabResultPositiveMutationDocument = gql`
 }
     `;
 export const UpdateLabResultSampleCodeMutationDocument = gql`
-    mutation UpdateLabResultSampleCodeMutation($gridId: uuid!, $column: Int!, $row: Int!, $sampleCode: String!) {
-  update_lab_result(_set: {sample_code: $sampleCode}, where: {referenced_in_grid_id: {_eq: $gridId}, _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}}) {
+    mutation UpdateLabResultSampleCodeMutation($gridId: uuid!, $column: Int!, $row: Int!, $sampleCode: String, $cellStatus: String) {
+  update_lab_result(_set: {sample_code: $sampleCode, cell_status: $cellStatus}, where: {referenced_in_grid_id: {_eq: $gridId}, _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}}) {
     affected_rows
   }
 }
@@ -1414,13 +1402,6 @@ export const UpdateGridMutationDocument = gql`
 export const DeleteGridMutationDocument = gql`
     mutation DeleteGridMutation($id: uuid!) {
   delete_grid(where: {id: {_eq: $id}}) {
-    affected_rows
-  }
-}
-    `;
-export const DeleteLabResultMutationDocument = gql`
-    mutation DeleteLabResultMutation($id: uuid!) {
-  delete_lab_result(where: {id: {_eq: $id}}) {
     affected_rows
   }
 }
@@ -1562,9 +1543,6 @@ export function getSdk(client: GraphQLClient) {
     },
     DeleteGridMutation(variables: DeleteGridMutationMutationVariables): Promise<DeleteGridMutationMutation> {
       return client.request<DeleteGridMutationMutation>(print(DeleteGridMutationDocument), variables);
-    },
-    DeleteLabResultMutation(variables: DeleteLabResultMutationMutationVariables): Promise<DeleteLabResultMutationMutation> {
-      return client.request<DeleteLabResultMutationMutation>(print(DeleteLabResultMutationDocument), variables);
     },
     GridQuery(variables: GridQueryQueryVariables): Promise<GridQueryQuery> {
       return client.request<GridQueryQuery>(print(GridQueryDocument), variables);
