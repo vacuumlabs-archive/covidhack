@@ -99,18 +99,16 @@ const EditLabResultSamples = ({grid}: Props) => {
                 removeFrame(labResultDataTable).forEach((row, r) =>
                   row.forEach((cell: any, c) => {
                     if (cell.value !== initial[r][c].value) {
-                      if (cell.value) {
-                        promises.push(
-                          updateLabResult({
-                            gridId: grid.grid_by_pk.id,
-                            column: c,
-                            row: r,
-                            sampleCode: cell.value,
-                            cellStatus:
-                              cell.value !== null && cell.value !== '' ? 'normal' : cell.cellStatus,
-                          }),
-                        )
-                      }
+                      promises.push(
+                        updateLabResult({
+                          gridId: grid.grid_by_pk.id,
+                          column: c,
+                          row: r,
+                          sampleCode: cell.value,
+                          cellStatus:
+                            cell.value !== null && cell.value !== '' ? 'normal' : cell.cellStatus,
+                        }),
+                      )
                     }
                   }),
                 )

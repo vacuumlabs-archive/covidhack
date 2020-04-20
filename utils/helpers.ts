@@ -129,3 +129,6 @@ export const removeInvalidSampleCode = (cell: GridElement) => {
   if (cell.cellStatus !== 'normal' || cell.value === '') return {...cell, value: null}
   else return cell
 }
+
+export const isValidSampleCodeCell = (cell: GridElement) =>
+  cell.cellStatus === 'normal' && cell.value !== null && cell.value !== ''

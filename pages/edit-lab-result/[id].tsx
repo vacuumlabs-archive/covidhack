@@ -22,7 +22,12 @@ import Layout from '../../components/Layout'
 import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
-import {addFrame, mapLabResultsToGrid, removeFrame} from '../../utils/helpers'
+import {
+  addFrame,
+  isValidSampleCodeCell,
+  mapLabResultsToGrid,
+  removeFrame,
+} from '../../utils/helpers'
 import {printLabDoc} from '../../utils/pdf/pdf'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
@@ -91,7 +96,9 @@ const EditLabResult = ({grid}: Props) => {
       // dont edit finished and dont add on frame
       const isFrame = props.row === 0 || props.col === 0
       const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
-      const cursorStyle = {cursor: 'pointer'}
+      const cursorStyle = isValidSampleCodeCell(props.cell)
+        ? {cursor: 'pointer'}
+        : {cursor: 'not-allowed'}
       const frameStyle = isFrame ? {background: 'whitesmoke', color: '#999'} : {}
       return (
         <td
@@ -99,7 +106,9 @@ const EditLabResult = ({grid}: Props) => {
           onMouseDown={() =>
             setLabResultDataTable(
               produce(labResultDataTable, (data: any) => {
-                data[props.row][props.col].positive = !props.cell.positive
+                if (isValidSampleCodeCell(props.cell)) {
+                  data[props.row][props.col].positive = !props.cell.positive
+                }
               }),
             )
           }
@@ -126,8 +135,6 @@ const EditLabResult = ({grid}: Props) => {
     return changed
   }
   const containsChanges = localTitle !== grid.grid_by_pk.title || anyCellChange()
-
-  console.log('xxx', labResultDataTable)
 
   if (!grid) return <div />
   return (
