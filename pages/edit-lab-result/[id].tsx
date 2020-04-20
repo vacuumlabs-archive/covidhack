@@ -17,6 +17,7 @@ import {GetServerSideProps} from 'next'
 import Router from 'next/router'
 import React, {useCallback, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
+import CellLegend, {LAB_TABLE_BACKGROUNDS} from '../../components/lab/CellLegend'
 import Layout from '../../components/Layout'
 import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
@@ -44,6 +45,8 @@ const EditLabResult = ({grid}: Props) => {
     addFrame(mapLabResultsToGrid(grid.lab_result)),
   )
 
+  console.log(labResultDataTable)
+
   const updateLabResult = useCallback(
     (updateProps) =>
       fetch('/api/update-lab-result', {
@@ -70,10 +73,13 @@ const EditLabResult = ({grid}: Props) => {
 
   const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback((props) => {
     const isFrame = props.row === 0 || props.col === 0
+    const specialCellBackgroundStyle = props.cell.cellStatus
+      ? {backgroundColor: LAB_TABLE_BACKGROUNDS[props.cell.cellStatus]}
+      : {}
     const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
     const frameStyle = isFrame ? {background: 'whitesmoke', color: '#999'} : {}
     return (
-      <div style={{...backgroundStyle, ...frameStyle}}>
+      <div style={{...specialCellBackgroundStyle, ...backgroundStyle, ...frameStyle}}>
         {props.cell.value}
         {/* a super hacky fix - the div (with color) did not render when value was empty,  add text with opacity 0 to force it */}
         {/* TODO correct way to do this is with cellRenderer, but having that always breaks drag-selection */}
@@ -193,6 +199,7 @@ const EditLabResult = ({grid}: Props) => {
             valueViewer={valueViewer}
             cellRenderer={cellRenderer}
           />
+          <CellLegend onSetSelectedCellsStatus={() => console.log('aa')} />
           <div className="button-panel">
             <Button
               variant="contained"

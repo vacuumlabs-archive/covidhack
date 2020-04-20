@@ -15,7 +15,7 @@ export const createEmptyGrid = () =>
       value: '',
       readOnly: false,
       labResultId: null,
-      cellStatus: 'normal' as const,
+      cellStatus: 'normal' as CellType,
     })),
   )
 
@@ -28,6 +28,7 @@ export const mapLabResultsToGrid = (labResults: Lab_Result[]) => {
       positive: result.positive,
       readOnly: false,
       labResultId: result.id,
+      cellStatus: (result.cell_status || 'normal') as CellType,
     }
   })
   return grid

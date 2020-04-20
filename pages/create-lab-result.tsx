@@ -214,10 +214,7 @@ const CreateLabResult = () => {
               valueViewer={valueViewer}
             />
             <div className="button-panel-wrapper">
-              <CellLegend
-                onSetSelectedCellsStatus={setSelectedCellsStatus}
-                style={{marginTop: 16}}
-              />
+              <CellLegend onSetSelectedCellsStatus={setSelectedCellsStatus} selectable={true} />
               <div className="button-panel">
                 <Button
                   variant="contained"

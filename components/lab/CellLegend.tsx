@@ -1,4 +1,5 @@
 import {makeStyles} from '@material-ui/styles'
+import classnames from 'classnames'
 import React from 'react'
 
 const useStyles = makeStyles({
@@ -6,9 +7,11 @@ const useStyles = makeStyles({
     padding: 8,
     textAlign: 'center',
     verticalAlign: 'middle',
-    cursor: 'pointer',
     border: '1px solid gray',
     borderLeft: 'unset',
+  },
+  selectable: {
+    cursor: 'pointer',
   },
 })
 
@@ -29,17 +32,17 @@ export const LAB_TABLE_BACKGROUNDS: Record<CellType, string> = {
 
 interface Props {
   onSetSelectedCellsStatus: (cellType: CellType) => void
-  style?: any
+  selectable?: boolean
 }
 
-const CellLegend = ({onSetSelectedCellsStatus, style}: Props) => {
+const CellLegend = ({onSetSelectedCellsStatus, selectable}: Props) => {
   const classes = useStyles()
 
   return (
-    <div style={{...style}}>
+    <div style={{marginTop: 16, marginBottom: 16}}>
       <span
         onClick={() => onSetSelectedCellsStatus('normal')}
-        className={classes.legendEntry}
+        className={classnames(classes.legendEntry, selectable && classes.selectable)}
         style={{
           borderLeft: '1px solid gray',
           backgroundColor: LAB_TABLE_BACKGROUNDS['normal'],
@@ -49,28 +52,28 @@ const CellLegend = ({onSetSelectedCellsStatus, style}: Props) => {
       </span>
       <span
         onClick={() => onSetSelectedCellsStatus('positiveControl')}
-        className={classes.legendEntry}
+        className={classnames(classes.legendEntry, selectable && classes.selectable)}
         style={{backgroundColor: LAB_TABLE_BACKGROUNDS['positiveControl']}}
       >
         Pozitívna kontrola
       </span>
       <span
         onClick={() => onSetSelectedCellsStatus('negativeControl')}
-        className={classes.legendEntry}
+        className={classnames(classes.legendEntry, selectable && classes.selectable)}
         style={{backgroundColor: LAB_TABLE_BACKGROUNDS['negativeControl']}}
       >
         Negatívna kontrola
       </span>
       <span
         onClick={() => onSetSelectedCellsStatus('internalControl')}
-        className={classes.legendEntry}
+        className={classnames(classes.legendEntry, selectable && classes.selectable)}
         style={{backgroundColor: LAB_TABLE_BACKGROUNDS['internalControl']}}
       >
         Interná kontrola
       </span>
       <span
         onClick={() => onSetSelectedCellsStatus('broken')}
-        className={classes.legendEntry}
+        className={classnames(classes.legendEntry, selectable && classes.selectable)}
         style={{backgroundColor: LAB_TABLE_BACKGROUNDS['broken']}}
       >
         Nefunkčné políčko
