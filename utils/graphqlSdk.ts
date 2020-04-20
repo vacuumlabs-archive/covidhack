@@ -391,7 +391,7 @@ export type Lab_Result = {
   positive?: Maybe<Scalars['Boolean']>;
   referenced_in_grid_id: Scalars['uuid'];
   row: Scalars['Int'];
-  sample_code: Scalars['String'];
+  sample_code?: Maybe<Scalars['String']>;
   updated_at: Scalars['timestamptz'];
 };
 
@@ -1520,7 +1520,7 @@ export const FinishedGridsQueryDocument = gql`
     `;
 export const FinishedLabResultQueryDocument = gql`
     query FinishedLabResultQuery($gridIds: [uuid!]!) {
-  lab_result(order_by: {updated_at: asc}, where: {referenced_in_grid_id: {_in: $gridIds}}) {
+  lab_result(order_by: {updated_at: asc}, where: {referenced_in_grid_id: {_in: $gridIds}, sample_code: {_is_null: false}}) {
     id
     referenced_in_grid_id
     sample_code
@@ -1531,7 +1531,7 @@ export const FinishedLabResultQueryDocument = gql`
     `;
 export const LabResultQueryDocument = gql`
     query LabResultQuery {
-  lab_result(order_by: {updated_at: asc}) {
+  lab_result(order_by: {updated_at: asc}, where: {sample_code: {_is_null: false}}) {
     id
     referenced_in_grid_id
     sample_code

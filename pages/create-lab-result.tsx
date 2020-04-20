@@ -29,6 +29,19 @@ export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
 
 class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
 
+const removeInvalidSampleCodeCells = (grid: GridElement[][]) => {
+  for (let r = 0; r < grid.length; r++) {
+    for (let c = 0; c < grid[0].length; c++) {
+      // only normal cells are allowed to have sample code, TODO: inline validation for this
+      console.log(grid[r][c])
+      if (grid[r][c].cellStatus !== 'normal' || grid[r][c].value === '')
+        grid[r][c] = {...grid[r][c], value: null}
+    }
+  }
+
+  return grid
+}
+
 const CreateLabResult = () => {
   const [grid, setGrid] = useState<GridElement[][]>(addFrame(createEmptyGrid()))
   const router = useRouter()
@@ -39,9 +52,10 @@ const CreateLabResult = () => {
     setError('')
     setSubmitting(true)
     const body = {
-      grid: removeFrame(grid),
+      grid: removeInvalidSampleCodeCells(removeFrame(grid)),
       title: title,
     }
+
     try {
       if (!title.match(/^.*\/.*\/.*$/)) {
         throw new Error(

@@ -45,8 +45,6 @@ const EditLabResult = ({grid}: Props) => {
     addFrame(mapLabResultsToGrid(grid.lab_result)),
   )
 
-  console.log(labResultDataTable)
-
   const updateLabResult = useCallback(
     (updateProps) =>
       fetch('/api/update-lab-result', {
