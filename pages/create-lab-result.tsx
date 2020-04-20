@@ -7,6 +7,7 @@ import {GetServerSideProps} from 'next'
 import {useRouter} from 'next/router'
 import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
+import MarkCellsDialog, {CellType} from '../components/lab/MarkCellsDialog'
 import Layout from '../components/Layout'
 import {allowAccessFor} from '../utils/auth'
 import {
@@ -23,18 +24,26 @@ export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
   readonly?: boolean
   className?: string
-  broken?: boolean
+  cellStatus?: CellType
 }
 
 class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
 
-const SuccessRegistration = () => {
+const LAB_TABLE_BACKGROUNDS: Record<CellType, string> = {
+  normal: 'unset',
+  broken: 'yellow',
+  positiveControl: 'lightgreen',
+  negativeControl: 'lightcoral',
+  internalControl: 'lightblue',
+}
+
+const CreateLabResult = () => {
   const [grid, setGrid] = useState<GridElement[][]>(addFrame(createEmptyGrid()))
   const router = useRouter()
   const [title, setTitle] = useState<string>('')
   const [error, setError] = useState('')
+  const [cellDialogOpen, setCellDialogOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [brokenFieldsEditMode, setBrokenFieldsEditMode] = useState(false)
   const submit = useCallback(async () => {
     setError('')
     setSubmitting(true)
@@ -91,20 +100,23 @@ const SuccessRegistration = () => {
     [grid, selected],
   )
 
-  const toggleSelectionBroken = useCallback(() => {
-    setGrid(
-      produce(grid, (draft) => {
-        if (!selected) return draft
-        for (let i = selected.start.i; i <= selected.end.i; i++) {
-          for (let j = selected.start.j; j <= selected.end.j; j++) {
-            // ignoring frame
-            if (i === 0 || j === 0) continue
-            draft[i][j].broken = !draft[i][j].broken
+  const setSelectedCellsStatus = useCallback(
+    (cellType: CellType) => {
+      setGrid(
+        produce(grid, (draft) => {
+          if (!selected) return draft
+          for (let i = selected.start.i; i <= selected.end.i; i++) {
+            for (let j = selected.start.j; j <= selected.end.j; j++) {
+              // ignoring frame
+              if (i === 0 || j === 0) continue
+              draft[i][j].cellStatus = cellType
+            }
           }
-        }
-      }),
-    )
-  }, [grid, selected])
+        }),
+      )
+    },
+    [grid, selected],
+  )
 
   useEffect(() => {
     const handler = (event) => {
@@ -128,7 +140,9 @@ const SuccessRegistration = () => {
 
   // used for backgrounds only, because cellRenderer seems to break drag-to-select
   const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback((props) => {
-    const backgroundStyle = props.cell.broken ? {backgroundColor: 'yellow'} : {}
+    const backgroundStyle = props.cell.cellStatus
+      ? {backgroundColor: LAB_TABLE_BACKGROUNDS[props.cell.cellStatus]}
+      : {}
     return (
       <div style={backgroundStyle}>
         {props.cell.value}
@@ -138,33 +152,6 @@ const SuccessRegistration = () => {
       </div>
     )
   }, [])
-
-  const cellRenderer: ReactDataSheet.CellRenderer<GridElement, string> = useCallback(
-    (props) => {
-      // don't change the behaviour for the frame
-      const style = props.cell.readOnly ? undefined : {cursor: 'pointer', width: 200}
-      const onMouseDown = props.cell.readOnly
-        ? props.onMouseDown
-        : () => {
-            setGrid(
-              produce(grid, (draft) => {
-                draft[props.row][props.col].broken = !draft[props.row][props.col].broken
-              }),
-            )
-          }
-      return (
-        <td
-          style={style}
-          onMouseDown={onMouseDown}
-          onMouseOver={props.onMouseOver}
-          className="cell"
-        >
-          {props.children}
-        </td>
-      )
-    },
-    [grid],
-  )
 
   return (
     <>
@@ -197,7 +184,7 @@ const SuccessRegistration = () => {
           <Alert severity="info" style={{marginTop: 8, marginBottom: 8}}>
             Pre automatické vyplnenie prázdnych políčok podľa posledného vyplneného stlačte CTRL na
             zvolenom prázdnom políčku. Ak je v nejakom z predchádzajúcich políčok tabuľky vyplnené
-            číslo vzorky, tak sa prázdne políčka (vrátane zvoleného) vyplnia automaticky. Nefunkčné
+            číslo vzorky, tak sa prázdne políčka (vrátane zvoleného) vyplnia automaticky. Špeciálne
             políčka sa preskakujú.
           </Alert>
 
@@ -227,33 +214,66 @@ const SuccessRegistration = () => {
               }}
               selected={selected}
               onContextMenu={(e) => e.preventDefault()}
-              cellRenderer={brokenFieldsEditMode ? cellRenderer : undefined}
+              cellRenderer={undefined}
               valueViewer={valueViewer}
             />
-            <div className="button-panel">
-              <Button
-                variant="contained"
-                onClick={toggleSelectionBroken}
-                style={{marginRight: 8}}
-                // TODO: this doesn't make sanse if we can press this on table frame, but it's a bit
-                // more work to do
-                // disabled={!selected}
-              >
-                Nastaviť vybrané polia ako nefunkčné
-              </Button>
-              <Button
-                variant="contained"
-                onClick={submit}
-                color="primary"
-                disabled={submitting}
-                startIcon={submitting && <LoadingIcon style={{color: 'white'}} size={20} />}
-              >
-                Začať test
-              </Button>
+            <div className="button-panel-wrapper">
+              <div style={{marginTop: 16}}>
+                <span
+                  className="legendEntry"
+                  style={{backgroundColor: LAB_TABLE_BACKGROUNDS['positiveControl']}}
+                >
+                  Pozitívna kontrola
+                </span>
+                <span
+                  className="legendEntry"
+                  style={{backgroundColor: LAB_TABLE_BACKGROUNDS['negativeControl']}}
+                >
+                  Negatívna kontrola
+                </span>
+                <span
+                  className="legendEntry"
+                  style={{backgroundColor: LAB_TABLE_BACKGROUNDS['internalControl']}}
+                >
+                  Interná kontrola
+                </span>
+                <span
+                  className="legendEntry"
+                  style={{backgroundColor: LAB_TABLE_BACKGROUNDS['broken']}}
+                >
+                  Nefunkčné políčko
+                </span>
+              </div>
+              <div className="button-panel">
+                <Button
+                  variant="contained"
+                  onClick={() => setCellDialogOpen(true)}
+                  style={{marginRight: 8}}
+                  // TODO: this doesn't make sanse if we can press this on table frame, but it's a bit
+                  // more work to do
+                  // disabled={!selected}
+                >
+                  Nastaviť vybrané políčka ako špeciálne
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={submit}
+                  color="primary"
+                  disabled={submitting}
+                  startIcon={submitting && <LoadingIcon style={{color: 'white'}} size={20} />}
+                >
+                  Začať test
+                </Button>
+              </div>
             </div>
             <div style={{color: 'red'}}>{error}</div>
           </div>
         </Paper>
+        <MarkCellsDialog
+          open={cellDialogOpen}
+          setOpen={setCellDialogOpen}
+          onSelect={(cellType) => setSelectedCellsStatus(cellType)}
+        />
       </Layout>
       <style jsx>{`
         .wrapper {
@@ -263,9 +283,21 @@ const SuccessRegistration = () => {
           justify-content: center;
         }
 
+        .button-panel-wrapper {
+          display: flex;
+          width: 100%;
+          flex-direction: row;
+        }
+
         .button-panel {
           margin: 8px 0;
-          align-self: flex-end;
+          margin-left: auto;
+        }
+
+        .legendEntry {
+          padding: 8px;
+          text-align: center;
+          vertical-align: middle;
         }
 
         .img {
@@ -391,4 +423,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 }
 
-export default SuccessRegistration
+export default CreateLabResult

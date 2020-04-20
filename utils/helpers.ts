@@ -1,5 +1,6 @@
 import produce from 'immer'
 import _ from 'lodash'
+import {CellType} from '../components/lab/MarkCellsDialog'
 import {Lab_Result} from './graphqlSdk'
 
 export const gridRows = 8
@@ -14,6 +15,7 @@ export const createEmptyGrid = () =>
       value: '',
       readOnly: false,
       labResultId: null,
+      cellStatus: 'normal' as const,
     })),
   )
 
@@ -41,7 +43,7 @@ type GridElement = {
   value: string | null
   readonly?: boolean
   className?: string
-  broken?: boolean
+  cellStatus?: CellType
 }
 
 type Location = {
@@ -62,7 +64,7 @@ export const autofillGrid = (
       // start from the initial cell in first iteration, then continue from top
       const rowIterationStart = j === start.j ? start.i : 1
       for (let i = rowIterationStart; i <= gridRows; i++) {
-        if (draft[i][j].broken) continue
+        if (draft[i][j].cellStatus === 'broken') continue
         // we should not overwrite any values while doing this, except the initial one  which is used as seed
         if (draft[i][j].value) {
           if (i !== start.i && j !== start.j) {

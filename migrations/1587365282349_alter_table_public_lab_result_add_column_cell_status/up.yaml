@@ -1,0 +1,5 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."lab_result" ADD COLUMN "cell_status" text NULL;
+  type: run_sql

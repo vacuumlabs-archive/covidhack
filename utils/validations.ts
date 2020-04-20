@@ -42,7 +42,7 @@ export const gridSchema = yup
       .of(
         yup
           .object()
-          .shape({value: yup.string().ensure(), positive: yup.boolean()})
+          .shape({value: yup.string().ensure(), positive: yup.boolean(), cellStatus: yup.string()})
           .noUnknown(),
       ),
   )

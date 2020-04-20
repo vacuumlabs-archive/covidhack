@@ -384,6 +384,7 @@ export type Int_Comparison_Exp = {
 
 export type Lab_Result = {
    __typename?: 'lab_result';
+  cell_status?: Maybe<Scalars['String']>;
   column: Scalars['Int'];
   created_at: Scalars['timestamptz'];
   id: Scalars['uuid'];
@@ -455,6 +456,7 @@ export type Lab_Result_Bool_Exp = {
   _and?: Maybe<Array<Maybe<Lab_Result_Bool_Exp>>>;
   _not?: Maybe<Lab_Result_Bool_Exp>;
   _or?: Maybe<Array<Maybe<Lab_Result_Bool_Exp>>>;
+  cell_status?: Maybe<String_Comparison_Exp>;
   column?: Maybe<Int_Comparison_Exp>;
   created_at?: Maybe<Timestamptz_Comparison_Exp>;
   id?: Maybe<Uuid_Comparison_Exp>;
@@ -475,6 +477,7 @@ export type Lab_Result_Inc_Input = {
 };
 
 export type Lab_Result_Insert_Input = {
+  cell_status?: Maybe<Scalars['String']>;
   column?: Maybe<Scalars['Int']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
@@ -487,6 +490,7 @@ export type Lab_Result_Insert_Input = {
 
 export type Lab_Result_Max_Fields = {
    __typename?: 'lab_result_max_fields';
+  cell_status?: Maybe<Scalars['String']>;
   column?: Maybe<Scalars['Int']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   row?: Maybe<Scalars['Int']>;
@@ -495,6 +499,7 @@ export type Lab_Result_Max_Fields = {
 };
 
 export type Lab_Result_Max_Order_By = {
+  cell_status?: Maybe<Order_By>;
   column?: Maybe<Order_By>;
   created_at?: Maybe<Order_By>;
   row?: Maybe<Order_By>;
@@ -504,6 +509,7 @@ export type Lab_Result_Max_Order_By = {
 
 export type Lab_Result_Min_Fields = {
    __typename?: 'lab_result_min_fields';
+  cell_status?: Maybe<Scalars['String']>;
   column?: Maybe<Scalars['Int']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   row?: Maybe<Scalars['Int']>;
@@ -512,6 +518,7 @@ export type Lab_Result_Min_Fields = {
 };
 
 export type Lab_Result_Min_Order_By = {
+  cell_status?: Maybe<Order_By>;
   column?: Maybe<Order_By>;
   created_at?: Maybe<Order_By>;
   row?: Maybe<Order_By>;
@@ -537,6 +544,7 @@ export type Lab_Result_On_Conflict = {
 };
 
 export type Lab_Result_Order_By = {
+  cell_status?: Maybe<Order_By>;
   column?: Maybe<Order_By>;
   created_at?: Maybe<Order_By>;
   id?: Maybe<Order_By>;
@@ -548,6 +556,7 @@ export type Lab_Result_Order_By = {
 };
 
 export enum Lab_Result_Select_Column {
+  CellStatus = 'cell_status',
   Column = 'column',
   CreatedAt = 'created_at',
   Id = 'id',
@@ -559,6 +568,7 @@ export enum Lab_Result_Select_Column {
 }
 
 export type Lab_Result_Set_Input = {
+  cell_status?: Maybe<Scalars['String']>;
   column?: Maybe<Scalars['Int']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
@@ -614,6 +624,7 @@ export type Lab_Result_Sum_Order_By = {
 };
 
 export enum Lab_Result_Update_Column {
+  CellStatus = 'cell_status',
   Column = 'column',
   CreatedAt = 'created_at',
   Id = 'id',
@@ -753,7 +764,7 @@ export enum Order_By {
 
 export type Password_Test = {
    __typename?: 'password_test';
-  test_phrase: Scalars['String'];
+  encrypted_test_phrase: Scalars['String'];
 };
 
 export type Password_Test_Aggregate = {
@@ -790,33 +801,34 @@ export type Password_Test_Bool_Exp = {
   _and?: Maybe<Array<Maybe<Password_Test_Bool_Exp>>>;
   _not?: Maybe<Password_Test_Bool_Exp>;
   _or?: Maybe<Array<Maybe<Password_Test_Bool_Exp>>>;
-  test_phrase?: Maybe<String_Comparison_Exp>;
+  encrypted_test_phrase?: Maybe<String_Comparison_Exp>;
 };
 
 export enum Password_Test_Constraint {
-  PasswordTestPkey = 'password_test_pkey'
+  PasswordTestPkey = 'password_test_pkey',
+  PasswordTestTestPhraseKey = 'password_test_test_phrase_key'
 }
 
 export type Password_Test_Insert_Input = {
-  test_phrase?: Maybe<Scalars['String']>;
+  encrypted_test_phrase?: Maybe<Scalars['String']>;
 };
 
 export type Password_Test_Max_Fields = {
    __typename?: 'password_test_max_fields';
-  test_phrase?: Maybe<Scalars['String']>;
+  encrypted_test_phrase?: Maybe<Scalars['String']>;
 };
 
 export type Password_Test_Max_Order_By = {
-  test_phrase?: Maybe<Order_By>;
+  encrypted_test_phrase?: Maybe<Order_By>;
 };
 
 export type Password_Test_Min_Fields = {
    __typename?: 'password_test_min_fields';
-  test_phrase?: Maybe<Scalars['String']>;
+  encrypted_test_phrase?: Maybe<Scalars['String']>;
 };
 
 export type Password_Test_Min_Order_By = {
-  test_phrase?: Maybe<Order_By>;
+  encrypted_test_phrase?: Maybe<Order_By>;
 };
 
 export type Password_Test_Mutation_Response = {
@@ -837,19 +849,19 @@ export type Password_Test_On_Conflict = {
 };
 
 export type Password_Test_Order_By = {
-  test_phrase?: Maybe<Order_By>;
+  encrypted_test_phrase?: Maybe<Order_By>;
 };
 
 export enum Password_Test_Select_Column {
-  TestPhrase = 'test_phrase'
+  EncryptedTestPhrase = 'encrypted_test_phrase'
 }
 
 export type Password_Test_Set_Input = {
-  test_phrase?: Maybe<Scalars['String']>;
+  encrypted_test_phrase?: Maybe<Scalars['String']>;
 };
 
 export enum Password_Test_Update_Column {
-  TestPhrase = 'test_phrase'
+  EncryptedTestPhrase = 'encrypted_test_phrase'
 }
 
 export type Query_Root = {
@@ -957,7 +969,7 @@ export type Query_RootPassword_Test_AggregateArgs = {
 
 
 export type Query_RootPassword_Test_By_PkArgs = {
-  test_phrase: Scalars['String'];
+  encrypted_test_phrase: Scalars['String'];
 };
 
 export type String_Comparison_Exp = {
@@ -1083,7 +1095,7 @@ export type Subscription_RootPassword_Test_AggregateArgs = {
 
 
 export type Subscription_RootPassword_Test_By_PkArgs = {
-  test_phrase: Scalars['String'];
+  encrypted_test_phrase: Scalars['String'];
 };
 
 
@@ -1293,7 +1305,7 @@ export type GridWithLabResultsQueryQuery = (
     & Pick<Grid, 'created_at' | 'finished' | 'id' | 'sample_arrival_date' | 'sample_taken_date' | 'test_finished_date' | 'test_initiation_date' | 'title' | 'updated_at'>
   )>, lab_result: Array<(
     { __typename?: 'lab_result' }
-    & Pick<Lab_Result, 'column' | 'created_at' | 'id' | 'referenced_in_grid_id' | 'row' | 'sample_code' | 'updated_at' | 'positive'>
+    & Pick<Lab_Result, 'column' | 'created_at' | 'id' | 'referenced_in_grid_id' | 'row' | 'sample_code' | 'updated_at' | 'positive' | 'cell_status'>
   )> }
 );
 
@@ -1476,6 +1488,7 @@ export const GridWithLabResultsQueryDocument = gql`
     sample_code
     updated_at
     positive
+    cell_status
   }
 }
     `;
