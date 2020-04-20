@@ -7,7 +7,7 @@ import {GetServerSideProps} from 'next'
 import {useRouter} from 'next/router'
 import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
-import MarkCellsDialog, {CellType} from '../components/lab/MarkCellsDialog'
+import {CellType} from '../components/lab/MarkCellsDialog'
 import Layout from '../components/Layout'
 import {allowAccessFor} from '../utils/auth'
 import {
@@ -42,7 +42,6 @@ const CreateLabResult = () => {
   const router = useRouter()
   const [title, setTitle] = useState<string>('')
   const [error, setError] = useState('')
-  const [cellDialogOpen, setCellDialogOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const submit = useCallback(async () => {
     setError('')
@@ -181,6 +180,11 @@ const CreateLabResult = () => {
             pozadím predstavujú nefunkčné políčka.
           </Alert>
 
+          <Alert severity="info" style={{marginTop: 8}}>
+            Pre označenie špeciálnych políčok označte dané políčka tabuľky a zvoľte typ špeciálneho
+            políčka kliknutím na tlačítka v legende.
+          </Alert>
+
           <Alert severity="info" style={{marginTop: 8, marginBottom: 8}}>
             Pre automatické vyplnenie prázdnych políčok podľa posledného vyplneného stlačte CTRL na
             zvolenom prázdnom políčku. Ak je v nejakom z predchádzajúcich políčok tabuľky vyplnené
@@ -220,41 +224,45 @@ const CreateLabResult = () => {
             <div className="button-panel-wrapper">
               <div style={{marginTop: 16}}>
                 <span
-                  className="legendEntry"
+                  onClick={() => setSelectedCellsStatus('normal')}
+                  className={'legendEntry'}
+                  style={{
+                    borderLeft: '1px solid gray',
+                    backgroundColor: LAB_TABLE_BACKGROUNDS['normal'],
+                  }}
+                >
+                  Normálne políčko
+                </span>
+                <span
+                  onClick={() => setSelectedCellsStatus('positiveControl')}
+                  className={'legendEntry'}
                   style={{backgroundColor: LAB_TABLE_BACKGROUNDS['positiveControl']}}
                 >
                   Pozitívna kontrola
                 </span>
                 <span
-                  className="legendEntry"
+                  onClick={() => setSelectedCellsStatus('negativeControl')}
+                  className={'legendEntry'}
                   style={{backgroundColor: LAB_TABLE_BACKGROUNDS['negativeControl']}}
                 >
                   Negatívna kontrola
                 </span>
                 <span
-                  className="legendEntry"
+                  onClick={() => setSelectedCellsStatus('internalControl')}
+                  className={'legendEntry'}
                   style={{backgroundColor: LAB_TABLE_BACKGROUNDS['internalControl']}}
                 >
                   Interná kontrola
                 </span>
                 <span
-                  className="legendEntry"
+                  onClick={() => setSelectedCellsStatus('broken')}
+                  className={'legendEntry'}
                   style={{backgroundColor: LAB_TABLE_BACKGROUNDS['broken']}}
                 >
                   Nefunkčné políčko
                 </span>
               </div>
               <div className="button-panel">
-                <Button
-                  variant="contained"
-                  onClick={() => setCellDialogOpen(true)}
-                  style={{marginRight: 8}}
-                  // TODO: this doesn't make sanse if we can press this on table frame, but it's a bit
-                  // more work to do
-                  // disabled={!selected}
-                >
-                  Nastaviť vybrané políčka ako špeciálne
-                </Button>
                 <Button
                   variant="contained"
                   onClick={submit}
@@ -269,11 +277,6 @@ const CreateLabResult = () => {
             <div style={{color: 'red'}}>{error}</div>
           </div>
         </Paper>
-        <MarkCellsDialog
-          open={cellDialogOpen}
-          setOpen={setCellDialogOpen}
-          onSelect={(cellType) => setSelectedCellsStatus(cellType)}
-        />
       </Layout>
       <style jsx>{`
         .wrapper {
@@ -298,6 +301,9 @@ const CreateLabResult = () => {
           padding: 8px;
           text-align: center;
           vertical-align: middle;
+          cursor: pointer;
+          border: 1px solid gray;
+          border-left: unset;
         }
 
         .img {
