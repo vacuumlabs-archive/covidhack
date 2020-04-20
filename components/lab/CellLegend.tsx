@@ -1,3 +1,4 @@
+import {Button} from '@material-ui/core'
 import {makeStyles} from '@material-ui/styles'
 import classnames from 'classnames'
 import React from 'react'
@@ -7,8 +8,6 @@ const useStyles = makeStyles({
     padding: 8,
     textAlign: 'center',
     verticalAlign: 'middle',
-    border: '1px solid gray',
-    borderLeft: 'unset',
   },
   selectable: {
     cursor: 'pointer',
@@ -40,44 +39,53 @@ const CellLegend = ({onSetSelectedCellsStatus, selectable}: Props) => {
 
   return (
     <div style={{marginTop: 16, marginBottom: 16}}>
-      <span
+      <Button
+        size="small"
+        variant="contained"
         onClick={() => onSetSelectedCellsStatus('normal')}
         className={classnames(classes.legendEntry, selectable && classes.selectable)}
         style={{
-          borderLeft: '1px solid gray',
           backgroundColor: LAB_TABLE_BACKGROUNDS['normal'],
         }}
       >
         Normálne políčko
-      </span>
-      <span
+      </Button>
+      <Button
+        size="small"
+        variant="contained"
         onClick={() => onSetSelectedCellsStatus('positiveControl')}
         className={classnames(classes.legendEntry, selectable && classes.selectable)}
         style={{backgroundColor: LAB_TABLE_BACKGROUNDS['positiveControl']}}
       >
         Pozitívna kontrola
-      </span>
-      <span
+      </Button>
+      <Button
+        size="small"
+        variant="contained"
         onClick={() => onSetSelectedCellsStatus('negativeControl')}
         className={classnames(classes.legendEntry, selectable && classes.selectable)}
         style={{backgroundColor: LAB_TABLE_BACKGROUNDS['negativeControl']}}
       >
         Negatívna kontrola
-      </span>
-      <span
+      </Button>
+      <Button
+        size="small"
+        variant="contained"
         onClick={() => onSetSelectedCellsStatus('internalControl')}
         className={classnames(classes.legendEntry, selectable && classes.selectable)}
         style={{backgroundColor: LAB_TABLE_BACKGROUNDS['internalControl']}}
       >
         Interná kontrola
-      </span>
-      <span
+      </Button>
+      <Button
+        size="small"
+        variant="contained"
         onClick={() => onSetSelectedCellsStatus('broken')}
         className={classnames(classes.legendEntry, selectable && classes.selectable)}
         style={{backgroundColor: LAB_TABLE_BACKGROUNDS['broken']}}
       >
         Nefunkčné políčko
-      </span>
+      </Button>
     </div>
   )
 }

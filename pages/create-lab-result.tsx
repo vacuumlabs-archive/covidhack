@@ -1,15 +1,23 @@
-import { Button, Paper, TextField } from '@material-ui/core'
+import {Button, Paper, TextField} from '@material-ui/core'
 import LoadingIcon from '@material-ui/core/CircularProgress'
 import Alert from '@material-ui/lab/Alert'
 import produce from 'immer'
-import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useState } from 'react'
+import {useRouter} from 'next/router'
+import React, {useCallback, useEffect, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
-import DatasheetTable, { GridElement } from '../components/DatasheetTable'
-import { CellType } from '../components/lab/CellLegend'
+import DatasheetTable, {GridElement} from '../components/DatasheetTable'
+import {CellType} from '../components/lab/CellLegend'
 import Layout from '../components/Layout'
-import { addFrame, autofillGrid, createEmptyGrid, findPreviousOnFramedGrid, isNormalInteger, removeFrame, removeInvalidSampleCode } from '../utils/helpers'
-import { createGridBodySchema } from '../utils/validations'
+import {
+  addFrame,
+  autofillGrid,
+  createEmptyGrid,
+  findPreviousOnFramedGrid,
+  isNormalInteger,
+  removeFrame,
+  removeInvalidSampleCode,
+} from '../utils/helpers'
+import {createGridBodySchema} from '../utils/validations'
 
 const removeInvalidSampleCodeCells = (grid: GridElement[][]) => {
   for (let r = 0; r < grid.length; r++) {
