@@ -633,7 +633,7 @@ export const printLabDoc = async (grid) => {
   const samples = labResults.lab_result
     .filter(({sample_code}) => isNormalInteger(sample_code))
     .map(({sample_code, positive, created_at}) => {
-      const sampleCode = `${created_at.substr(0, 4)}/${sample_code}/NRC`
+      const sampleCode = `${created_at.substr(2, 2)}/${sample_code}/CH`
       const testResult = positive === true ? 'pozitívny' : 'negatívny'
       return {sampleCode, testResult}
     })
