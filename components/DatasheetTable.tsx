@@ -2,7 +2,11 @@ import produce from 'immer'
 import {isEmpty} from 'lodash'
 import React, {useCallback, useMemo} from 'react'
 import ReactDataSheet from 'react-datasheet'
-import {CellType, LAB_TABLE_BACKGROUNDS} from './lab/CellLegend'
+import CellLegend, {
+  CellType,
+  LAB_TABLE_BACKGROUNDS,
+  Props as CellLegendProps,
+} from './lab/CellLegend'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
@@ -11,14 +15,21 @@ export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   cellStatus?: CellType
 }
 
-interface Props {
+interface Props extends CellLegendProps {
   grid: GridElement[][]
   setGrid: (grid: GridElement[][]) => void
   selected: ReactDataSheet.Selection | null
   onSelected: (selected: ReactDataSheet.Selection | null) => void
 }
 
-const DatasheetTable = ({grid, setGrid, selected, onSelected}: Props) => {
+const DatasheetTable = ({
+  grid,
+  setGrid,
+  selected,
+  onSelected,
+  onSetSelectedCellsStatus,
+  selectable,
+}: Props) => {
   const gridToDisplay = useMemo(
     () =>
       produce(grid, (draft) => {
@@ -82,6 +93,8 @@ const DatasheetTable = ({grid, setGrid, selected, onSelected}: Props) => {
         cellRenderer={undefined}
         valueViewer={valueViewer}
       />
+      <CellLegend onSetSelectedCellsStatus={onSetSelectedCellsStatus} selectable={selectable} />
+
       {/* had to copy manually from react-datasheet package as importing in _app.tsx did not work */}
       <style jsx global>{`
         span.data-grid-container,

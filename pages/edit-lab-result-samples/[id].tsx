@@ -9,11 +9,13 @@ import {
 } from '@material-ui/core'
 import LoadingIcon from '@material-ui/core/CircularProgress'
 import Alert from '@material-ui/lab/Alert'
+import produce from 'immer'
 import {GetServerSideProps} from 'next'
 import Router from 'next/router'
 import React, {useCallback, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
 import DatasheetTable, {GridElement} from '../../components/DatasheetTable'
+import {CellType} from '../../components/lab/CellLegend'
 import Layout from '../../components/Layout'
 import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
@@ -44,6 +46,7 @@ const EditLabResultSamples = ({grid}: Props) => {
     [],
   )
 
+  // TODO: for now let's not show the positive/negative in this page. Lets wait or feedback
   const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback((props) => {
     const isFrame = props.row === 0 || props.col === 0
     const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
@@ -58,12 +61,32 @@ const EditLabResultSamples = ({grid}: Props) => {
     )
   }, [])
 
+  const setSelectedCellsStatus = useCallback(
+    (cellType: CellType) => {
+      setLabResultDataTable(
+        produce(labResultDataTable, (draft) => {
+          if (!selected) return draft
+          for (let i = selected.start.i; i <= selected.end.i; i++) {
+            for (let j = selected.start.j; j <= selected.end.j; j++) {
+              // ignoring frame
+              if (i === 0 || j === 0) continue
+              draft[i][j].cellStatus = cellType
+            }
+          }
+        }),
+      )
+    },
+    [labResultDataTable, selected],
+  )
+
+  const isChangedCell = (currentCell: GridElement, initialCell: GridElement) =>
+    currentCell.value !== initialCell.value || currentCell.cellStatus !== initialCell.cellStatus
   const anyCellChange = () => {
     const initial = mapLabResultsToGrid(grid.lab_result)
     let changed = false
-    removeFrame(labResultDataTable).forEach((row, r) =>
-      row.forEach((cell: any, c) => {
-        if (cell.value !== initial[r][c].value) {
+    removeFrame(labResultDataTable).forEach((row: GridElement[], r) =>
+      row.forEach((cell, c) => {
+        if (isChangedCell(cell, initial[r][c])) {
           changed = true
         }
       }),
@@ -77,7 +100,7 @@ const EditLabResultSamples = ({grid}: Props) => {
     <>
       <Layout isFormPage>
         <Dialog open={showConfirmDialog} onClose={() => setShowConfirmDialog(false)}>
-          <DialogTitle>Upraviť čísla vzoriek</DialogTitle>
+          <DialogTitle>Upraviť políčka tabuľky</DialogTitle>
           <DialogContent>
             <DialogContentText>Naozaj si prajete uložiť zmeny?</DialogContentText>
           </DialogContent>
@@ -91,7 +114,7 @@ const EditLabResultSamples = ({grid}: Props) => {
                 const promises = []
                 removeFrame(labResultDataTable).forEach((row, r) =>
                   row.forEach((cell: any, c) => {
-                    if (cell.value !== initial[r][c].value) {
+                    if (isChangedCell(cell, initial[r][c])) {
                       const newCellValue = cell.value === '' ? null : cell.value
                       promises.push(
                         updateLabResult({
@@ -136,8 +159,8 @@ const EditLabResultSamples = ({grid}: Props) => {
           }}
         >
           <Alert severity="warning" style={{marginBottom: 8}}>
-            Ak ste sa pomýlili v číslach vzoriek, tu ich môžete opraviť. Stačí, ak čísla vzoriek v
-            tabuľke prepíšete a zmeny uložíte.
+            Ak ste sa pomýlili v číslach vzoriek alebo označení špeciálnych políčok, tu ich môžete
+            opraviť. Stačí, ak vykonáte potrebné úpravy a zmeny uložíte.
           </Alert>
 
           <DatasheetTable
@@ -145,7 +168,10 @@ const EditLabResultSamples = ({grid}: Props) => {
             setGrid={setLabResultDataTable}
             selected={selected}
             onSelected={setSelected}
+            onSetSelectedCellsStatus={setSelectedCellsStatus}
+            selectable={true}
           />
+
           <div className="button-panel">
             <Button
               variant="contained"

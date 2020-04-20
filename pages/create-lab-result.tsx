@@ -1,23 +1,15 @@
-import {Button, Paper, TextField} from '@material-ui/core'
+import { Button, Paper, TextField } from '@material-ui/core'
 import LoadingIcon from '@material-ui/core/CircularProgress'
 import Alert from '@material-ui/lab/Alert'
 import produce from 'immer'
-import {useRouter} from 'next/router'
-import React, {useCallback, useEffect, useState} from 'react'
+import { useRouter } from 'next/router'
+import React, { useCallback, useEffect, useState } from 'react'
 import ReactDataSheet from 'react-datasheet'
-import DatasheetTable, {GridElement} from '../components/DatasheetTable'
-import CellLegend, {CellType} from '../components/lab/CellLegend'
+import DatasheetTable, { GridElement } from '../components/DatasheetTable'
+import { CellType } from '../components/lab/CellLegend'
 import Layout from '../components/Layout'
-import {
-  addFrame,
-  autofillGrid,
-  createEmptyGrid,
-  findPreviousOnFramedGrid,
-  isNormalInteger,
-  removeFrame,
-  removeInvalidSampleCode,
-} from '../utils/helpers'
-import {createGridBodySchema} from '../utils/validations'
+import { addFrame, autofillGrid, createEmptyGrid, findPreviousOnFramedGrid, isNormalInteger, removeFrame, removeInvalidSampleCode } from '../utils/helpers'
+import { createGridBodySchema } from '../utils/validations'
 
 const removeInvalidSampleCodeCells = (grid: GridElement[][]) => {
   for (let r = 0; r < grid.length; r++) {
@@ -158,9 +150,10 @@ const CreateLabResult = () => {
               setGrid={setGrid}
               onSelected={onSelect}
               selected={selected}
+              selectable={true}
+              onSetSelectedCellsStatus={setSelectedCellsStatus}
             />
             <div className="button-panel-wrapper">
-              <CellLegend onSetSelectedCellsStatus={setSelectedCellsStatus} selectable={true} />
               <div className="button-panel">
                 <Button
                   variant="contained"
@@ -180,7 +173,6 @@ const CreateLabResult = () => {
       <style jsx>{`
         .wrapper {
           display: flex;
-          align-items: center;
           flex-direction: column;
           justify-content: center;
         }

@@ -30,7 +30,7 @@ export const LAB_TABLE_BACKGROUNDS: Record<CellType, string> = {
   internalControl: 'lightblue',
 }
 
-interface Props {
+export interface Props {
   onSetSelectedCellsStatus: (cellType: CellType) => void
   selectable?: boolean
 }

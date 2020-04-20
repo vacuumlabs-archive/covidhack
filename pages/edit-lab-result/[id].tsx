@@ -186,8 +186,8 @@ const EditLabResult = ({grid}: Props) => {
           }}
         >
           <Alert severity="info" style={{marginBottom: 8}}>
-            Pozitívne vzorky označte kliknutím na políčka v tabuľke. V tabuľke sa takéto vzorky
-            vyznačia červeným pozadím.
+            Pozitívne vzorky označte kliknutím na políčka s číslom vzorky v tabuľke. V tabuľke sa
+            takéto vzorky vyznačia červeným pozadím.
           </Alert>
           <TextField
             autoFocus
