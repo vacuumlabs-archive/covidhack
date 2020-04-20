@@ -2,14 +2,12 @@ import {Button, Paper, TextField} from '@material-ui/core'
 import LoadingIcon from '@material-ui/core/CircularProgress'
 import Alert from '@material-ui/lab/Alert'
 import produce from 'immer'
-import {isEmpty} from 'lodash'
-import {GetServerSideProps} from 'next'
 import {useRouter} from 'next/router'
-import React, {useCallback, useEffect, useMemo, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
-import CellLegend, {CellType, LAB_TABLE_BACKGROUNDS} from '../components/lab/CellLegend'
+import DatasheetTable from '../components/DatasheetTable'
+import CellLegend, {CellType} from '../components/lab/CellLegend'
 import Layout from '../components/Layout'
-import {allowAccessFor} from '../utils/auth'
 import {
   addFrame,
   autofillGrid,
@@ -28,8 +26,6 @@ export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   cellStatus?: CellType
 }
 
-class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
-
 const removeInvalidSampleCodeCells = (grid: GridElement[][]) => {
   for (let r = 0; r < grid.length; r++) {
     for (let c = 0; c < grid[0].length; c++) {
@@ -42,6 +38,7 @@ const removeInvalidSampleCodeCells = (grid: GridElement[][]) => {
 }
 
 const CreateLabResult = () => {
+  const [selected, onSelect] = useState<ReactDataSheet.Selection>(null)
   const [grid, setGrid] = useState<GridElement[][]>(addFrame(createEmptyGrid()))
   const router = useRouter()
   const [title, setTitle] = useState<string>('')
@@ -84,26 +81,6 @@ const CreateLabResult = () => {
     }
   }, [grid, router, title])
 
-  // higlight row and collumn label of the selected cell by adding a className to it
-  const [selected, onSelect] = useState<ReactDataSheet.Selection>(null)
-  const gridToDisplay = useMemo(
-    () =>
-      produce(grid, (draft) => {
-        // if you select a cell and then shift click one of (start, end) is {}
-        if (!selected || isEmpty(selected.end) || isEmpty(selected.start)) return draft
-        for (let r = selected.start.i; r <= selected.end.i; r++) {
-          for (let c = selected.start.j; c <= selected.end.j; c++) {
-            // if you tab from last cell, you will end up in non-existent row
-            // or if you shift+tab from first cell
-            if (r >= 0 && r < draft.length) draft[r][0].className = 'selected'
-            if (c >= 0 && c < draft[0].length) draft[0][c].className = 'selected'
-          }
-        }
-        return draft
-      }),
-    [grid, selected],
-  )
-
   const setSelectedCellsStatus = useCallback(
     (cellType: CellType) => {
       setGrid(
@@ -141,21 +118,6 @@ const CreateLabResult = () => {
       document.removeEventListener('keydown', handler, false)
     }
   }, [grid, selected])
-
-  // used for backgrounds only, because cellRenderer seems to break drag-to-select
-  const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback((props) => {
-    const backgroundStyle = props.cell.cellStatus
-      ? {backgroundColor: LAB_TABLE_BACKGROUNDS[props.cell.cellStatus]}
-      : {}
-    return (
-      <div style={backgroundStyle}>
-        {props.cell.value}
-        {/* a super hacky fix - the div (with color) did not render when value was empty,  add text with opacity 0 to force it */}
-        {/* TODO correct way to do this is with cellRenderer, but having that always breaks drag-selection */}
-        <span style={{opacity: 0}}>.</span>
-      </div>
-    )
-  }, [])
 
   return (
     <>
@@ -198,33 +160,11 @@ const CreateLabResult = () => {
           </Alert>
 
           <div className="wrapper">
-            {/* https://github.com/nadbm/react-datasheet/issues/205 */}
-            <MyReactDataSheet
-              data={gridToDisplay}
-              valueRenderer={(cell) => cell.value}
-              onCellsChanged={(changes) => {
-                setGrid(
-                  produce(grid, (draft) => {
-                    changes.forEach(({row, col, value}) => {
-                      draft[row][col] = {...draft[row][col], value}
-                    })
-                  }),
-                )
-              }}
-              onSelect={(newSelected) => {
-                onSelect(
-                  produce(selected, (s) => {
-                    if (!s) return newSelected
-                    if (!isEmpty(newSelected.start)) s.start = newSelected.start
-                    if (!isEmpty(newSelected.end)) s.end = newSelected.end
-                    return s
-                  }),
-                )
-              }}
+            <DatasheetTable
+              grid={grid}
+              setGrid={setGrid}
+              onSelected={onSelect}
               selected={selected}
-              onContextMenu={(e) => e.preventDefault()}
-              cellRenderer={undefined}
-              valueViewer={valueViewer}
             />
             <div className="button-panel-wrapper">
               <CellLegend onSetSelectedCellsStatus={setSelectedCellsStatus} selectable={true} />
@@ -269,121 +209,8 @@ const CreateLabResult = () => {
           height: 187px;
         }
       `}</style>
-      {/* had to copy manually from react-datasheet package as importing in _app.tsx did not work */}
-      <style jsx global>{`
-        span.data-grid-container,
-        span.data-grid-container:focus {
-          outline: none;
-        }
-
-        .data-grid-container .data-grid {
-          table-layout: fixed;
-          border-collapse: collapse;
-        }
-
-        .data-grid-container .data-grid .cell.updated {
-          background-color: rgba(0, 145, 253, 0.16);
-          transition: background-color 0ms ease;
-        }
-        .data-grid-container .data-grid .cell {
-          height: 17px;
-          user-select: none;
-          -moz-user-select: none;
-          -webkit-user-select: none;
-          -ms-user-select: none;
-          cursor: cell;
-          background-color: unset;
-          transition: background-color 500ms ease;
-          vertical-align: middle;
-          text-align: right;
-          border: 1px solid #ddd;
-          padding: 0;
-        }
-        .data-grid-container .data-grid .cell.selected {
-          border: 1px double rgb(33, 133, 208);
-          transition: none;
-          box-shadow: inset 0 -100px 0 rgba(33, 133, 208, 0.15);
-        }
-
-        .data-grid-container .data-grid .cell.read-only {
-          background: whitesmoke;
-          color: #999;
-          text-align: center;
-        }
-
-        .data-grid-container .data-grid .cell > .text {
-          padding: 2px 5px;
-          text-overflow: ellipsis;
-          overflow: hidden;
-        }
-
-        .data-grid-container .data-grid .cell > input {
-          outline: none !important;
-          border: 2px solid rgb(33, 133, 208);
-          text-align: right;
-          width: calc(100% - 6px);
-          height: 11px;
-          background: none;
-          display: block;
-        }
-
-        .data-grid-container .data-grid .cell {
-          vertical-align: bottom;
-        }
-
-        .data-grid-container .data-grid .cell,
-        .data-grid-container .data-grid.wrap .cell,
-        .data-grid-container .data-grid.wrap .cell.wrap,
-        .data-grid-container .data-grid .cell.wrap,
-        .data-grid-container .data-grid.nowrap .cell.wrap,
-        .data-grid-container .data-grid.clip .cell.wrap {
-          white-space: normal;
-          padding: 4px;
-          text-align: center;
-        }
-
-        .data-grid-container .data-grid.nowrap .cell,
-        .data-grid-container .data-grid.nowrap .cell.nowrap,
-        .data-grid-container .data-grid .cell.nowrap,
-        .data-grid-container .data-grid.wrap .cell.nowrap,
-        .data-grid-container .data-grid.clip .cell.nowrap {
-          white-space: nowrap;
-          overflow-x: visible;
-        }
-
-        .data-grid-container .data-grid.clip .cell,
-        .data-grid-container .data-grid.clip .cell.clip,
-        .data-grid-container .data-grid .cell.clip,
-        .data-grid-container .data-grid.wrap .cell.clip,
-        .data-grid-container .data-grid.nowrap .cell.clip {
-          white-space: nowrap;
-          overflow-x: hidden;
-        }
-
-        .data-grid-container .data-grid .cell .value-viewer,
-        .data-grid-container .data-grid .cell .data-editor {
-          display: block;
-          font-size: 16px;
-          border: 0;
-          padding: 0;
-          height: auto;
-        }
-      `}</style>
     </>
   )
-}
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  if (!allowAccessFor(context.req.headers.authorization, ['kancelaria'])) {
-    context.res.statusCode = 401
-    context.res.setHeader('WWW-Authenticate', 'Basic')
-    context.res.end('Unauthorized')
-    return
-  }
-
-  return {
-    props: {},
-  }
 }
 
 export default CreateLabResult
