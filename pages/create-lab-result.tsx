@@ -5,7 +5,7 @@ import produce from 'immer'
 import {useRouter} from 'next/router'
 import React, {useCallback, useEffect, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
-import DatasheetTable from '../components/DatasheetTable'
+import DatasheetTable, {GridElement} from '../components/DatasheetTable'
 import CellLegend, {CellType} from '../components/lab/CellLegend'
 import Layout from '../components/Layout'
 import {
@@ -18,13 +18,6 @@ import {
   removeInvalidSampleCode,
 } from '../utils/helpers'
 import {createGridBodySchema} from '../utils/validations'
-
-export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
-  value: string | null
-  readonly?: boolean
-  className?: string
-  cellStatus?: CellType
-}
 
 const removeInvalidSampleCodeCells = (grid: GridElement[][]) => {
   for (let r = 0; r < grid.length; r++) {

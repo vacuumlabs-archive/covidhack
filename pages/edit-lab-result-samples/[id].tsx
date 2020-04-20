@@ -9,33 +9,26 @@ import {
 } from '@material-ui/core'
 import LoadingIcon from '@material-ui/core/CircularProgress'
 import Alert from '@material-ui/lab/Alert'
-import produce from 'immer'
 import {GetServerSideProps} from 'next'
 import Router from 'next/router'
 import React, {useCallback, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
+import DatasheetTable, {GridElement} from '../../components/DatasheetTable'
 import Layout from '../../components/Layout'
 import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
 import {addFrame, mapLabResultsToGrid, removeFrame} from '../../utils/helpers'
 
-export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
-  value: string | null
-  positive?: boolean
-  readOnly: boolean
-}
-
-class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
-
 type Props = {
   grid: GridWithLabResultsQueryQuery
 }
 
 const EditLabResultSamples = ({grid}: Props) => {
+  const [selected, setSelected] = useState<ReactDataSheet.Selection>(null)
   const [isSavingCells, setIsSavingCells] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  const [labResultDataTable, setLabResultDataTable] = useState(
+  const [labResultDataTable, setLabResultDataTable] = useState<GridElement[][]>(
     addFrame(mapLabResultsToGrid(grid.lab_result)),
   )
 
@@ -147,19 +140,11 @@ const EditLabResultSamples = ({grid}: Props) => {
             tabuľke prepíšete a zmeny uložíte.
           </Alert>
 
-          <MyReactDataSheet
-            data={labResultDataTable}
-            valueRenderer={(cell) => cell.value}
-            valueViewer={valueViewer}
-            onCellsChanged={(changes) => {
-              setLabResultDataTable(
-                produce(labResultDataTable, (draft) => {
-                  changes.forEach(({row, col, value}) => {
-                    draft[row][col] = {...draft[row][col], value}
-                  })
-                }),
-              )
-            }}
+          <DatasheetTable
+            grid={labResultDataTable}
+            setGrid={setLabResultDataTable}
+            selected={selected}
+            onSelected={setSelected}
           />
           <div className="button-panel">
             <Button
