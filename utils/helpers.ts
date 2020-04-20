@@ -1,6 +1,6 @@
 import produce from 'immer'
 import _ from 'lodash'
-import {CellType} from '../components/lab/MarkCellsDialog'
+import {CellType} from '../components/lab/CellLegend'
 import {Lab_Result} from './graphqlSdk'
 
 export const gridRows = 8

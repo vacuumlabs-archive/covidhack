@@ -7,7 +7,7 @@ import {GetServerSideProps} from 'next'
 import {useRouter} from 'next/router'
 import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
-import {CellType} from '../components/lab/MarkCellsDialog'
+import CellLegend, {CellType, LAB_TABLE_BACKGROUNDS} from '../components/lab/CellLegend'
 import Layout from '../components/Layout'
 import {allowAccessFor} from '../utils/auth'
 import {
@@ -28,14 +28,6 @@ export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
 }
 
 class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
-
-const LAB_TABLE_BACKGROUNDS: Record<CellType, string> = {
-  normal: 'unset',
-  broken: 'yellow',
-  positiveControl: 'lightgreen',
-  negativeControl: 'lightcoral',
-  internalControl: 'lightblue',
-}
 
 const CreateLabResult = () => {
   const [grid, setGrid] = useState<GridElement[][]>(addFrame(createEmptyGrid()))
@@ -222,46 +214,10 @@ const CreateLabResult = () => {
               valueViewer={valueViewer}
             />
             <div className="button-panel-wrapper">
-              <div style={{marginTop: 16}}>
-                <span
-                  onClick={() => setSelectedCellsStatus('normal')}
-                  className={'legendEntry'}
-                  style={{
-                    borderLeft: '1px solid gray',
-                    backgroundColor: LAB_TABLE_BACKGROUNDS['normal'],
-                  }}
-                >
-                  Normálne políčko
-                </span>
-                <span
-                  onClick={() => setSelectedCellsStatus('positiveControl')}
-                  className={'legendEntry'}
-                  style={{backgroundColor: LAB_TABLE_BACKGROUNDS['positiveControl']}}
-                >
-                  Pozitívna kontrola
-                </span>
-                <span
-                  onClick={() => setSelectedCellsStatus('negativeControl')}
-                  className={'legendEntry'}
-                  style={{backgroundColor: LAB_TABLE_BACKGROUNDS['negativeControl']}}
-                >
-                  Negatívna kontrola
-                </span>
-                <span
-                  onClick={() => setSelectedCellsStatus('internalControl')}
-                  className={'legendEntry'}
-                  style={{backgroundColor: LAB_TABLE_BACKGROUNDS['internalControl']}}
-                >
-                  Interná kontrola
-                </span>
-                <span
-                  onClick={() => setSelectedCellsStatus('broken')}
-                  className={'legendEntry'}
-                  style={{backgroundColor: LAB_TABLE_BACKGROUNDS['broken']}}
-                >
-                  Nefunkčné políčko
-                </span>
-              </div>
+              <CellLegend
+                onSetSelectedCellsStatus={setSelectedCellsStatus}
+                style={{marginTop: 16}}
+              />
               <div className="button-panel">
                 <Button
                   variant="contained"
@@ -295,15 +251,6 @@ const CreateLabResult = () => {
         .button-panel {
           margin: 8px 0;
           margin-left: auto;
-        }
-
-        .legendEntry {
-          padding: 8px;
-          text-align: center;
-          vertical-align: middle;
-          cursor: pointer;
-          border: 1px solid gray;
-          border-left: unset;
         }
 
         .img {
