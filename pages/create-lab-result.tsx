@@ -2,7 +2,7 @@ import {Button, Paper, TextField} from '@material-ui/core'
 import LoadingIcon from '@material-ui/core/CircularProgress'
 import Alert from '@material-ui/lab/Alert'
 import produce from 'immer'
-import {useRouter} from 'next/router'
+import Router from 'next/router'
 import React, {useCallback, useEffect, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
 import DatasheetTable, {GridElement} from '../components/DatasheetTable'
@@ -33,12 +33,18 @@ const removeInvalidSampleCodeCells = (grid: GridElement[][]) => {
 const CreateLabResult = () => {
   const [selected, onSelect] = useState<ReactDataSheet.Selection>(null)
   const [grid, setGrid] = useState<GridElement[][]>(addFrame(createEmptyGrid()))
-  const router = useRouter()
   const [title, setTitle] = useState<string>('')
-  const [error, setError] = useState('')
+  const [titleValidationEnabled, setTitleValidationEnabled] = useState<boolean>(false)
   const [submitting, setSubmitting] = useState(false)
+
+  const titleInWrongFormat = !title.match(/^.*\/.*\/.*$/)
+
   const submit = useCallback(async () => {
-    setError('')
+    if (titleInWrongFormat) {
+      setTitleValidationEnabled(true)
+      return
+    }
+
     setSubmitting(true)
     const body = {
       grid: removeInvalidSampleCodeCells(removeFrame(grid)),
@@ -46,11 +52,6 @@ const CreateLabResult = () => {
     }
 
     try {
-      if (!title.match(/^.*\/.*\/.*$/)) {
-        throw new Error(
-          'Názov testu musí mať formát: laboratórium/kód-testovaceho-stroja/meno-laboranta',
-        )
-      }
       createGridBodySchema.validateSync(body)
       const response = await fetch('/api/create-grid', {
         method: 'POST',
@@ -60,19 +61,16 @@ const CreateLabResult = () => {
         body: JSON.stringify(body),
       })
       if (response.ok) {
-        router.push('/')
+        Router.push('/')
       } else {
         throw response
       }
     } catch (e) {
       setSubmitting(false)
-      if (e && e.message) {
-        setError(e.message)
-      } else {
-        setError('Something went wrong, please try again.')
-      }
+      // TODO: solve error handling
+      // setError('Nastala neznáma chyba, prosím skúste akciu zopakovať.')
     }
-  }, [grid, router, title])
+  }, [grid, title, titleInWrongFormat])
 
   const setSelectedCellsStatus = useCallback(
     (cellType: CellType) => {
@@ -131,8 +129,15 @@ const CreateLabResult = () => {
             label="Laboratórium/Kód testovaceho stroja/Meno laboranta"
             variant="outlined"
             onChange={(e) => {
+              setTitleValidationEnabled(true)
               setTitle(e.target.value)
             }}
+            error={titleValidationEnabled && titleInWrongFormat}
+            helperText={
+              titleValidationEnabled &&
+              titleInWrongFormat &&
+              'Názov testu musí mať formát: laboratórium/kód-testovaceho-stroja/meno-laboranta'
+            }
           />
 
           <Alert severity="info" style={{marginTop: 8}}>
@@ -174,7 +179,7 @@ const CreateLabResult = () => {
                 </Button>
               </div>
             </div>
-            <div style={{color: 'red'}}>{error}</div>
+            {/* TODO: <div style={{color: 'red'}}>{error}</div> */}
           </div>
         </Paper>
       </Layout>
