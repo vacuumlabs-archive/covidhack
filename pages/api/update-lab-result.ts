@@ -14,7 +14,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const validBody = updateLabResultBodySchema.validateSync(req.body, {stripUnknown: true})
   // some manual validation as yup's oneOf does not work that great with typescript
   // the idea is that we expect to update either 'positive' or 'sampleCode', never both
-  if (validBody.positive && validBody.sampleCode) {
+  if (validBody.positive !== undefined && validBody.sampleCode !== undefined) {
     return res.status(400).end()
   } else if (typeof validBody.positive === 'boolean') {
     const a = await client.UpdateLabResultPositiveMutation(validBody)
@@ -22,7 +22,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const result = await client.GridWithLabResultsQuery({id: validBody.gridId})
 
     res.end(JSON.stringify(result))
-  } else if (validBody.sampleCode) {
+  } else if (validBody.sampleCode !== undefined) {
     await client.UpdateLabResultSampleCodeMutation(validBody)
     // return the grid query to use for updating local cache
     const result = await client.GridWithLabResultsQuery({id: validBody.gridId})

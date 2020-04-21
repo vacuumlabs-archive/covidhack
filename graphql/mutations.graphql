@@ -37,10 +37,11 @@ mutation UpdateLabResultSampleCodeMutation(
   $gridId: uuid!
   $column: Int!
   $row: Int!
-  $sampleCode: String!
+  $sampleCode: String
+  $cellStatus: String
 ) {
   update_lab_result(
-    _set: {sample_code: $sampleCode}
+    _set: {sample_code: $sampleCode, cell_status: $cellStatus}
     where: {
       referenced_in_grid_id: {_eq: $gridId}
       _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}
@@ -74,12 +75,6 @@ mutation UpdateGridMutation($id: uuid!, $changes: grid_set_input!) {
 
 mutation DeleteGridMutation($id: uuid!) {
   delete_grid(where: {id: {_eq: $id}}) {
-    affected_rows
-  }
-}
-
-mutation DeleteLabResultMutation($id: uuid!) {
-  delete_lab_result(where: {id: {_eq: $id}}) {
     affected_rows
   }
 }
