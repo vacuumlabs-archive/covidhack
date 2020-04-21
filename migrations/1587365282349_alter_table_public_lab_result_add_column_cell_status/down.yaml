@@ -1,0 +1,5 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."lab_result" DROP COLUMN "cell_status";
+  type: run_sql

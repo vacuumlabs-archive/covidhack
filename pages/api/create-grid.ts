@@ -23,14 +23,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const labResults: Lab_Result_Insert_Input[] = []
     validBody.grid.forEach((row, i) => {
       row.forEach((cell, j) => {
-        if (cell.value) {
-          labResults.push({
-            row: i,
-            column: j,
-            sample_code: cell.value,
-            referenced_in_grid_id: validBody.id,
-          })
-        }
+        labResults.push({
+          row: i,
+          column: j,
+          sample_code: cell.value,
+          referenced_in_grid_id: validBody.id,
+          cell_status: cell.cellStatus,
+        })
       })
     })
 

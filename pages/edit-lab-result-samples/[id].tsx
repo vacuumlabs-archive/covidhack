@@ -14,28 +14,23 @@ import {GetServerSideProps} from 'next'
 import Router from 'next/router'
 import React, {useCallback, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
+import DatasheetTable, {GridElement} from '../../components/DatasheetTable'
+import {CellType} from '../../components/lab/CellLegend'
 import Layout from '../../components/Layout'
 import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
 import {addFrame, mapLabResultsToGrid, removeFrame} from '../../utils/helpers'
 
-export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
-  value: string | null
-  positive?: boolean
-  readOnly: boolean
-}
-
-class MyReactDataSheet extends ReactDataSheet<GridElement, string> {}
-
 type Props = {
   grid: GridWithLabResultsQueryQuery
 }
 
 const EditLabResultSamples = ({grid}: Props) => {
+  const [selected, setSelected] = useState<ReactDataSheet.Selection>(null)
   const [isSavingCells, setIsSavingCells] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  const [labResultDataTable, setLabResultDataTable] = useState(
+  const [labResultDataTable, setLabResultDataTable] = useState<GridElement[][]>(
     addFrame(mapLabResultsToGrid(grid.lab_result)),
   )
 
@@ -51,18 +46,7 @@ const EditLabResultSamples = ({grid}: Props) => {
     [],
   )
 
-  const removeLabResult = useCallback(
-    (props) =>
-      fetch('/api/remove-lab-result', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(props),
-      }).then((r) => r.json()),
-    [],
-  )
-
+  // TODO: for now let's not show the positive/negative in this page. Lets wait or feedback
   const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback((props) => {
     const isFrame = props.row === 0 || props.col === 0
     const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
@@ -77,12 +61,32 @@ const EditLabResultSamples = ({grid}: Props) => {
     )
   }, [])
 
+  const setSelectedCellsStatus = useCallback(
+    (cellType: CellType) => {
+      setLabResultDataTable(
+        produce(labResultDataTable, (draft) => {
+          if (!selected) return draft
+          for (let i = selected.start.i; i <= selected.end.i; i++) {
+            for (let j = selected.start.j; j <= selected.end.j; j++) {
+              // ignoring frame
+              if (i === 0 || j === 0) continue
+              draft[i][j].cellStatus = cellType
+            }
+          }
+        }),
+      )
+    },
+    [labResultDataTable, selected],
+  )
+
+  const isChangedCell = (currentCell: GridElement, initialCell: GridElement) =>
+    currentCell.value !== initialCell.value || currentCell.cellStatus !== initialCell.cellStatus
   const anyCellChange = () => {
     const initial = mapLabResultsToGrid(grid.lab_result)
     let changed = false
-    removeFrame(labResultDataTable).forEach((row, r) =>
-      row.forEach((cell: any, c) => {
-        if (cell.value !== initial[r][c].value) {
+    removeFrame(labResultDataTable).forEach((row: GridElement[], r) =>
+      row.forEach((cell, c) => {
+        if (isChangedCell(cell, initial[r][c])) {
           changed = true
         }
       }),
@@ -94,9 +98,9 @@ const EditLabResultSamples = ({grid}: Props) => {
   if (!grid) return <div />
   return (
     <>
-      <Layout isFormPage>
+      <Layout isFormPage headerTitle="Upraviť políčka tabuľky">
         <Dialog open={showConfirmDialog} onClose={() => setShowConfirmDialog(false)}>
-          <DialogTitle>Upraviť čísla vzoriek</DialogTitle>
+          <DialogTitle>Upraviť políčka tabuľky</DialogTitle>
           <DialogContent>
             <DialogContentText>Naozaj si prajete uložiť zmeny?</DialogContentText>
           </DialogContent>
@@ -110,24 +114,17 @@ const EditLabResultSamples = ({grid}: Props) => {
                 const promises = []
                 removeFrame(labResultDataTable).forEach((row, r) =>
                   row.forEach((cell: any, c) => {
-                    if (cell.value !== initial[r][c].value) {
-                      // update lab result won't accept empty sample code
-                      if (cell.value) {
-                        promises.push(
-                          updateLabResult({
-                            gridId: grid.grid_by_pk.id,
-                            column: c,
-                            row: r,
-                            sampleCode: cell.value,
-                          }),
-                        )
-                      } else {
-                        promises.push(
-                          removeLabResult({
-                            id: cell.labResultId,
-                          }),
-                        )
-                      }
+                    if (isChangedCell(cell, initial[r][c])) {
+                      const newCellValue = cell.value === '' ? null : cell.value
+                      promises.push(
+                        updateLabResult({
+                          gridId: grid.grid_by_pk.id,
+                          column: c,
+                          row: r,
+                          sampleCode: newCellValue,
+                          cellStatus: newCellValue !== null ? 'normal' : cell.cellStatus,
+                        }),
+                      )
                     }
                   }),
                 )
@@ -162,24 +159,19 @@ const EditLabResultSamples = ({grid}: Props) => {
           }}
         >
           <Alert severity="warning" style={{marginBottom: 8}}>
-            Ak ste sa pomýlili v číslach vzoriek, tu ich môžete opraviť. Stačí, ak čísla vzoriek v
-            tabuľke prepíšete a zmeny uložíte.
+            Ak ste sa pomýlili v číslach vzoriek alebo označení špeciálnych políčok, tu ich môžete
+            opraviť. Stačí, ak vykonáte potrebné úpravy a zmeny uložíte.
           </Alert>
 
-          <MyReactDataSheet
-            data={labResultDataTable}
-            valueRenderer={(cell) => cell.value}
-            valueViewer={valueViewer}
-            onCellsChanged={(changes) => {
-              setLabResultDataTable(
-                produce(labResultDataTable, (draft) => {
-                  changes.forEach(({row, col, value}) => {
-                    draft[row][col] = {...draft[row][col], value}
-                  })
-                }),
-              )
-            }}
+          <DatasheetTable
+            grid={labResultDataTable}
+            setGrid={setLabResultDataTable}
+            selected={selected}
+            onSelected={setSelected}
+            onSetSelectedCellsStatus={setSelectedCellsStatus}
+            selectable={true}
           />
+
           <div className="button-panel">
             <Button
               variant="contained"

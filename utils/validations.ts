@@ -11,7 +11,8 @@ export const updateLabResultBodySchema = yup
     column: yup.number().required(),
     row: yup.number().required(),
     positive: yup.boolean(),
-    sampleCode: yup.string(),
+    sampleCode: yup.string().nullable(),
+    cellStatus: yup.string().nullable(),
   })
   .noUnknown()
 
@@ -42,7 +43,11 @@ export const gridSchema = yup
       .of(
         yup
           .object()
-          .shape({value: yup.string().ensure(), positive: yup.boolean()})
+          .shape({
+            value: yup.string().nullable(),
+            positive: yup.boolean(),
+            cellStatus: yup.string(),
+          })
           .noUnknown(),
       ),
   )

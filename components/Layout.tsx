@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import React from 'react'
 import {pageMetaDefaults} from '../utils/constants'
+import Header from './Header'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -9,6 +10,7 @@ interface LayoutProps {
   pageTitle?: string
   pageDescription?: string
   pageKeywords?: string
+  headerTitle: string
 }
 
 const Layout = (props: LayoutProps) => (
@@ -35,7 +37,7 @@ const Layout = (props: LayoutProps) => (
       <meta name="theme-color" content="#ffffff" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     </Head>
-    {/* <Header /> */}
+    <Header title={props.headerTitle} />
     {props.children}
     <style jsx global>{`
       body {

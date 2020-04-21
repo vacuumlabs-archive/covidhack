@@ -17,11 +17,17 @@ import {GetServerSideProps} from 'next'
 import Router from 'next/router'
 import React, {useCallback, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
+import CellLegend, {LAB_TABLE_BACKGROUNDS} from '../../components/lab/CellLegend'
 import Layout from '../../components/Layout'
 import {allowAccessFor} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
-import {addFrame, mapLabResultsToGrid, removeFrame} from '../../utils/helpers'
+import {
+  addFrame,
+  isValidSampleCodeCell,
+  mapLabResultsToGrid,
+  removeFrame,
+} from '../../utils/helpers'
 import {printLabDoc} from '../../utils/pdf/pdf'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
@@ -70,10 +76,13 @@ const EditLabResult = ({grid}: Props) => {
 
   const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback((props) => {
     const isFrame = props.row === 0 || props.col === 0
+    const specialCellBackgroundStyle = props.cell.cellStatus
+      ? {backgroundColor: LAB_TABLE_BACKGROUNDS[props.cell.cellStatus]}
+      : {}
     const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
     const frameStyle = isFrame ? {background: 'whitesmoke', color: '#999'} : {}
     return (
-      <div style={{...backgroundStyle, ...frameStyle}}>
+      <div style={{...specialCellBackgroundStyle, ...backgroundStyle, ...frameStyle}}>
         {props.cell.value}
         {/* a super hacky fix - the div (with color) did not render when value was empty,  add text with opacity 0 to force it */}
         {/* TODO correct way to do this is with cellRenderer, but having that always breaks drag-selection */}
@@ -87,7 +96,9 @@ const EditLabResult = ({grid}: Props) => {
       // dont edit finished and dont add on frame
       const isFrame = props.row === 0 || props.col === 0
       const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
-      const cursorStyle = {cursor: 'pointer'}
+      const cursorStyle = isValidSampleCodeCell(props.cell)
+        ? {cursor: 'pointer'}
+        : {cursor: 'not-allowed'}
       const frameStyle = isFrame ? {background: 'whitesmoke', color: '#999'} : {}
       return (
         <td
@@ -95,7 +106,9 @@ const EditLabResult = ({grid}: Props) => {
           onMouseDown={() =>
             setLabResultDataTable(
               produce(labResultDataTable, (data: any) => {
-                data[props.row][props.col].positive = !props.cell.positive
+                if (isValidSampleCodeCell(props.cell)) {
+                  data[props.row][props.col].positive = !props.cell.positive
+                }
               }),
             )
           }
@@ -126,7 +139,7 @@ const EditLabResult = ({grid}: Props) => {
   if (!grid) return <div />
   return (
     <>
-      <Layout isFormPage>
+      <Layout isFormPage headerTitle="Upraviť laboratórny test">
         <Dialog open={showRemoveDialog} onClose={() => setShowRemoveDialog(false)}>
           <DialogTitle>Vymazať test</DialogTitle>
           <DialogContent>
@@ -173,8 +186,8 @@ const EditLabResult = ({grid}: Props) => {
           }}
         >
           <Alert severity="info" style={{marginBottom: 8}}>
-            Pozitívne vzorky označte kliknutím na políčka v tabuľke. V tabuľke sa takéto vzorky
-            vyznačia červeným pozadím.
+            Pozitívne vzorky označte kliknutím na políčka s číslom vzorky v tabuľke. V tabuľke sa
+            takéto vzorky vyznačia červeným pozadím.
           </Alert>
           <TextField
             autoFocus
@@ -193,6 +206,8 @@ const EditLabResult = ({grid}: Props) => {
             valueViewer={valueViewer}
             cellRenderer={cellRenderer}
           />
+          {/* TODO: ablity to edit cell status */}
+          <CellLegend onSetSelectedCellsStatus={() => console.log('aa')} />
           <div className="button-panel">
             <Button
               variant="contained"

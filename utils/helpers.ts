@@ -1,5 +1,6 @@
 import produce from 'immer'
 import _ from 'lodash'
+import {CellType} from '../components/lab/CellLegend'
 import {Lab_Result} from './graphqlSdk'
 
 export const gridRows = 8
@@ -14,6 +15,7 @@ export const createEmptyGrid = () =>
       value: '',
       readOnly: false,
       labResultId: null,
+      cellStatus: 'normal' as CellType,
     })),
   )
 
@@ -26,6 +28,7 @@ export const mapLabResultsToGrid = (labResults: Lab_Result[]) => {
       positive: result.positive,
       readOnly: false,
       labResultId: result.id,
+      cellStatus: (result.cell_status || 'normal') as CellType,
     }
   })
   return grid
@@ -41,7 +44,7 @@ type GridElement = {
   value: string | null
   readonly?: boolean
   className?: string
-  broken?: boolean
+  cellStatus?: CellType
 }
 
 type Location = {
@@ -62,7 +65,7 @@ export const autofillGrid = (
       // start from the initial cell in first iteration, then continue from top
       const rowIterationStart = j === start.j ? start.i : 1
       for (let i = rowIterationStart; i <= gridRows; i++) {
-        if (draft[i][j].broken) continue
+        if (draft[i][j].cellStatus !== 'normal') continue
         // we should not overwrite any values while doing this, except the initial one  which is used as seed
         if (draft[i][j].value) {
           if (i !== start.i && j !== start.j) {
@@ -120,3 +123,12 @@ export const mapValuesAsync = async (
 
   return ans
 }
+
+export const removeInvalidSampleCode = (cell: GridElement) => {
+  // only normal cells are allowed to have sample code
+  if (cell.cellStatus !== 'normal' || cell.value === '') return {...cell, value: null}
+  else return cell
+}
+
+export const isValidSampleCodeCell = (cell: GridElement) =>
+  cell.cellStatus === 'normal' && cell.value !== null && cell.value !== ''

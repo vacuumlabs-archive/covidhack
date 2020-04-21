@@ -8,7 +8,7 @@ const OfficePage = () => {
   const password = useSelector((state) => state.officePassword)
 
   return (
-    <Layout>
+    <Layout headerTitle="Kancelária">
       {!password && <OfficePassword />}
       {password && <Dashboard />}
     </Layout>

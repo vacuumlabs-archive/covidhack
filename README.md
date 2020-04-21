@@ -134,35 +134,6 @@ Afterwards run `yarn generate` - you will find your query exported as a function
 
 Check out [yup](https://github.com/jquense/yup). Import the same validation schemas on frontend and backend, types will get inferred automatically.
 
-## Flexsearch
-
-We're using [flexsearch](https://github.com/nextapps-de/flexsearch) to do frontend full-text search on top of categories (services) and sub-categories in which trademark can be registered.
-
-This works by associating an `id` with each record (be it category or subcategory name) and building an index to quickly search on top of these `id: string` pairs (see flexsearch docs for details and more info on what can actually be searched).
-
-### Generating the ids
-
-The search algorithm returns only an array of matched ids.
-
-Thus, we need unique identificators for each string that we can match easily back into our categories and subcategories - these are stored in arrays so what we need is the ability to index into these arrays just by reading the id.
-
-The indexes are stored into ids the following way
-
-```
-id = categoryId * 10000 // for categories
-id = (categoryId * 10000) + (subcategoryId + 1) // for subcategories
-```
-
-You can reverse this process to get to correct (sub)category as `categories[categoryId].categories[subcategoryId]`.
-
-**If you edit categories in `categories.ts`, you will also have re-generate the `flexsearchCategoriesIndex.json` file to match the changes. Code to do that can be found commented out on top of `categories.ts`.**
-
-`latinize` fn is ran before indexing so that we work without accents and diacritics - same function should be run on the search query itself.
-
-#### Index file
-
-`public/flexsearchCategoriesIndex.json` is rather large (1.8mb) and currently a part fo the app package. This can be improved upon by tweaking flexsearch, and removing it from the package :).
-
 ---
 
 Forked from here https://github.com/mpinter/nextjs-wordpress, check it out if you need wordpress integration.
