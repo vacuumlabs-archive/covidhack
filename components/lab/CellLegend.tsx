@@ -5,12 +5,12 @@ import React from 'react'
 
 const useStyles = makeStyles({
   legendEntry: {
-    padding: 8,
     textAlign: 'center',
     verticalAlign: 'middle',
-  },
-  selectable: {
-    cursor: 'pointer',
+    color: 'rgba(0, 0, 0, 0.87) !important',
+    border: '1px solid gray',
+    borderLeft: 'unset',
+    borderRadius: '0 !important',
   },
 })
 
@@ -43,8 +43,10 @@ const CellLegend = ({onSetSelectedCellsStatus, selectable}: Props) => {
         size="small"
         variant="contained"
         onClick={() => onSetSelectedCellsStatus('normal')}
-        className={classnames(classes.legendEntry, selectable && classes.selectable)}
+        className={classnames(classes.legendEntry)}
+        disabled={!selectable}
         style={{
+          borderLeft: '1px solid gray',
           backgroundColor: LAB_TABLE_BACKGROUNDS['normal'],
         }}
       >
@@ -54,7 +56,8 @@ const CellLegend = ({onSetSelectedCellsStatus, selectable}: Props) => {
         size="small"
         variant="contained"
         onClick={() => onSetSelectedCellsStatus('positiveControl')}
-        className={classnames(classes.legendEntry, selectable && classes.selectable)}
+        className={classnames(classes.legendEntry)}
+        disabled={!selectable}
         style={{backgroundColor: LAB_TABLE_BACKGROUNDS['positiveControl']}}
       >
         Pozitívna kontrola
@@ -63,7 +66,8 @@ const CellLegend = ({onSetSelectedCellsStatus, selectable}: Props) => {
         size="small"
         variant="contained"
         onClick={() => onSetSelectedCellsStatus('negativeControl')}
-        className={classnames(classes.legendEntry, selectable && classes.selectable)}
+        className={classnames(classes.legendEntry)}
+        disabled={!selectable}
         style={{backgroundColor: LAB_TABLE_BACKGROUNDS['negativeControl']}}
       >
         Negatívna kontrola
@@ -72,7 +76,8 @@ const CellLegend = ({onSetSelectedCellsStatus, selectable}: Props) => {
         size="small"
         variant="contained"
         onClick={() => onSetSelectedCellsStatus('internalControl')}
-        className={classnames(classes.legendEntry, selectable && classes.selectable)}
+        className={classnames(classes.legendEntry)}
+        disabled={!selectable}
         style={{backgroundColor: LAB_TABLE_BACKGROUNDS['internalControl']}}
       >
         Interná kontrola
@@ -81,7 +86,8 @@ const CellLegend = ({onSetSelectedCellsStatus, selectable}: Props) => {
         size="small"
         variant="contained"
         onClick={() => onSetSelectedCellsStatus('broken')}
-        className={classnames(classes.legendEntry, selectable && classes.selectable)}
+        className={classnames(classes.legendEntry)}
+        disabled={!selectable}
         style={{backgroundColor: LAB_TABLE_BACKGROUNDS['broken']}}
       >
         Nefunkčné políčko
