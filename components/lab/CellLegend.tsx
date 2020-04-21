@@ -8,8 +8,8 @@ const useStyles = makeStyles({
     textAlign: 'center',
     verticalAlign: 'middle',
     color: 'rgba(0, 0, 0, 0.87) !important',
-    border: '1px solid gray',
-    borderLeft: 'unset',
+    border: '1px solid gray !important',
+    borderLeft: 'unset !important',
     borderRadius: '0 !important',
   },
 })
@@ -46,7 +46,7 @@ const CellLegend = ({onSetSelectedCellsStatus, selectable}: Props) => {
         className={classnames(classes.legendEntry)}
         disabled={!selectable}
         style={{
-          borderLeft: '1px solid gray',
+          borderLeft: '1px solid gray !important',
           backgroundColor: LAB_TABLE_BACKGROUNDS['normal'],
         }}
       >

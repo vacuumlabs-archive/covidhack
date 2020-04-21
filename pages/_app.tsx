@@ -18,8 +18,8 @@ function App({Component, pageProps}: AppProps) {
   }
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
+      <CssBaseline />
       <ReduxProvider store={store}>
-        <CssBaseline />
         <Component {...pageProps} />
       </ReduxProvider>
     </MuiPickersUtilsProvider>
