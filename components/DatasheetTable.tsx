@@ -1,7 +1,8 @@
 import produce from 'immer'
-import {isEmpty} from 'lodash'
-import React, {useCallback, useMemo} from 'react'
+import {groupBy, isEmpty} from 'lodash'
+import React, {useCallback, useEffect, useMemo} from 'react'
 import ReactDataSheet from 'react-datasheet'
+import {removeFrame} from '../utils/helpers'
 import CellLegend, {
   CellType,
   LAB_TABLE_BACKGROUNDS,
@@ -20,6 +21,51 @@ interface Props extends CellLegendProps {
   setGrid: (grid: GridElement[][]) => void
   selected: ReactDataSheet.Selection | null
   onSelected: (selected: ReactDataSheet.Selection | null) => void
+  onGridError: (msg: string | null) => void
+}
+
+const applyTableHeaderBackgroundOnSelection = (
+  draft: GridElement[][],
+  selected: ReactDataSheet.Selection | null,
+) => {
+  // if you select a cell and then shift click one of (start, end) is {}
+  if (!selected || isEmpty(selected.end) || isEmpty(selected.start)) return draft
+  for (let r = selected.start.i; r <= selected.end.i; r++) {
+    for (let c = selected.start.j; c <= selected.end.j; c++) {
+      // if you tab from last cell, you will end up in non-existent row
+      // or if you shift+tab from first cell
+      if (r >= 0 && r < draft.length) draft[r][0].className = 'selected'
+      if (c >= 0 && c < draft[0].length) draft[0][c].className = 'selected'
+    }
+  }
+}
+
+const DUPLICATE_SAMPLE_NUMBER_CLASSNAME = ' duplicationError '
+const applyDifferentSampleNumbersValidation = (draft: GridElement[][]) => {
+  const gridElements = []
+  removeFrame(draft).forEach((row) => {
+    row.forEach((cell) => {
+      gridElements.push(cell)
+    })
+  })
+
+  const setError = (elem: GridElement, shouldSetError: boolean) => {
+    elem.className = ''
+    const error = elem.className.includes(DUPLICATE_SAMPLE_NUMBER_CLASSNAME)
+    if (error && !shouldSetError) elem.className.replace(DUPLICATE_SAMPLE_NUMBER_CLASSNAME, '')
+    else if (!error && shouldSetError) elem.className += DUPLICATE_SAMPLE_NUMBER_CLASSNAME
+  }
+
+  const grouped = groupBy<GridElement>(
+    gridElements.filter((e) => e.value),
+    (elem) => elem.value,
+  )
+  Object.keys(grouped).forEach((key) => {
+    if (grouped[key].length === 1) setError(grouped[key][0], false)
+    else {
+      grouped[key].forEach((elem) => setError(elem, true))
+    }
+  })
 }
 
 const DatasheetTable = ({
@@ -29,24 +75,29 @@ const DatasheetTable = ({
   onSelected,
   onSetSelectedCellsStatus,
   selectable,
+  onGridError,
 }: Props) => {
   const gridToDisplay = useMemo(
     () =>
       produce(grid, (draft) => {
-        // if you select a cell and then shift click one of (start, end) is {}
-        if (!selected || isEmpty(selected.end) || isEmpty(selected.start)) return draft
-        for (let r = selected.start.i; r <= selected.end.i; r++) {
-          for (let c = selected.start.j; c <= selected.end.j; c++) {
-            // if you tab from last cell, you will end up in non-existent row
-            // or if you shift+tab from first cell
-            if (r >= 0 && r < draft.length) draft[r][0].className = 'selected'
-            if (c >= 0 && c < draft[0].length) draft[0][c].className = 'selected'
-          }
-        }
+        applyTableHeaderBackgroundOnSelection(draft, selected)
+        applyDifferentSampleNumbersValidation(draft)
         return draft
       }),
     [grid, selected],
   )
+
+  useEffect(() => {
+    let containsError = false
+    gridToDisplay.forEach((row) =>
+      row.forEach((cell) => {
+        if (cell.className?.includes(DUPLICATE_SAMPLE_NUMBER_CLASSNAME)) containsError = true
+      }),
+    )
+
+    if (containsError) onGridError('V mriežke sa nachádzajú rovnaké čísla vzoriek!')
+    else onGridError(null)
+  })
 
   // used for backgrounds only, because cellRenderer seems to break drag-to-select
   const valueViewer: ReactDataSheet.ValueViewer<GridElement, string> = useCallback((props) => {
@@ -74,6 +125,7 @@ const DatasheetTable = ({
             produce(grid, (draft) => {
               changes.forEach(({row, col, value}) => {
                 draft[row][col] = {...draft[row][col], value}
+                if (value) draft[row][col].cellStatus = 'normal'
               })
             }),
           )
@@ -100,6 +152,10 @@ const DatasheetTable = ({
         span.data-grid-container,
         span.data-grid-container:focus {
           outline: none;
+        }
+
+        .cell.duplicationError {
+          background-color: red !important;
         }
 
         .data-grid-container .data-grid {

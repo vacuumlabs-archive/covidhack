@@ -34,6 +34,7 @@ const CreateLabResult = () => {
   const [selected, onSelect] = useState<ReactDataSheet.Selection>(null)
   const [grid, setGrid] = useState<GridElement[][]>(addFrame(createEmptyGrid()))
   const [title, setTitle] = useState<string>('')
+  const [gridError, setGridError] = useState<string | null>(null)
   const [titleValidationEnabled, setTitleValidationEnabled] = useState<boolean>(false)
   const [submitting, setSubmitting] = useState(false)
 
@@ -44,6 +45,7 @@ const CreateLabResult = () => {
       setTitleValidationEnabled(true)
       return
     }
+    if (gridError) return
 
     setSubmitting(true)
     const body = {
@@ -70,7 +72,7 @@ const CreateLabResult = () => {
       // TODO: solve error handling
       // setError('Nastala neznáma chyba, prosím skúste akciu zopakovať.')
     }
-  }, [grid, title, titleInWrongFormat])
+  }, [grid, title, titleInWrongFormat, gridError])
 
   const setSelectedCellsStatus = useCallback(
     (cellType: CellType) => {
@@ -81,7 +83,8 @@ const CreateLabResult = () => {
             for (let j = selected.start.j; j <= selected.end.j; j++) {
               // ignoring frame
               if (i === 0 || j === 0) continue
-              draft[i][j].cellStatus = cellType
+              // ignoring filled numbers
+              if (!draft[i][j].value) draft[i][j].cellStatus = cellType
             }
           }
         }),
@@ -141,13 +144,13 @@ const CreateLabResult = () => {
           />
 
           <Alert severity="info" style={{marginTop: 8}}>
-            Na navigovanie po mriežke môžete použiť šípky na klávesnici. Políčka vyplnené žltým
-            pozadím predstavujú nefunkčné políčka.
+            Na navigovanie po mriežke môžete použiť šípky na klávesnici. Políčka vyplnené farbou
+            pozadím predstavujú špeciálne políčka.
           </Alert>
 
           <Alert severity="info" style={{marginTop: 8}}>
             Pre označenie špeciálnych políčok označte dané políčka tabuľky a zvoľte typ špeciálneho
-            políčka kliknutím na tlačítka v legende.
+            políčka kliknutím na tlačítka v legende. Špeciálne políčka sa preskakujú.
           </Alert>
 
           <Alert severity="info" style={{marginTop: 8, marginBottom: 8}}>
@@ -157,6 +160,12 @@ const CreateLabResult = () => {
             políčka sa preskakujú.
           </Alert>
 
+          {gridError && (
+            <Alert severity="error" style={{marginBottom: 8}}>
+              {gridError}
+            </Alert>
+          )}
+
           <div className="wrapper">
             <DatasheetTable
               grid={grid}
@@ -165,6 +174,7 @@ const CreateLabResult = () => {
               selected={selected}
               selectable={true}
               onSetSelectedCellsStatus={setSelectedCellsStatus}
+              onGridError={setGridError}
             />
             <div className="button-panel-wrapper">
               <div className="button-panel">
@@ -179,7 +189,6 @@ const CreateLabResult = () => {
                 </Button>
               </div>
             </div>
-            {/* TODO: <div style={{color: 'red'}}>{error}</div> */}
           </div>
         </Paper>
       </Layout>
