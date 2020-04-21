@@ -59,7 +59,7 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
 
   if (!application)
     return (
-      <Layout>
+      <Layout headerTitle="Kancelária">
         <div style={{textAlign: 'center', marginTop: '20px'}}>
           <CircularProgress />
         </div>
