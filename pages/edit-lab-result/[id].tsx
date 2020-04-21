@@ -1,13 +1,4 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Paper,
-  TextField,
-} from '@material-ui/core'
+import {Button, Paper, TextField} from '@material-ui/core'
 import LoadingIcon from '@material-ui/core/CircularProgress'
 import DeleteIcon from '@material-ui/icons/Delete'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
@@ -17,6 +8,7 @@ import {GetServerSideProps} from 'next'
 import Router from 'next/router'
 import React, {useCallback, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
+import ConfirmationDialog from '../../components/ConfirmationDialog'
 import CellLegend, {LAB_TABLE_BACKGROUNDS} from '../../components/lab/CellLegend'
 import Layout from '../../components/Layout'
 import {allowAccessFor} from '../../utils/auth'
@@ -46,6 +38,7 @@ const EditLabResult = ({grid}: Props) => {
   const [isSavingCells, setIsSavingCells] = useState(false)
   const [localTitle, setLocalTitle] = useState(grid.grid_by_pk.title)
   const [showRemoveDialog, setShowRemoveDialog] = useState(false)
+  const [showEditTableConfirmationDialog, setShowEditTableConfirmationDialog] = useState(false)
   const [labResultDataTable, setLabResultDataTable] = useState(
     addFrame(mapLabResultsToGrid(grid.lab_result)),
   )
@@ -140,41 +133,36 @@ const EditLabResult = ({grid}: Props) => {
   return (
     <>
       <Layout isFormPage headerTitle="Upraviť laboratórny test">
-        <Dialog open={showRemoveDialog} onClose={() => setShowRemoveDialog(false)}>
-          <DialogTitle>Vymazať test</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Naozaj si prajete test vymazať spolu so všetkými jeho vzorkami?
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={async () => {
-                const response = await fetch('/api/remove-grid', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({id: grid.grid_by_pk.id}),
-                })
-                setShowRemoveDialog(false)
-                Router.push('/')
-              }}
-              color="secondary"
-              variant="contained"
-            >
-              Áno
-            </Button>
-            <Button
-              onClick={() => setShowRemoveDialog(false)}
-              color="primary"
-              variant="contained"
-              autoFocus
-            >
-              Nie
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <ConfirmationDialog
+          open={showRemoveDialog}
+          setOpen={setShowRemoveDialog}
+          onConfirm={async () => {
+            // TODO: do something with the response (check error)
+            await fetch('/api/remove-grid', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({id: grid.grid_by_pk.id}),
+            })
+            setShowRemoveDialog(false)
+            Router.push('/')
+          }}
+          onCancel={() => setShowRemoveDialog(false)}
+          title="Vymazať test?"
+          description="Naozaj si prajete test vymazať spolu so všetkými jeho vzorkami?"
+        />
+
+        <ConfirmationDialog
+          open={showEditTableConfirmationDialog}
+          setOpen={setShowEditTableConfirmationDialog}
+          onConfirm={() => {
+            Router.push(`/edit-lab-result-samples/${grid.grid_by_pk.id}`)
+          }}
+          onCancel={() => setShowEditTableConfirmationDialog(false)}
+          title="Upraviť políčka tabuľky?"
+          description="Naozaj si prajete prejsť na stránku pre zmenu políčok v tabuľke? Prídete tým o práve vykonané zmeny."
+        />
 
         <Paper
           style={{
@@ -211,7 +199,13 @@ const EditLabResult = ({grid}: Props) => {
           <div className="button-panel">
             <Button
               variant="contained"
-              onClick={() => Router.push(`/edit-lab-result-samples/${grid.grid_by_pk.id}`)}
+              onClick={() => {
+                if (!containsChanges) {
+                  Router.push(`/edit-lab-result-samples/${grid.grid_by_pk.id}`)
+                } else {
+                  setShowEditTableConfirmationDialog(true)
+                }
+              }}
             >
               Opraviť čísla vzoriek
             </Button>
@@ -263,6 +257,8 @@ const EditLabResult = ({grid}: Props) => {
                 await Promise.all(promises)
                 Router.push('/')
               }}
+              // do not disable when there are no changes there will be no user action (apart from
+              // cliciking this button) if all samples are negative
               disabled={isSavingCells}
               startIcon={isSavingCells && <LoadingIcon style={{color: 'white'}} size={20} />}
             >
