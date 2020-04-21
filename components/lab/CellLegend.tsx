@@ -43,6 +43,8 @@ const useStyles = makeStyles({
   legendInternalControl: {
     backgroundColor: `${LAB_TABLE_BACKGROUNDS['internalControl']} !important`,
   },
+  // for hover colors I used https://www.w3schools.com/colors/colors_mixer.asp to mix a darker color
+  // version.
   legendButtonNormal: {
     '&:hover': {
       backgroundColor: '#d5d5d5', // default mui hover color
