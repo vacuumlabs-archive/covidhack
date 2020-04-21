@@ -1,11 +1,4 @@
-import {
-  Button,
-  CircularProgress,
-  DialogActions,
-  Paper,
-  TextField,
-  Typography,
-} from '@material-ui/core'
+import {Button, CircularProgress, DialogActions, Paper, TextField} from '@material-ui/core'
 import {DatePicker} from '@material-ui/pickers'
 import {makeStyles} from '@material-ui/styles'
 import {Form, Formik} from 'formik'
@@ -59,7 +52,7 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
 
   if (!application)
     return (
-      <Layout headerTitle="Kancelária">
+      <Layout headerTitle="Upraviť žiadosť">
         <div style={{textAlign: 'center', marginTop: '20px'}}>
           <CircularProgress />
         </div>
@@ -67,10 +60,7 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
     )
 
   return (
-    <Layout>
-      <Typography variant="h3" gutterBottom style={{textAlign: 'center'}}>
-        Upraviť žiadosť {application.sample_code}
-      </Typography>
+    <Layout headerTitle="Upraviť žiadosť">
       <Paper className={classes.paper}>
         <Formik
           initialValues={{
