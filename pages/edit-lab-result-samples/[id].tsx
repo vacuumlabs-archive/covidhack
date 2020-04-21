@@ -30,6 +30,7 @@ const EditLabResultSamples = ({grid}: Props) => {
   const [selected, setSelected] = useState<ReactDataSheet.Selection>(null)
   const [isSavingCells, setIsSavingCells] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [gridError, setGridError] = useState<string | null>(null)
   const [labResultDataTable, setLabResultDataTable] = useState<GridElement[][]>(
     addFrame(mapLabResultsToGrid(grid.lab_result)),
   )
@@ -70,7 +71,8 @@ const EditLabResultSamples = ({grid}: Props) => {
             for (let j = selected.start.j; j <= selected.end.j; j++) {
               // ignoring frame
               if (i === 0 || j === 0) continue
-              draft[i][j].cellStatus = cellType
+              // ignoring filled numbers
+              if (!draft[i][j].value) draft[i][j].cellStatus = cellType
             }
           }
         }),
@@ -163,6 +165,12 @@ const EditLabResultSamples = ({grid}: Props) => {
             opraviť. Stačí, ak vykonáte potrebné úpravy a zmeny uložíte.
           </Alert>
 
+          {gridError && (
+            <Alert severity="error" style={{marginBottom: 8}}>
+              {gridError}
+            </Alert>
+          )}
+
           <DatasheetTable
             grid={labResultDataTable}
             setGrid={setLabResultDataTable}
@@ -170,6 +178,7 @@ const EditLabResultSamples = ({grid}: Props) => {
             onSelected={setSelected}
             onSetSelectedCellsStatus={setSelectedCellsStatus}
             selectable={true}
+            onGridError={setGridError}
           />
 
           <div className="button-panel">
@@ -187,7 +196,7 @@ const EditLabResultSamples = ({grid}: Props) => {
               onClick={async () => {
                 setShowConfirmDialog(true)
               }}
-              disabled={!containsChanges || isSavingCells}
+              disabled={!containsChanges || !!gridError || isSavingCells}
               startIcon={isSavingCells && <LoadingIcon style={{color: 'white'}} size={20} />}
             >
               Uložiť zmeny
