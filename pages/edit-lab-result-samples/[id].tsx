@@ -98,7 +98,7 @@ const EditLabResultSamples = ({grid}: Props) => {
   if (!grid) return <div />
   return (
     <>
-      <Layout isFormPage>
+      <Layout isFormPage headerTitle="Upraviť políčka tabuľky">
         <Dialog open={showConfirmDialog} onClose={() => setShowConfirmDialog(false)}>
           <DialogTitle>Upraviť políčka tabuľky</DialogTitle>
           <DialogContent>

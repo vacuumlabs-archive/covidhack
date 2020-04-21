@@ -139,7 +139,7 @@ const EditLabResult = ({grid}: Props) => {
   if (!grid) return <div />
   return (
     <>
-      <Layout isFormPage>
+      <Layout isFormPage headerTitle="Upraviť laboratórny test">
         <Dialog open={showRemoveDialog} onClose={() => setShowRemoveDialog(false)}>
           <DialogTitle>Vymazať test</DialogTitle>
           <DialogContent>

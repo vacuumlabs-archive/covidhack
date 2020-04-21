@@ -114,7 +114,7 @@ const CreateLabResult = () => {
 
   return (
     <>
-      <Layout isFormPage>
+      <Layout isFormPage headerTitle="Nová mriežka">
         <Paper
           style={{
             minHeight: 'calc(100vh - 75px - 120px)',

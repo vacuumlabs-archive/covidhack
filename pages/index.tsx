@@ -12,7 +12,7 @@ interface Props {
 
 const Lab = (props: Props) => {
   return (
-    <Layout>
+    <Layout headerTitle="Laboratórium">
       <LabDashboard {...props} />
     </Layout>
   )

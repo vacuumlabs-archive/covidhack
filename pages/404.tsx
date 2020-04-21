@@ -4,7 +4,7 @@ import Layout from '../components/Layout'
 
 const Error404 = () => (
   <>
-    <Layout isFormPage>
+    <Layout isFormPage headerTitle="Stránka neexistuje">
       <div className="container">
         <div className="wrapper">
           <div className="img-wrapper">
