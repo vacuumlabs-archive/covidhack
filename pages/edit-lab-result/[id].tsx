@@ -145,7 +145,7 @@ const EditLabResult = ({grid}: Props) => {
                   body: JSON.stringify({id: grid.grid_by_pk.id}),
                 })
                 setShowRemoveDialog(false)
-                Router.push('/lab')
+                Router.push('/')
               }}
               color="secondary"
               variant="contained"
@@ -246,7 +246,7 @@ const EditLabResult = ({grid}: Props) => {
                   }),
                 )
                 await Promise.all(promises)
-                Router.push('/lab')
+                Router.push('/')
               }}
               disabled={isSavingCells}
               startIcon={isSavingCells && <LoadingIcon style={{color: 'white'}} size={20} />}
