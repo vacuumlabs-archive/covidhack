@@ -1,5 +1,6 @@
-import {Button, Paper, TextField} from '@material-ui/core'
+import {Button, IconButton, Paper, TextField} from '@material-ui/core'
 import LoadingIcon from '@material-ui/core/CircularProgress'
+import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import Alert from '@material-ui/lab/Alert'
 import produce from 'immer'
 import Router from 'next/router'
@@ -17,6 +18,7 @@ import {
   removeFrame,
   removeInvalidSampleCode,
 } from '../utils/helpers'
+import {createPdf, getGridContent} from '../utils/pdf/pdf'
 import {createGridBodySchema} from '../utils/validations'
 
 const removeInvalidSampleCodeCells = (grid: GridElement[][]) => {
@@ -176,18 +178,22 @@ const CreateLabResult = () => {
               onSetSelectedCellsStatus={setSelectedCellsStatus}
               onGridError={setGridError}
             />
-            <div className="button-panel-wrapper">
-              <div className="button-panel">
-                <Button
-                  variant="contained"
-                  onClick={submit}
-                  color="primary"
-                  disabled={submitting}
-                  startIcon={submitting && <LoadingIcon style={{color: 'white'}} size={20} />}
-                >
-                  Začať test
-                </Button>
-              </div>
+
+            <div className="button-panel">
+              <IconButton
+                onClick={() => createPdf(title, getGridContent(title, grid), 'landscape')}
+              >
+                <PictureAsPdfIcon />
+              </IconButton>
+              <Button
+                variant="contained"
+                onClick={submit}
+                color="primary"
+                disabled={submitting}
+                startIcon={submitting && <LoadingIcon style={{color: 'white'}} size={20} />}
+              >
+                Začať test
+              </Button>
             </div>
           </div>
         </Paper>

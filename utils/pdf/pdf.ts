@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import pdfMake from 'pdfmake'
+import {GridElement} from '../../components/DatasheetTable'
 import {formatDate} from '../formatter'
 import {isNormalInteger} from '../helpers'
 import vfsPTSerif from './vfs_ptserif'
@@ -575,13 +576,29 @@ export const getJournalContent = (entries: Array<OfficeJournalProps> = [{}, {}, 
   }
 }
 
-export const createPdf = (fileName: string, props: object) => {
+export const getGridContent = (title, grid: GridElement[][]) => {
+  return {
+    content: [
+      {text: title, style: 'title', margin: [0, 20]},
+      {
+        style: 'table',
+        table: {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          widths: grid[0].map((_) => '*'),
+          heights: grid.map((_) => 25),
+          body: grid.map((r) => r.map((c) => c.value)),
+        },
+      },
+    ],
+  }
+}
+
+export const createPdf = (fileName: string, props: object, orientation = 'portrait') => {
   pdfMake
     .createPdf(
       {
-        // PageSize Object { width: 595.28, height: 841.89, orientation: "portrait" }
         pageSize: 'A4',
-        pageOrientation: 'portrait',
+        pageOrientation: orientation,
         footer: (currentPage, pageCount) => [
           {
             text: `Strana ${currentPage} z ${pageCount}`,
