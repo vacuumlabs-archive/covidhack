@@ -585,20 +585,22 @@ export const getGridContent = (title, grid: GridElement[][]) => {
         table: {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           widths: grid[0].map((_) => '*'),
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           heights: grid.map((_) => 25),
           body: grid.map((r) => r.map((c) => c.value)),
         },
       },
     ],
+    pageOrientation: 'landscape',
   }
 }
 
-export const createPdf = (fileName: string, props: object, orientation = 'portrait') => {
+export const createPdf = (fileName: string, props: object) => {
   pdfMake
     .createPdf(
       {
         pageSize: 'A4',
-        pageOrientation: orientation,
+        pageOrientation: 'portrait',
         footer: (currentPage, pageCount) => [
           {
             text: `Strana ${currentPage} z ${pageCount}`,

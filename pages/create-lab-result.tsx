@@ -180,9 +180,7 @@ const CreateLabResult = () => {
             />
 
             <div className="button-panel">
-              <IconButton
-                onClick={() => createPdf(title, getGridContent(title, grid), 'landscape')}
-              >
+              <IconButton onClick={() => createPdf(title, getGridContent(title, grid))}>
                 <PictureAsPdfIcon />
               </IconButton>
               <Button
