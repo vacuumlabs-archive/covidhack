@@ -87,13 +87,13 @@ interface OfficeJournalProps {
 }
 
 const getHeader = ({phoneNumber, title, protocolNumber}: DocHeaderProps) => [
-  {text: 'ÚRAD VEREJNÉHO ZDRAVOTNÍCTVA', bold: true},
-  {text: 'SLOVENSKEJ REPUBLIKY\n\n', bold: true},
-  {text: 'Trnavská cesta 52', bold: true},
-  {text: 'P.O.BOX 45', bold: true},
-  {text: '826 45 Bratislava\n\n'},
-  {text: 'Odbor lekárskej mikrobiológie', bold: true},
-  {text: `tel.: ${phoneNumber}\n\n`},
+  {text: '\n', bold: true},
+  {text: '\n\n', bold: true},
+  {text: '\n', bold: true},
+  {text: '\n', bold: true},
+  {text: '\n\n'},
+  {text: '\n', bold: true},
+  {text: `\n\n`},
   {text: title, style: 'title'},
   {text: 'Protokol o skúške', style: 'title'},
   {text: protocolNumber, style: 'title'},
