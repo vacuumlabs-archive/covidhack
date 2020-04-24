@@ -12,7 +12,7 @@ import Layout from '../../components/Layout'
 import WrongPassword from '../../components/office/WrongPassword'
 import {decrypt, encrypt} from '../../logic/crypto'
 import {State} from '../../logic/state'
-import {allowAccessFor} from '../../utils/auth'
+import {ensureAuthentication} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {Application} from '../../utils/graphqlSdk'
 import {mapValuesAsync} from '../../utils/helpers'
@@ -185,12 +185,7 @@ const EditApplication = ({application: encryptedApplication}: Props) => {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context): Promise<{props: Props}> => {
-  if (!allowAccessFor(context.req.headers.authorization, ['kancelaria'])) {
-    context.res.statusCode = 401
-    context.res.setHeader('WWW-Authenticate', 'Basic')
-    context.res.end('Unauthorized')
-    return
-  }
+  if (!ensureAuthentication(context.req, context.res)) return {props: {}} as any
 
   const {application} = await client.ApplicationQuery({
     id: context.params.id,

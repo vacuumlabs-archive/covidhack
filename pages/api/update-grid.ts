@@ -2,16 +2,13 @@
 import formatISO from 'date-fns/formatISO'
 import {NextApiRequest, NextApiResponse} from 'next'
 import {ValidationError} from 'yup'
-import {allowAccessFor} from '../../utils/auth'
+import {ensureAuthentication} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {updateGridBodySchema} from '../../utils/validations'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (!allowAccessFor(req.headers.authorization, ['kancelaria'])) {
-    res.statusCode = 401
-    res.setHeader('WWW-Authenticate', 'Basic')
-    res.end('Unauthorized')
-  }
+  if (!ensureAuthentication(req, res)) return
+
   try {
     const gridId = req.body.id
     if (!gridId) return res.status(400).end()
