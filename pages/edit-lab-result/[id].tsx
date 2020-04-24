@@ -194,8 +194,7 @@ const EditLabResult = ({grid}: Props) => {
             valueViewer={valueViewer}
             cellRenderer={cellRenderer}
           />
-          {/* TODO: ablity to edit cell status */}
-          <CellLegend onSetSelectedCellsStatus={() => console.log('aa')} />
+          <CellLegend />
           <div className="button-panel">
             <Button
               variant="contained"
