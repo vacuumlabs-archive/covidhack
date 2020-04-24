@@ -1,15 +1,11 @@
 // update single cell of the grid
 import {NextApiRequest, NextApiResponse} from 'next'
-import {allowAccessFor} from '../../utils/auth'
+import {ensureAuthentication} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {updateLabResultBodySchema} from '../../utils/validations'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (!allowAccessFor(req.headers.authorization, ['kancelaria'])) {
-    res.statusCode = 401
-    res.setHeader('WWW-Authenticate', 'Basic')
-    res.end('Unauthorized')
-  }
+  if (!ensureAuthentication(req, res)) return
 
   const validBody = updateLabResultBodySchema.validateSync(req.body, {stripUnknown: true})
   // some manual validation as yup's oneOf does not work that great with typescript
