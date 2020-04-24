@@ -17,7 +17,7 @@ import ReactDataSheet from 'react-datasheet'
 import DatasheetTable, {GridElement} from '../../components/DatasheetTable'
 import {CellType} from '../../components/lab/CellLegend'
 import Layout from '../../components/Layout'
-import {allowAccessFor} from '../../utils/auth'
+import {ensureAuthentication} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
 import {addFrame, mapLabResultsToGrid, removeFrame} from '../../utils/helpers'
@@ -327,12 +327,7 @@ const EditLabResultSamples = ({grid}: Props) => {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  if (!allowAccessFor(context.req.headers.authorization, ['kancelaria'])) {
-    context.res.statusCode = 401
-    context.res.setHeader('WWW-Authenticate', 'Basic')
-    context.res.end('Unauthorized')
-    return
-  }
+  if (!ensureAuthentication(context.req, context.res)) return {props: {}} as any
 
   const grid = await client.GridWithLabResultsQuery({
     id: context.params.id,

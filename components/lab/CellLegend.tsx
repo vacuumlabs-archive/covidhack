@@ -72,7 +72,7 @@ const useStyles = makeStyles({
 })
 
 export interface Props {
-  onSetSelectedCellsStatus: (cellType: CellType) => void
+  onSetSelectedCellsStatus?: (cellType: CellType) => void
   selectable?: boolean
 }
 

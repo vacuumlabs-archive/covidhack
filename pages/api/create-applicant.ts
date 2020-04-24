@@ -1,15 +1,11 @@
 import {NextApiRequest, NextApiResponse} from 'next'
 import {v4} from 'uuid'
 import {ValidationError} from 'yup'
-import {allowAccessFor} from '../../utils/auth'
+import {ensureAuthentication} from '../../utils/auth'
 import {client} from '../../utils/gql'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (!allowAccessFor(req.headers.authorization, ['kancelaria'])) {
-    res.statusCode = 401
-    res.setHeader('WWW-Authenticate', 'Basic')
-    res.end('Unauthorized')
-  }
+  if (!ensureAuthentication(req, res)) return
 
   try {
     // TODO: validation
