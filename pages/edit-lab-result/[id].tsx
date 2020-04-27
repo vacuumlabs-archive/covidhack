@@ -28,6 +28,7 @@ import {createPdf, getGridContent, printLabDoc} from '../../utils/pdf/pdf'
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
   positive?: boolean
+  needsRetest: boolean
   readOnly: boolean
 }
 
@@ -42,8 +43,9 @@ const EditLabResult = ({grid}: Props) => {
   const [localTitle, setLocalTitle] = useState(grid.grid_by_pk.title)
   const [showRemoveDialog, setShowRemoveDialog] = useState(false)
   const [showEditTableConfirmationDialog, setShowEditTableConfirmationDialog] = useState(false)
-  const [labResultDataTable, setLabResultDataTable] = useState(
-    addFrame(mapLabResultsToGrid(grid.lab_result)),
+  // TODO: we are lying TS here, it's not a grid element because of header
+  const [labResultDataTable, setLabResultDataTable] = useState<GridElement[][]>(
+    addFrame(mapLabResultsToGrid(grid.lab_result)) as any,
   )
 
   const updateLabResult = useCallback(
@@ -75,10 +77,10 @@ const EditLabResult = ({grid}: Props) => {
     const specialCellBackgroundStyle = props.cell.cellStatus
       ? {backgroundColor: LAB_TABLE_BACKGROUNDS[props.cell.cellStatus]}
       : {}
-    const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
+
     const frameStyle = isFrame ? {background: 'whitesmoke', color: '#999'} : {}
     return (
-      <div style={{...specialCellBackgroundStyle, ...backgroundStyle, ...frameStyle}}>
+      <div style={{...specialCellBackgroundStyle, ...frameStyle}}>
         {props.cell.value}
         {/* a super hacky fix - the div (with color) did not render when value was empty,  add text with opacity 0 to force it */}
         {/* TODO correct way to do this is with cellRenderer, but having that always breaks drag-selection */}
@@ -91,7 +93,11 @@ const EditLabResult = ({grid}: Props) => {
     (props) => {
       // dont edit finished and dont add on frame
       const isFrame = props.row === 0 || props.col === 0
-      const backgroundStyle = props.cell.positive ? {backgroundColor: 'red'} : {}
+
+      let backgroundStyle = {}
+      if (props.cell.positive) backgroundStyle = {backgroundColor: 'red'}
+      if (props.cell.needsRetest) backgroundStyle = {backgroundColor: 'orange'}
+
       const cursorStyle = isValidSampleCodeCell(props.cell)
         ? {cursor: 'pointer'}
         : {cursor: 'not-allowed'}
@@ -99,17 +105,31 @@ const EditLabResult = ({grid}: Props) => {
       return (
         <td
           style={{...backgroundStyle, ...cursorStyle, ...frameStyle, width: 200}}
-          onMouseDown={() =>
-            setLabResultDataTable(
-              produce(labResultDataTable, (data: any) => {
-                if (isValidSampleCodeCell(props.cell)) {
-                  data[props.row][props.col].positive = !props.cell.positive
-                }
-              }),
-            )
-          }
+          onMouseDown={(e) => {
+            // right click
+            if (e.button === 2) {
+              setLabResultDataTable(
+                produce(labResultDataTable, (data: any) => {
+                  if (isValidSampleCodeCell(props.cell)) {
+                    data[props.row][props.col].needsRetest = !props.cell.needsRetest
+                    data[props.row][props.col].positive = false
+                  }
+                }),
+              )
+            } else {
+              setLabResultDataTable(
+                produce(labResultDataTable, (data: any) => {
+                  if (isValidSampleCodeCell(props.cell)) {
+                    data[props.row][props.col].positive = !props.cell.positive
+                    data[props.row][props.col].needsRetest = false
+                  }
+                }),
+              )
+            }
+          }}
           onMouseOver={props.onMouseOver}
           className={`cell ${props.isFrame ? 'frame' : ''}`}
+          onContextMenu={(e) => e.preventDefault()}
         >
           {props.children}
         </td>
@@ -123,7 +143,10 @@ const EditLabResult = ({grid}: Props) => {
     let changed = false
     removeFrame(labResultDataTable).forEach((row, r) =>
       row.forEach((cell: any, c) => {
-        if (cell.positive !== initial[r][c].positive) {
+        if (
+          cell.positive !== initial[r][c].positive ||
+          cell.needsRetest !== initial[r][c].needsRetest
+        ) {
           changed = true
         }
       }),
@@ -177,8 +200,9 @@ const EditLabResult = ({grid}: Props) => {
           }}
         >
           <Alert severity="info" style={{marginBottom: 8}}>
-            Pozitívne vzorky označte kliknutím na políčka s číslom vzorky v tabuľke. V tabuľke sa
-            takéto vzorky vyznačia červeným pozadím.
+            Pozitívne vzorky označte ľavým kliknutím na políčka s číslom vzorky v tabuľke (červené
+            pozadie). Pravím klikom označíte vzorky, ktore majú byť znovu otestované (oranžové
+            pozadie).
           </Alert>
           <TextField
             autoFocus
@@ -278,14 +302,18 @@ const EditLabResult = ({grid}: Props) => {
                 const initial = mapLabResultsToGrid(grid.lab_result)
                 const promises = []
                 removeFrame(labResultDataTable).forEach((row, r) =>
-                  row.forEach((cell: any, c) => {
-                    if (cell.positive !== initial[r][c].positive) {
+                  row.forEach((cell: GridElement, c) => {
+                    if (
+                      cell.positive !== initial[r][c].positive ||
+                      cell.needsRetest !== initial[r][c].needsRetest
+                    ) {
                       promises.push(
                         updateLabResult({
                           gridId: grid.grid_by_pk.id,
                           column: c,
                           row: r,
                           positive: cell.positive,
+                          needsRetest: cell.needsRetest,
                         }),
                       )
                     }

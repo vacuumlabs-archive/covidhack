@@ -13,6 +13,7 @@ export const updateLabResultBodySchema = yup
     positive: yup.boolean(),
     sampleCode: yup.string().nullable(),
     cellStatus: yup.string().nullable(),
+    needsRetest: yup.boolean().nullable(),
   })
   .noUnknown()
 

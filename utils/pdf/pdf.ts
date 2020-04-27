@@ -651,11 +651,13 @@ export const printLabDoc = async (grid) => {
 
   const samples = labResults.lab_result
     .filter(({sample_code}) => isNormalInteger(sample_code))
-    .map(({sample_code, positive, created_at}) => {
+    .map(({sample_code, positive, created_at, needs_retest}) => {
       // This might be confusing because it's a composed string not a number. TODO: Refactor pdf
       // generator naming.
       const sampleCode = `${created_at.substr(2, 2)}/${sample_code}/CH`
-      const testResult = positive === true ? 'pozitívny' : 'negatívny'
+      let testResult = 'negatívny'
+      if (positive === true) testResult = 'pozitívny'
+      if (needs_retest === true) testResult = 'opakovať odber, hraničná hodnota'
       return {sampleCode, testResult, rawSampleCode: sample_code}
     })
 
