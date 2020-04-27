@@ -3,14 +3,17 @@ import LoadingIcon from '@material-ui/core/CircularProgress'
 import DeleteIcon from '@material-ui/icons/Delete'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import Alert from '@material-ui/lab/Alert'
+import download from 'downloadjs'
 import produce from 'immer'
 import {GetServerSideProps} from 'next'
 import Router from 'next/router'
 import React, {useCallback, useState} from 'react'
 import ReactDataSheet from 'react-datasheet'
+import {FaFileCsv} from 'react-icons/fa'
 import ConfirmationDialog from '../../components/ConfirmationDialog'
 import CellLegend, {LAB_TABLE_BACKGROUNDS} from '../../components/lab/CellLegend'
 import Layout from '../../components/Layout'
+import {createBioradCsv, createBrandCsv} from '../../logic/lab'
 import {ensureAuthentication} from '../../utils/auth'
 import {client} from '../../utils/gql'
 import {GridWithLabResultsQueryQuery} from '../../utils/graphqlSdk'
@@ -206,23 +209,44 @@ const EditLabResult = ({grid}: Props) => {
                 }
               }}
             >
-              Opraviť čísla vzoriek
+              Opraviť vzorky
             </Button>
 
             <Button
               style={{marginLeft: 8}}
               variant="contained"
               onClick={() =>
+                download(createBioradCsv(labResultDataTable), `biorad-${localTitle}.csv`)
+              }
+              disabled={!grid.grid_by_pk.finished}
+              startIcon={<FaFileCsv />}
+            >
+              Biorad
+            </Button>
+            <Button
+              style={{marginLeft: 8}}
+              variant="contained"
+              onClick={() =>
+                download(createBrandCsv(labResultDataTable), `brand-${localTitle}.csv`)
+              }
+              disabled={!grid.grid_by_pk.finished}
+              startIcon={<FaFileCsv />}
+            >
+              Brand
+            </Button>
+            <Button
+              style={{marginLeft: 8}}
+              variant="contained"
+              onClick={() =>
                 createPdf(
-                  localTitle,
-                  getGridContent(localTitle || 'Mriežky', mapLabResultsToGrid(grid.lab_result)),
+                  `mriezka-${localTitle}`,
+                  getGridContent(`Mriežka ${localTitle}`, mapLabResultsToGrid(grid.lab_result)),
                 )
               }
               startIcon={<PictureAsPdfIcon />}
             >
-              Mriežky
+              Mriežka
             </Button>
-
             <Button
               style={{marginLeft: 8}}
               variant="contained"
@@ -241,7 +265,7 @@ const EditLabResult = ({grid}: Props) => {
               }}
               startIcon={<DeleteIcon style={{color: 'white'}} />}
             >
-              Vymazať test
+              Vymazať
             </Button>
             <Button
               style={{marginLeft: 8}}
@@ -275,7 +299,7 @@ const EditLabResult = ({grid}: Props) => {
               disabled={isSavingCells}
               startIcon={isSavingCells && <LoadingIcon style={{color: 'white'}} size={20} />}
             >
-              Vyhodnotiť test
+              Vyhodnotiť
             </Button>
           </div>
         </Paper>

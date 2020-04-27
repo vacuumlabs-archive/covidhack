@@ -183,10 +183,12 @@ const CreateLabResult = () => {
               <Button
                 style={{marginLeft: 8}}
                 variant="contained"
-                onClick={() => createPdf(title, getGridContent(title || 'Mriežky', grid))}
+                onClick={() =>
+                  createPdf(`mriezka-${title}`, getGridContent(`Mriežka ${title}`, grid))
+                }
                 startIcon={<PictureAsPdfIcon />}
               >
-                Mriežky
+                Mriežka
               </Button>
 
               <Button
