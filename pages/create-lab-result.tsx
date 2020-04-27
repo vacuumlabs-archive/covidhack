@@ -1,4 +1,4 @@
-import {Button, IconButton, Paper, TextField} from '@material-ui/core'
+import {Button, Paper, TextField} from '@material-ui/core'
 import LoadingIcon from '@material-ui/core/CircularProgress'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 import Alert from '@material-ui/lab/Alert'
@@ -180,10 +180,17 @@ const CreateLabResult = () => {
             />
 
             <div className="button-panel">
-              <IconButton onClick={() => createPdf(title, getGridContent(title, grid))}>
-                <PictureAsPdfIcon />
-              </IconButton>
               <Button
+                style={{marginLeft: 8}}
+                variant="contained"
+                onClick={() => createPdf(title, getGridContent(title || 'Mriežky', grid))}
+                startIcon={<PictureAsPdfIcon />}
+              >
+                Mriežky
+              </Button>
+
+              <Button
+                style={{marginLeft: 8}}
                 variant="contained"
                 onClick={submit}
                 color="primary"
