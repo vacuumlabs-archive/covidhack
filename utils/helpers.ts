@@ -16,6 +16,7 @@ export const createEmptyGrid = () =>
       readOnly: false,
       labResultId: null,
       cellStatus: 'normal' as CellType,
+      needsRetest: false,
     })),
   )
 
@@ -29,6 +30,7 @@ export const mapLabResultsToGrid = (labResults: Lab_Result[]) => {
       readOnly: false,
       labResultId: result.id,
       cellStatus: (result.cell_status || 'normal') as CellType,
+      needsRetest: result.needs_retest || false,
     }
   })
   return grid
@@ -103,7 +105,7 @@ const colLabels = ['', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((value) => ({
 
 export const addFrame = (grid: GridElement[][]) =>
   [colLabels].concat(grid.map((row: any, i) => [rowLabels[i]].concat(row)))
-export const removeFrame = (grid) => grid.slice(1).map((row) => row.slice(1))
+export const removeFrame = (grid: GridElement[][]) => grid.slice(1).map((row) => row.slice(1))
 
 // omits the always positive/negative sample, keeps only numebred ones
 export const getSampleCodesFromGrid = (grid: ReturnType<typeof createEmptyGrid>) =>

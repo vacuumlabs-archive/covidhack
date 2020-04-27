@@ -21,9 +21,10 @@ mutation UpdateLabResultPositiveMutation(
   $column: Int!
   $row: Int!
   $positive: Boolean!
+  $needsRetest: Boolean
 ) {
   update_lab_result(
-    _set: {positive: $positive}
+    _set: {positive: $positive, needs_retest: $needsRetest}
     where: {
       referenced_in_grid_id: {_eq: $gridId}
       _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}

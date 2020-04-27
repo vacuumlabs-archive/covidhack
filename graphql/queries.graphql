@@ -57,6 +57,7 @@ query GridWithLabResultsQuery($id: uuid!) {
     updated_at
     positive
     cell_status
+    needs_retest
   }
 }
 

@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import pdfMake from 'pdfmake'
+import {GridElement} from '../../components/DatasheetTable'
 import {formatDate} from '../formatter'
 import {isNormalInteger} from '../helpers'
 import vfsPTSerif from './vfs_ptserif'
@@ -575,11 +576,29 @@ export const getJournalContent = (entries: Array<OfficeJournalProps> = [{}, {}, 
   }
 }
 
+export const getGridContent = (title, grid: GridElement[][]) => {
+  return {
+    content: [
+      {text: title, style: 'title', margin: [0, 20]},
+      {
+        style: 'table',
+        table: {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          widths: grid[0].map((_) => '*'),
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          heights: grid.map((_) => 25),
+          body: grid.map((r) => r.map((c) => c.value)),
+        },
+      },
+    ],
+    pageOrientation: 'landscape',
+  }
+}
+
 export const createPdf = (fileName: string, props: object) => {
   pdfMake
     .createPdf(
       {
-        // PageSize Object { width: 595.28, height: 841.89, orientation: "portrait" }
         pageSize: 'A4',
         pageOrientation: 'portrait',
         footer: (currentPage, pageCount) => [
@@ -622,6 +641,11 @@ export const createPdf = (fileName: string, props: object) => {
     .download(fileName)
 }
 
+const formattedSampleCode = (createdAt: string, sampleCode: string) => {
+  if (process.env.LAB_ID === 'BA') return `${createdAt.substr(2, 2)}/${sampleCode}/CH`
+  else return `TN/${sampleCode}/${createdAt.substr(0, 4)}`
+}
+
 export const printLabDoc = async (grid) => {
   const labResults = await fetch(`/api/grid/${grid.id}`, {
     method: 'GET',
@@ -632,11 +656,13 @@ export const printLabDoc = async (grid) => {
 
   const samples = labResults.lab_result
     .filter(({sample_code}) => isNormalInteger(sample_code))
-    .map(({sample_code, positive, created_at}) => {
+    .map(({sample_code, positive, created_at, needs_retest}) => {
+      const sampleCode = formattedSampleCode(created_at, sample_code)
+      let testResult = 'negatívny'
+      if (positive === true) testResult = 'pozitívny'
+      if (needs_retest === true) testResult = 'opakovať odber, hraničná hodnota'
       // This might be confusing because it's a composed string not a number. TODO: Refactor pdf
       // generator naming.
-      const sampleCode = `${created_at.substr(2, 2)}/${sample_code}/CH`
-      const testResult = positive === true ? 'pozitívny' : 'negatívny'
       return {sampleCode, testResult, rawSampleCode: sample_code}
     })
 

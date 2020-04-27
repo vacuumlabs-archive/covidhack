@@ -388,6 +388,7 @@ export type Lab_Result = {
   column: Scalars['Int'];
   created_at: Scalars['timestamptz'];
   id: Scalars['uuid'];
+  needs_retest?: Maybe<Scalars['Boolean']>;
   positive?: Maybe<Scalars['Boolean']>;
   referenced_in_grid_id: Scalars['uuid'];
   row: Scalars['Int'];
@@ -460,6 +461,7 @@ export type Lab_Result_Bool_Exp = {
   column?: Maybe<Int_Comparison_Exp>;
   created_at?: Maybe<Timestamptz_Comparison_Exp>;
   id?: Maybe<Uuid_Comparison_Exp>;
+  needs_retest?: Maybe<Boolean_Comparison_Exp>;
   positive?: Maybe<Boolean_Comparison_Exp>;
   referenced_in_grid_id?: Maybe<Uuid_Comparison_Exp>;
   row?: Maybe<Int_Comparison_Exp>;
@@ -481,6 +483,7 @@ export type Lab_Result_Insert_Input = {
   column?: Maybe<Scalars['Int']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
+  needs_retest?: Maybe<Scalars['Boolean']>;
   positive?: Maybe<Scalars['Boolean']>;
   referenced_in_grid_id?: Maybe<Scalars['uuid']>;
   row?: Maybe<Scalars['Int']>;
@@ -548,6 +551,7 @@ export type Lab_Result_Order_By = {
   column?: Maybe<Order_By>;
   created_at?: Maybe<Order_By>;
   id?: Maybe<Order_By>;
+  needs_retest?: Maybe<Order_By>;
   positive?: Maybe<Order_By>;
   referenced_in_grid_id?: Maybe<Order_By>;
   row?: Maybe<Order_By>;
@@ -560,6 +564,7 @@ export enum Lab_Result_Select_Column {
   Column = 'column',
   CreatedAt = 'created_at',
   Id = 'id',
+  NeedsRetest = 'needs_retest',
   Positive = 'positive',
   ReferencedInGridId = 'referenced_in_grid_id',
   Row = 'row',
@@ -572,6 +577,7 @@ export type Lab_Result_Set_Input = {
   column?: Maybe<Scalars['Int']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
+  needs_retest?: Maybe<Scalars['Boolean']>;
   positive?: Maybe<Scalars['Boolean']>;
   referenced_in_grid_id?: Maybe<Scalars['uuid']>;
   row?: Maybe<Scalars['Int']>;
@@ -628,6 +634,7 @@ export enum Lab_Result_Update_Column {
   Column = 'column',
   CreatedAt = 'created_at',
   Id = 'id',
+  NeedsRetest = 'needs_retest',
   Positive = 'positive',
   ReferencedInGridId = 'referenced_in_grid_id',
   Row = 'row',
@@ -1159,6 +1166,7 @@ export type UpdateLabResultPositiveMutationMutationVariables = {
   column: Scalars['Int'];
   row: Scalars['Int'];
   positive: Scalars['Boolean'];
+  needsRetest?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -1293,7 +1301,7 @@ export type GridWithLabResultsQueryQuery = (
     & Pick<Grid, 'created_at' | 'finished' | 'id' | 'sample_arrival_date' | 'sample_taken_date' | 'test_finished_date' | 'test_initiation_date' | 'title' | 'updated_at'>
   )>, lab_result: Array<(
     { __typename?: 'lab_result' }
-    & Pick<Lab_Result, 'column' | 'created_at' | 'id' | 'referenced_in_grid_id' | 'row' | 'sample_code' | 'updated_at' | 'positive' | 'cell_status'>
+    & Pick<Lab_Result, 'column' | 'created_at' | 'id' | 'referenced_in_grid_id' | 'row' | 'sample_code' | 'updated_at' | 'positive' | 'cell_status' | 'needs_retest'>
   )> }
 );
 
@@ -1362,8 +1370,8 @@ export const InsertApplicationMutationDocument = gql`
 }
     `;
 export const UpdateLabResultPositiveMutationDocument = gql`
-    mutation UpdateLabResultPositiveMutation($gridId: uuid!, $column: Int!, $row: Int!, $positive: Boolean!) {
-  update_lab_result(_set: {positive: $positive}, where: {referenced_in_grid_id: {_eq: $gridId}, _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}}) {
+    mutation UpdateLabResultPositiveMutation($gridId: uuid!, $column: Int!, $row: Int!, $positive: Boolean!, $needsRetest: Boolean) {
+  update_lab_result(_set: {positive: $positive, needs_retest: $needsRetest}, where: {referenced_in_grid_id: {_eq: $gridId}, _and: {column: {_eq: $column}, _and: {row: {_eq: $row}}}}) {
     affected_rows
   }
 }
@@ -1470,6 +1478,7 @@ export const GridWithLabResultsQueryDocument = gql`
     updated_at
     positive
     cell_status
+    needs_retest
   }
 }
     `;

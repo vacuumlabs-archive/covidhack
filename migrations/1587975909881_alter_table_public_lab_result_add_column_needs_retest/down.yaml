@@ -1,0 +1,5 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."lab_result" DROP COLUMN "needs_retest";
+  type: run_sql
