@@ -641,6 +641,11 @@ export const createPdf = (fileName: string, props: object) => {
     .download(fileName)
 }
 
+const formattedSampleCode = (createdAt: string, sampleCode: string) => {
+  if (process.env.LAB_ID === 'BA') return `${createdAt.substr(2, 2)}/${sampleCode}/CH`
+  else return `TN/${sampleCode}/${createdAt.substr(0, 4)}`
+}
+
 export const printLabDoc = async (grid) => {
   const labResults = await fetch(`/api/grid/${grid.id}`, {
     method: 'GET',
@@ -652,12 +657,12 @@ export const printLabDoc = async (grid) => {
   const samples = labResults.lab_result
     .filter(({sample_code}) => isNormalInteger(sample_code))
     .map(({sample_code, positive, created_at, needs_retest}) => {
-      // This might be confusing because it's a composed string not a number. TODO: Refactor pdf
-      // generator naming.
-      const sampleCode = `${created_at.substr(2, 2)}/${sample_code}/CH`
+      const sampleCode = formattedSampleCode(created_at, sample_code)
       let testResult = 'negatívny'
       if (positive === true) testResult = 'pozitívny'
       if (needs_retest === true) testResult = 'opakovať odber, hraničná hodnota'
+      // This might be confusing because it's a composed string not a number. TODO: Refactor pdf
+      // generator naming.
       return {sampleCode, testResult, rawSampleCode: sample_code}
     })
 
