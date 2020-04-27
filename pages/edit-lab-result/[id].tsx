@@ -20,7 +20,7 @@ import {
   mapLabResultsToGrid,
   removeFrame,
 } from '../../utils/helpers'
-import {printLabDoc} from '../../utils/pdf/pdf'
+import {createPdf, getGridContent, printLabDoc} from '../../utils/pdf/pdf'
 
 export interface GridElement extends ReactDataSheet.Cell<GridElement, string> {
   value: string | null
@@ -212,11 +212,25 @@ const EditLabResult = ({grid}: Props) => {
             <Button
               style={{marginLeft: 8}}
               variant="contained"
+              onClick={() =>
+                createPdf(
+                  localTitle,
+                  getGridContent(localTitle || 'Mriežky', mapLabResultsToGrid(grid.lab_result)),
+                )
+              }
+              startIcon={<PictureAsPdfIcon />}
+            >
+              Mriežky
+            </Button>
+
+            <Button
+              style={{marginLeft: 8}}
+              variant="contained"
               onClick={() => printLabDoc(grid.grid_by_pk)}
               disabled={!grid.grid_by_pk.finished}
               startIcon={<PictureAsPdfIcon />}
             >
-              Stiahnuť protokol
+              Protokol
             </Button>
             <Button
               style={{marginLeft: 8}}
